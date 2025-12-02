@@ -117,7 +117,7 @@ path('mail-reminder/send-spo-reminder/', views.send_spo_reminder_mail, name='sen
 #### **Mail Sending with AJAX**
 ```javascript
 // Send AJAX request
-fetch('{% url "send_spo_reminder_mail" %}', {
+fetch('{% url  %}', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
