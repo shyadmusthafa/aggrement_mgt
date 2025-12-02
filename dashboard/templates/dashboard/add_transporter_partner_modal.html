@@ -1,0 +1,746 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Add Partner - {{ record.transporter_name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    body {
+        background: #667eea !important;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+    }
+
+    /* Modal overlay effect */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.95);
+        max-width: 900px;
+        width: 95%;
+        margin: 0.5rem auto;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        z-index: 1000;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-actions h2 {
+        margin: 0;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    .form-card {
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        margin-bottom: 0;
+    }
+
+    .form-section {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .section-icon {
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.85rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.35rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group input:disabled {
+        background: #f8f9fa;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    .form-group textarea {
+        min-height: 60px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-primary:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+
+    .errorlist {
+        color: #dc3545;
+        font-size: 0.75rem;
+        margin-top: 0.2rem;
+        list-style: none;
+        padding: 0;
+    }
+
+    .help-text {
+        color: #6c757d;
+        font-size: 0.75rem;
+        margin-top: 0.2rem;
+    }
+
+    .alert {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        font-size: 0.85rem;
+    }
+
+    .alert-warning {
+        background: #fff3cd;
+        color: #856404;
+        border-color: #ffeaa7;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border-color: #c3e6cb;
+    }
+
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border-color: #f5c6cb;
+    }
+
+    .alert i {
+        font-size: 1.2rem;
+        margin-top: 0.1rem;
+    }
+
+    .two-column-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1rem;
+    }
+
+    .two-column-table th,
+    .two-column-table td {
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        text-align: left;
+        font-size: 0.85rem;
+    }
+
+    .two-column-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #2c3e50;
+        width: 25%;
+    }
+
+    .two-column-table td {
+        background: white;
+        color: #495057;
+    }
+
+    .section-header-row th {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        text-align: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .status-active {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-expired {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-terminated {
+        background: #f5c6cb;
+        color: #721c24;
+    }
+
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    /* Improved alignment fixes */
+    .form-group label i {
+        margin-right: 0.3rem;
+        width: 14px;
+        text-align: center;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .section-icon {
+        flex-shrink: 0;
+    }
+
+    .section-title {
+        flex: 1;
+    }
+
+    .form-grid {
+        align-items: start;
+    }
+
+    .form-group.full-width {
+        margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            width: 98%;
+            margin: 0.5rem auto;
+            padding: 1rem;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 0.75rem;
+        }
+        
+        .form-group label {
+            margin-bottom: 0.4rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.6rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+
+    /* Print Styles */
+    @media print {
+        body {
+            background: white;
+        }
+
+        .container {
+            max-width: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-section {
+            box-shadow: none;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="header-actions">
+        <h2><i class="fas fa-user-plus"></i> Add New Partner</h2>
+        <a href="{% url 'transporter_agreement_list' %}" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i>
+            Back to List
+        </a>
+    </div>
+
+    <form method="post" id="partnerForm">
+        {% csrf_token %}
+
+        <!-- Transporter Information -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-info-circle section-icon"></i>
+                <h3 class="section-title">Transporter Information</h3>
+            </div>
+            <table class="two-column-table">
+                <!-- Section Header Row -->
+                <tr class="section-header-row">
+                    <th colspan="4">
+                        <i class="fas fa-truck"></i>
+                        TRANSPORTER DETAILS
+                    </th>
+                </tr>
+                <!-- Data Rows -->
+                <tr>
+                    <th>Transporter Code</th>
+                    <td>{{ record.transporter_code|default:"Not specified" }}</td>
+                    <th>Transporter Name</th>
+                    <td>{{ record.transporter_name|default:"Not specified" }}</td>
+                </tr>
+                <tr>
+                    <th>State</th>
+                    <td>{{ record.state.state_name|default:"Not specified" }}</td>
+                    <th>Branch</th>
+                    <td>{{ record.branch.state_branch_name|default:"Not specified" }}</td>
+                </tr>
+                <tr>
+                    <th>District Code</th>
+                    <td>{{ record.district_code|default:"Not specified" }}</td>
+                    <th>Owner/Managing Partner</th>
+                    <td>{{ record.owner_managing_partner|default:"Not specified" }}</td>
+                </tr>
+                <tr>
+                    <th>Transporter Status</th>
+                    <td>
+                        <span class="status-badge status-{{ record.transporter_status|lower }}">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            {{ record.transporter_status|default:"Not specified" }}
+                        </span>
+                    </td>
+                    <th>Source Plant</th>
+                    <td>{{ record.source_plant_name|default:"Not specified" }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Partner Limit Alert -->
+        <div class="alert alert-warning">
+            <i class="fas fa-info-circle"></i>
+            <div>
+                <strong>Partner Limit:</strong> {{ partner_count|default:0 }} of 5 partners added
+                <br><span style="font-weight: 600;">You can add {{ remaining_partners|default:5 }} more partner(s)</span>
+            </div>
+        </div>
+
+        <!-- Partner Details Form -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-user section-icon"></i>
+                <h3 class="section-title">Partner Details</h3>
+            </div>
+            
+            <div class="form-grid">
+                <!-- Transporter ID (Disabled) -->
+                <div class="form-group">
+                    <label for="transporter_id">
+                        <i class="fas fa-id-badge"></i>
+                        Transporter ID
+                    </label>
+                    <input type="text" id="transporter_id" value="{{ record.transporter_code|default:'Not specified' }}" disabled>
+                </div>
+                
+                <!-- Partner Name -->
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}">
+                        <i class="fas fa-user"></i>
+                        Partner Name
+                    </label>
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                
+                <!-- Gender -->
+                <div class="form-group">
+                    <label for="{{ form.gender.id_for_label }}">
+                        <i class="fas fa-venus-mars"></i>
+                        Gender
+                    </label>
+                    {{ form.gender }}
+                    {{ form.gender.errors }}
+                </div>
+                
+
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="{{ form.mail_id.id_for_label }}">
+                        <i class="fas fa-envelope"></i>
+                        Email Address
+                    </label>
+                    {{ form.mail_id }}
+                    {{ form.mail_id.errors }}
+                </div>
+                
+                <!-- Aadhar Number -->
+                <div class="form-group">
+                    <label for="{{ form.aadhar_no.id_for_label }}">
+                        <i class="fas fa-id-card"></i>
+                        Aadhar Number
+                    </label>
+                    {{ form.aadhar_no }}
+                    {{ form.aadhar_no.errors }}
+                </div>
+                
+                <!-- PAN Number -->
+                <div class="form-group">
+                    <label for="{{ form.pan_no.id_for_label }}">
+                        <i class="fas fa-credit-card"></i>
+                        PAN Number
+                    </label>
+                    {{ form.pan_no }}
+                    {{ form.pan_no.errors }}
+                </div>
+                
+                <!-- Join Date -->
+                <div class="form-group">
+                    <label for="{{ form.partner_join_date.id_for_label }}">
+                        <i class="fas fa-calendar-plus"></i>
+                        Partner Join Date
+                    </label>
+                    {{ form.partner_join_date }}
+                    {{ form.partner_join_date.errors }}
+                </div>
+                
+                <!-- End Date -->
+                <div class="form-group">
+                    <label for="{{ form.partner_end_date.id_for_label }}">
+                        <i class="fas fa-calendar-minus"></i>
+                        Partner End Date
+                    </label>
+                    {{ form.partner_end_date }}
+                    {{ form.partner_end_date.errors }}
+                </div>
+            </div>
+            
+            <!-- Address (Full Width) -->
+            <div class="form-group full-width">
+                <label for="{{ form.address.id_for_label }}">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Address
+                </label>
+                {{ form.address }}
+                {{ form.address.errors }}
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="{% url 'transporter_agreement_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+            <button type="button" class="btn btn-primary" onclick="submitPartnerForm()" {% if partner_count >= 5 %}disabled{% endif %}>
+                <i class="fas fa-save"></i>
+                Add New Partner
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function submitPartnerForm() {
+    const form = document.getElementById('partnerForm');
+    const submitBtn = document.querySelector('.btn-primary');
+    const container = document.querySelector('.container');
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Partner...';
+    container.classList.add('loading');
+    
+    // Submit form via AJAX
+    fetch("{% url 'add_transporter_partner' record.id %}", {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            setTimeout(() => {
+                window.location.href = "{% url 'transporter_agreement_list' %}";
+            }, 1500);
+        } else {
+            showNotification(data.message, 'error');
+            if (data.errors) {
+                Object.keys(data.errors).forEach(fieldName => {
+                    const field = document.querySelector(`[name="${fieldName}"]`);
+                    if (field) {
+                        const errorDiv = field.parentNode.querySelector('.errorlist') || 
+                                        field.parentNode.appendChild(document.createElement('ul'));
+                        errorDiv.className = 'errorlist';
+                        errorDiv.innerHTML = `<li>${data.errors[fieldName][0]}</li>`;
+                    }
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while adding partner. Please check the form and try again.', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> Add New Partner';
+        container.classList.remove('loading');
+    });
+}
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    // Aadhar number validation
+    const aadharField = document.querySelector('[name="aadhar_no"]');
+    if (aadharField) {
+        aadharField.addEventListener('input', function() {
+            const value = this.value.replace(/\D/g, '');
+            this.value = value.substring(0, 12);
+        });
+    }
+    
+    // PAN number validation
+    const panField = document.querySelector('[name="pan_no"]');
+    if (panField) {
+        panField.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+    
+
+});
+
+// Notification function
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'warning'}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 350px;
+        word-wrap: break-word;
+        font-weight: 500;
+        font-size: 0.875rem;
+        backdrop-filter: blur(10px);
+    `;
+    notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

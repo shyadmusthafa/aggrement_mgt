@@ -1,0 +1,78 @@
+{% if is_update %}CFA Agreement Record Updated{% else %}New CFA Agreement Record Created{% endif %}
+Secure Data Management System
+
+{% if is_update %}A CFA Agreement record has been successfully updated in the system.{% else %}A new CFA Agreement record has been successfully created in the system.{% endif %}
+
+CFA AGREEMENT DETAILS:
+======================
+
+CFA Code: {{ record.cfa_code|default:"N/A" }}
+CFA Name: {{ record.cfa_name|default:"N/A" }}
+State: {{ record.state.state_name|default:"N/A" }}
+District Code: {{ record.district_code|default:"N/A" }}
+District Name: {{ record.district_name|default:"N/A" }}
+SPO Code: {{ record.spo_code|default:"N/A" }}
+SPO Name: {{ record.spo_name|default:"N/A" }}
+Structure Group: {{ record.stru_grp|default:"N/A" }}
+CFA Status: {{ record.cfa_status|default:"N/A" }}
+
+AGREEMENT DETAILS:
+==================
+Agreement Type: {{ record.agreement_renewal|default:"N/A" }}
+Inception Date: {{ record.inception_date|date:"d-m-Y"|default:"N/A" }}
+Agreement From Date: {{ record.agreement_from_date|date:"d-m-Y"|default:"N/A" }}
+Agreement To Date: {{ record.agreement_to_date|date:"d-m-Y"|default:"N/A" }}
+
+CFA INFORMATION:
+================
+Godown Address: {{ record.godown_address|default:"N/A" }}
+CFA Address: {{ record.cfa_address|default:"N/A" }}
+Owner Name: {{ record.owner_name|default:"N/A" }}
+Owner Contact No: {{ record.owner_contact_no|default:"N/A" }}
+Owner Email: {{ record.cfa_mail_id|default:"N/A" }}
+
+BUSINESS DETAILS:
+=================
+GST Number: {{ record.gst_no|default:"N/A" }}
+PAN Number: {{ record.pan_no|default:"N/A" }}
+
+BANK DETAILS:
+=============
+Bank Account Name: {{ record.bank_account_name|default:"N/A" }}
+Bank Account No: {{ record.bank_account_no|default:"N/A" }}
+Bank Name: {{ record.bank_name|default:"N/A" }}
+Bank Branch Name: {{ record.bank_branch_name|default:"N/A" }}
+Bank IFSC Code: {{ record.bank_ifsc_code|default:"N/A" }}
+
+FINANCIAL DETAILS:
+==================
+Destination Code: {{ record.destination_code|default:"N/A" }}
+Security Deposit: ₹{{ record.security_deposit_rs|floatformat:2|default:"N/A" }}
+Security Deposit Doc/Ref/DD: {{ record.security_deposit_doc_ref_dd|default:"N/A" }}
+
+ADDITIONAL INFORMATION:
+=======================
+Closure Date: {% if record.closure_date %}{{ record.closure_date|date:"d-m-Y" }}{% else %}Not specified{% endif %}
+Remarks: {{ record.remarks|default:"N/A" }}
+Status: {{ record.status|default:"N/A" }}
+
+DOCUMENTS:
+==========
+CFA Agreement: {% if record.cfa_agreement %}Yes{% else %}No{% endif %}
+Closure Letter: {% if record.closure_letter %}Yes{% else %}No{% endif %}
+Closure Acceptance Letter: {% if record.closure_acceptance_letter %}Yes{% else %}No{% endif %}
+F&F Letter & Calc: {% if record.ff_letter_calc %}Yes{% else %}No{% endif %}
+Security Deposit: {% if record.security_deposit %}Yes{% else %}No{% endif %}
+
+{% if is_update %}
+Record Updated: {{ record.updated_at|date:"d-m-Y H:i:s" }}
+Updated By: {{ updated_by|default:"System" }}
+{% else %}
+Record Created: {{ record.created_at|date:"d-m-Y H:i:s" }}
+Created By: {{ created_by|default:"System" }}
+{% endif %}
+
+Note: This is an automated notification from the Secure Data Management System. Please review the CFA Agreement record details above.
+
+© 2025 Secure Data Management System | Chettinad Cement Corporation Limited
+This email was sent automatically. Please do not reply to this email.

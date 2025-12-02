@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Functionality Test</title>
+    <style>
+        .tab-navigation {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 0;
+            margin: 0 0 0.5rem 0;
+            list-style: none;
+            display: flex;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .tab-navigation li {
+            margin: 0;
+        }
+        
+        .tab-navigation .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0.6rem 1rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .tab-navigation .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab-navigation .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            margin: 1rem 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .test-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        
+        .debug-info {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tab Functionality Test</h1>
+    
+    <!-- Tab Navigation -->
+    <ul class="tab-navigation" id="approvalTabs">
+        <li>
+            <button class="nav-link active" data-record-type="spo_rent">
+                SPO Agreement
+                <span class="tab-badge">3</span>
+            </button>
+        </li>
+        <li>
+            <button class="nav-link" data-record-type="cfa_agreement">
+                CFA Agreement
+                <span class="tab-badge">1</span>
+            </button>
+        </li>
+        <li>
+            <button class="nav-link" data-record-type="transporter_agreement">
+                Transporter Agreement
+                <span class="tab-badge">2</span>
+            </button>
+        </li>
+    </ul>
+    
+    <!-- SPO Tab Content -->
+    <div class="tab-content active" id="content-spo_rent">
+        <h2>SPO Records Tab</h2>
+        <p>This is the SPO tab content. It should be visible by default.</p>
+        <button class="test-button" onclick="testFunction('SPO')">Test SPO Function</button>
+    </div>
+    
+    <!-- CFA Tab Content -->
+    <div class="tab-content" id="content-cfa_agreement">
+        <h2>CFA Records Tab</h2>
+        <p>This is the CFA tab content. It should appear when you click the CFA tab.</p>
+        <button class="test-button" onclick="testFunction('CFA')">Test CFA Function</button>
+    </div>
+    
+    <!-- Transporter Tab Content -->
+    <div class="tab-content" id="content-transporter_agreement">
+        <h2>Transporter Records Tab</h2>
+        <p>This is the Transporter tab content. It should appear when you click the Transporter tab.</p>
+        <button class="test-button" onclick="testFunction('Transporter')">Test Transporter Function</button>
+    </div>
+    
+    <div class="debug-info">
+        <h3>Debug Information</h3>
+        <p>Click on different tabs to see the debug info here.</p>
+        <p><strong>Current Status:</strong> <span id="current-status">SPO tab active</span></p>
+    </div>
+
+    <script>
+        // Tab functionality - EXACTLY the same as in your Django template
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('[data-record-type]');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            console.log('Found tab buttons:', tabButtons.length);
+            console.log('Found tab contents:', tabContents.length);
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const recordType = this.getAttribute('data-record-type');
+                    console.log('Tab clicked:', recordType);
+                    
+                    // Remove active class from all tabs and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const targetContent = document.querySelector(`#content-${recordType}`);
+                    console.log('Target content found:', !!targetContent);
+                    console.log('Target content ID:', `#content-${recordType}`);
+                    
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                        console.log('Content activated for:', recordType);
+                        
+                        // Update debug info
+                        document.getElementById('current-status').textContent = `${recordType} tab active`;
+                        
+                        // Simulate loading records
+                        if (recordType === 'spo_rent') {
+                            console.log('Would load SPO records...');
+                        } else if (recordType === 'cfa_agreement') {
+                            console.log('Would load CFA records...');
+                        } else if (recordType === 'transporter_agreement') {
+                            console.log('Would load Transporter records...');
+                        }
+                    } else {
+                        console.error('Target content not found for:', recordType);
+                        document.getElementById('current-status').textContent = `ERROR: Content not found for ${recordType}`;
+                    }
+                });
+            });
+            
+            // Initial debug info
+            document.getElementById('current-status').textContent = 'SPO tab active (initial)';
+        });
+        
+        function testFunction(type) {
+            alert(`${type} function called successfully!`);
+        }
+    </script>
+</body>
+</html>

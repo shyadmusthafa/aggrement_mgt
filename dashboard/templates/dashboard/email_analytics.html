@@ -1,0 +1,755 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Email Analytics - Data Management System{% endblock %}
+
+{% block content %}
+<style>
+    .analytics-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: #f8fafc;
+        min-height: 100vh;
+    }
+
+    .analytics-header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #1e40af 100%);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 20px 40px rgba(30, 58, 138, 0.3);
+        text-align: center;
+    }
+
+    .analytics-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+    }
+
+    .analytics-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-card {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #1e40af);
+    }
+
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .metric-icon {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        margin: 0 auto 1rem;
+    }
+
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+        font-size: 1rem;
+        color: #64748b;
+        margin-bottom: 1rem;
+    }
+
+    .metric-change {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .metric-change.positive {
+        color: #059669;
+    }
+
+    .metric-change.negative {
+        color: #dc2626;
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .chart-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .chart-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-chart {
+        padding: 0.5rem 1rem;
+        border: 2px solid #e5e7eb;
+        background: white;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-chart:hover {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        color: #1e40af;
+    }
+
+    .btn-chart.active {
+        background: #3b82f6;
+        color: white;
+        border-color: #3b82f6;
+    }
+
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+
+    .chart-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .recent-activity {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+
+    .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .activity-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        border-left: 4px solid #3b82f6;
+        transition: all 0.3s ease;
+    }
+
+    .activity-item:hover {
+        background: #eff6ff;
+        transform: translateX(5px);
+    }
+
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: #3b82f6;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-right: 1rem;
+    }
+
+    .activity-content {
+        flex: 1;
+    }
+
+    .activity-title {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .activity-desc {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .activity-time {
+        color: #94a3b8;
+        font-size: 0.8rem;
+    }
+
+    .filters-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        margin-bottom: 2rem;
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+
+    .filter-input {
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: #f9fafb;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .filter-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+
+    .export-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .export-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-export {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+    }
+
+    .btn-export.primary {
+        background: linear-gradient(135deg, #3b82f6, #1e40af);
+        color: white;
+    }
+
+    .btn-export.primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-export.secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-export.secondary:hover {
+        background: #e5e7eb;
+        color: #1f2937;
+    }
+
+    @media (max-width: 1024px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .analytics-container {
+            padding: 1rem;
+        }
+
+        .analytics-title {
+            font-size: 2rem;
+        }
+
+        .metrics-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .export-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="analytics-container">
+    <!-- Header -->
+    <div class="analytics-header">
+        <h1 class="analytics-title">
+            <i class="fas fa-chart-line"></i>
+            Email Analytics Dashboard
+        </h1>
+        <p class="analytics-subtitle">Comprehensive insights into your email performance and engagement</p>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <div class="metric-value">1,247</div>
+            <div class="metric-label">Total Emails Sent</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +12.5% vs last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="metric-value">98.2%</div>
+            <div class="metric-label">Delivery Rate</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +2.1% vs last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-eye"></i>
+            </div>
+            <div class="metric-value">89.7%</div>
+            <div class="metric-label">Open Rate</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-up"></i>
+                +5.3% vs last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-mouse-pointer"></i>
+            </div>
+            <div class="metric-value">23.4%</div>
+            <div class="metric-label">Click Rate</div>
+            <div class="metric-change negative">
+                <i class="fas fa-arrow-down"></i>
+                -1.2% vs last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="metric-value">1.8%</div>
+            <div class="metric-label">Bounce Rate</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-down"></i>
+                -0.5% vs last month
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="metric-value">2.3s</div>
+            <div class="metric-label">Avg. Send Time</div>
+            <div class="metric-change positive">
+                <i class="fas fa-arrow-down"></i>
+                -0.4s vs last month
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+        <!-- Main Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title">
+                    <i class="fas fa-chart-area"></i>
+                    Email Performance Over Time
+                </h2>
+                <div class="chart-actions">
+                    <button class="btn-chart active" onclick="updateChart('sent')">Sent</button>
+                    <button class="btn-chart" onclick="updateChart('delivered')">Delivered</button>
+                    <button class="btn-chart" onclick="updateChart('opened')">Opened</button>
+                    <button class="btn-chart" onclick="updateChart('clicked')">Clicked</button>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-placeholder" id="mainChart">
+                    <div style="text-align: center;">
+                        <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <div>Email Performance Chart</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">Interactive chart showing email metrics over time</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Email Type Distribution
+                </h2>
+            </div>
+            <div class="chart-container">
+                <div class="chart-placeholder" id="pieChart">
+                    <div style="text-align: center;">
+                        <i class="fas fa-chart-pie" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <div>Email Type Distribution</div>
+                        <div style="font-size: 0.9rem; margin-top: 0.5rem;">Breakdown by email template type</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <h2 class="chart-title" style="margin-bottom: 1.5rem;">
+            <i class="fas fa-filter"></i>
+            Analytics Filters
+        </h2>
+        <div class="filters-grid">
+            <div class="filter-group">
+                <label class="filter-label">Date Range</label>
+                <select class="filter-input filter-select" id="dateRange">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                    <option value="365">Last year</option>
+                    <option value="custom">Custom range</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Email Type</label>
+                <select class="filter-input filter-select" id="emailType">
+                    <option value="all">All Types</option>
+                    <option value="renewal">Renewal Reminders</option>
+                    <option value="expiry">Expiry Notices</option>
+                    <option value="payment">Payment Reminders</option>
+                    <option value="welcome">Welcome Emails</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Recipient Group</label>
+                <select class="filter-input filter-select" id="recipientGroup">
+                    <option value="all">All Recipients</option>
+                    <option value="spo">SPO Partners</option>
+                    <option value="cfa">CFA Partners</option>
+                    <option value="transporter">Transporter Partners</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Status</label>
+                <select class="filter-input filter-select" id="emailStatus">
+                    <option value="all">All Status</option>
+                    <option value="sent">Sent</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="opened">Opened</option>
+                    <option value="clicked">Clicked</option>
+                    <option value="bounced">Bounced</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="recent-activity">
+        <h2 class="chart-title" style="margin-bottom: 1.5rem;">
+            <i class="fas fa-history"></i>
+            Recent Email Activity
+        </h2>
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Renewal Reminder Sent</div>
+                    <div class="activity-desc">SPO Rent renewal reminder sent to E001 ANANTHPUR SPO</div>
+                    <div class="activity-time">2 minutes ago</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Email Opened</div>
+                    <div class="activity-desc">Payment reminder opened by john.doe@example.com</div>
+                    <div class="activity-time">15 minutes ago</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-mouse-pointer"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Link Clicked</div>
+                    <div class="activity-desc">Renewal link clicked by jane.smith@example.com</div>
+                    <div class="activity-time">1 hour ago</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Email Bounced</div>
+                    <div class="activity-desc">Expiry notice bounced for invalid@example.com</div>
+                    <div class="activity-time">2 hours ago</div>
+                </div>
+            </div>
+
+            <div class="activity-item">
+                <div class="activity-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">Bulk Email Completed</div>
+                    <div class="activity-desc">Successfully sent 50 renewal reminders</div>
+                    <div class="activity-time">3 hours ago</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Section -->
+    <div class="export-section">
+        <h2 class="chart-title" style="margin-bottom: 1.5rem;">
+            <i class="fas fa-download"></i>
+            Export Analytics
+        </h2>
+        <div class="export-actions">
+            <button class="btn-export primary" onclick="exportAnalytics('pdf')">
+                <i class="fas fa-file-pdf"></i>
+                Export as PDF
+            </button>
+            <button class="btn-export secondary" onclick="exportAnalytics('excel')">
+                <i class="fas fa-file-excel"></i>
+                Export as Excel
+            </button>
+            <button class="btn-export secondary" onclick="exportAnalytics('csv')">
+                <i class="fas fa-file-csv"></i>
+                Export as CSV
+            </button>
+            <button class="btn-export secondary" onclick="scheduleReport()">
+                <i class="fas fa-clock"></i>
+                Schedule Report
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Email Analytics JavaScript
+    let currentChartType = 'sent';
+    let chartData = {
+        sent: [120, 135, 142, 158, 165, 180, 195, 210, 225, 240, 255, 270, 285, 300],
+        delivered: [118, 132, 140, 155, 162, 177, 192, 207, 222, 237, 252, 267, 282, 297],
+        opened: [95, 108, 115, 128, 135, 148, 162, 175, 188, 201, 214, 227, 240, 253],
+        clicked: [25, 28, 32, 35, 38, 42, 45, 48, 52, 55, 58, 62, 65, 68]
+    };
+
+    // Chart Update Functions
+    function updateChart(chartType) {
+        currentChartType = chartType;
+        
+        // Update active button
+        document.querySelectorAll('.btn-chart').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // Update chart (in a real implementation, this would update the actual chart)
+        console.log(`Updating chart to show: ${chartType}`);
+        
+        // Simulate chart update
+        const chartContainer = document.getElementById('mainChart');
+        chartContainer.innerHTML = `
+            <div style="text-align: center;">
+                <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <div>${chartType.charAt(0).toUpperCase() + chartType.slice(1)} Performance</div>
+                <div style="font-size: 0.9rem; margin-top: 0.5rem;">Showing ${chartType} data over time</div>
+                <div style="margin-top: 1rem; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">Sample Data:</div>
+                    <div style="font-family: monospace; font-size: 0.8rem;">
+                        ${chartData[chartType].slice(-5).join(' → ')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // Filter Functions
+    function applyFilters() {
+        const dateRange = document.getElementById('dateRange').value;
+        const emailType = document.getElementById('emailType').value;
+        const recipientGroup = document.getElementById('recipientGroup').value;
+        const emailStatus = document.getElementById('emailStatus').value;
+        
+        console.log('Applying filters:', { dateRange, emailType, recipientGroup, emailStatus });
+        
+        // In a real implementation, this would update the analytics data
+        alert('Filters applied! Analytics data updated.');
+    }
+
+    // Export Functions
+    function exportAnalytics(format) {
+        const dateRange = document.getElementById('dateRange').value;
+        const emailType = document.getElementById('emailType').value;
+        
+        console.log(`Exporting analytics as ${format} for date range: ${dateRange}, email type: ${emailType}`);
+        
+        // Simulate export
+        alert(`${format.toUpperCase()} export started! You will receive the file shortly.`);
+    }
+
+    function scheduleReport() {
+        const frequency = prompt('Enter report frequency (daily/weekly/monthly):');
+        const email = prompt('Enter email address for reports:');
+        
+        if (frequency && email) {
+            console.log(`Scheduling ${frequency} reports to ${email}`);
+            alert(`Report scheduled! You will receive ${frequency} reports at ${email}`);
+        }
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listeners for filters
+        document.getElementById('dateRange').addEventListener('change', applyFilters);
+        document.getElementById('emailType').addEventListener('change', applyFilters);
+        document.getElementById('recipientGroup').addEventListener('change', applyFilters);
+        document.getElementById('emailStatus').addEventListener('change', applyFilters);
+        
+        // Initialize with default chart
+        updateChart('sent');
+        
+        console.log('Email Analytics Dashboard loaded');
+    });
+
+    // Real-time updates simulation
+    setInterval(() => {
+        // Simulate real-time metric updates
+        const metricValues = document.querySelectorAll('.metric-value');
+        metricValues.forEach((metric, index) => {
+            if (index === 0) { // Total emails sent
+                const currentValue = parseInt(metric.textContent.replace(',', ''));
+                metric.textContent = (currentValue + Math.floor(Math.random() * 3)).toLocaleString();
+            }
+        });
+    }, 30000); // Update every 30 seconds
+</script>
+{% endblock %} 

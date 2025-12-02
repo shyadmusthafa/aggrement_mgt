@@ -1,0 +1,154 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}User Menu Access{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-key text-info"></i> User Menu Access
+                    </h2>
+                    <p class="text-muted mb-0">Manage user permissions for specific menu items</p>
+                </div>
+                <div>
+                    <a href="{% url 'menu_access_dashboard' %}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <a href="{% url 'user_menu_access_create' %}" class="btn btn-info">
+                        <i class="fas fa-plus"></i> Add Access
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Access Table -->
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-table"></i> Access Permissions List
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if user_access %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>User</th>
+                                        <th>Menu Item</th>
+                                        <th>Role</th>
+                                        <th>Permissions</th>
+                                        <th>Last Updated</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for access in user_access %}
+                                    <tr>
+                                        <td>
+                                            <div class="user-info">
+                                                <strong>{{ access.user.username }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ access.user.email }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="menu-info">
+                                                <strong>{{ access.menu_item.display_name }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ access.menu_item.name }}</small>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if access.role %}
+                                                <span class="badge bg-primary">{{ access.role.name }}</span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="permissions-display">
+                                                {{ access.get_permissions_summary }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ access.updated_at|timesince }} ago</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'user_menu_access_edit' access.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'user_menu_access_delete' access.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-key fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Access Permissions Found</h5>
+                            <p class="text-muted">Start by creating your first access permission.</p>
+                            <a href="{% url 'user_menu_access_create' %}" class="btn btn-info">
+                                <i class="fas fa-plus"></i> Create Access Permission
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.badge {
+    font-size: 0.75rem;
+}
+
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+.btn-group .btn:last-child {
+    margin-right: 0;
+}
+
+.user-info, .menu-info {
+    line-height: 1.2;
+}
+
+.permissions-display {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+}
+</style>
+{% endblock %}

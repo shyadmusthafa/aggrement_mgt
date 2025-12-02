@@ -1,0 +1,62 @@
+{% extends "dashboard/emails/base_email.html" %}
+
+{% block header_title %}SPO Rent Agreement Renewal{% endblock %}
+{% block header_subtitle %}Renewal Reminder Notification{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Dear {{ record.owner_name|default:"Valued Customer" }},
+</div>
+
+<div class="content-section">
+    <h2>🔄 Renewal Reminder</h2>
+    <p>This is a friendly reminder that your <strong>SPO Rent Agreement</strong> is due for renewal. Please review the details below and take necessary action to ensure uninterrupted service.</p>
+</div>
+
+<div class="content-section">
+    <h2>📋 Agreement Details</h2>
+    <table class="details-table">
+        <tr>
+            <td class="label">SPO Code</td>
+            <td class="value">{{ record.spo_code }}</td>
+        </tr>
+        <tr>
+            <td class="label">SPO Name</td>
+            <td class="value">{{ record.spo_name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Current Agreement Period</td>
+            <td class="value">{{ record.rental_from_date|date:"F j, Y" }} to {{ record.rental_to_date|date:"F j, Y" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Monthly Rent</td>
+            <td class="value">₹{{ record.rent_pm|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Security Deposit</td>
+            <td class="value">₹{{ record.security_deposit_paid|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Current Status</td>
+            <td class="value">
+                <span style="color: {% if record.status == 'Active' %}#28a745{% elif record.status == 'Expired' %}#dc3545{% else %}#ffc107{% endif %}; font-weight: 600;">
+                    {{ record.status|default:"Pending" }}
+                </span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+{% if custom_message %}
+<div class="content-section">
+    <h2>💬 Additional Information</h2>
+    <p>{{ custom_message }}</p>
+</div>
+{% endif %}
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="mailto:chettinadsdc@chettinad.com?subject=SPO Renewal Query - {{ record.spo_code }}" class="action-button">
+        Contact Support Team
+    </a>
+</div>
+{% endblock %} 

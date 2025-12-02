@@ -1,0 +1,900 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'dashboard/css/standard-ui.css' %}">
+    <style>
+        :root {
+            --primary-color: #2980b9;
+            --secondary-color: #6dd5fa;
+            --accent-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --sidebar-width: 280px;
+            --sidebar-collapsed-width: 70px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        /* Sidebar Header */
+        .sidebar-header {
+            padding: 2rem 1.5rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .sidebar-header h3 {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-header .logo-icon {
+            font-size: 1.8rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar.collapsed .sidebar-header h3 span {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .sidebar.collapsed .sidebar-header .logo-icon {
+            margin: 0 auto;
+        }
+
+        /* Navigation Menu */
+        .nav-menu {
+            padding: 1rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Protect Dashboard menu from being hidden - ALWAYS visible */
+        .nav-item:has(a[href*="dashboard"]) {
+            display: block !important;
+        }
+        
+        .nav-item:has(a[href*="dashboard"]) a {
+            display: block !important;
+        }
+        
+                /* Ensure Dashboard menu item is always visible */
+        .nav-item:has(a[href*="dashboard"]) {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Fallback for browsers that don't support :has() selector */
+        .nav-item.dashboard-menu {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        .nav-item.dashboard-menu a {
+            display: block !important;
+        }
+        
+        .nav-section-title {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 1.5rem 0.5rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar.collapsed .nav-section-title {
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .nav-item {
+            position: relative;
+            margin: 0.25rem 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.875rem 1.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-left-color: var(--secondary-color);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            color: white;
+            background: linear-gradient(90deg, var(--primary-color) 0%, rgba(41, 128, 185, 0.8) 100%);
+            border-left-color: var(--secondary-color);
+            box-shadow: 0 4px 15px rgba(41, 128, 185, 0.3);
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid var(--primary-color);
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+            margin-right: 0.75rem;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .nav-link span {
+            transition: all var(--transition-speed) ease;
+            white-space: nowrap;
+        }
+
+        .sidebar.collapsed .nav-link span {
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 0.875rem 0.5rem;
+        }
+
+        .sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.2rem;
+        }
+
+        /* Badge for notifications */
+        .nav-badge {
+            background: var(--danger-color);
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 10px;
+            margin-left: auto;
+            font-weight: 600;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        /* Disabled menu items */
+        .nav-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .nav-link.disabled:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: none;
+        }
+
+        .nav-link.disabled i,
+        .nav-link.disabled span {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .sidebar.collapsed .nav-badge {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            margin-left: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            transition: margin-left var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 2rem;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* Top Navbar */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .sidebar.collapsed + .navbar {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(41, 128, 185, 0.3);
+            transition: all var(--transition-speed) ease;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(41, 128, 185, 0.4);
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 0.95rem;
+        }
+
+        .user-role {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        /* Toggle Button */
+        .sidebar-toggle {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all var(--transition-speed) ease;
+            cursor: pointer;
+        }
+
+        .sidebar-toggle:hover {
+            background: rgba(41, 128, 185, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+
+            .sidebar.show {
+                transform: translateX(0);
+            }
+
+            .main-content, .navbar {
+                margin-left: 0 !important;
+                padding: 1rem;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
+            .sidebar-header h3 {
+                font-size: 1.2rem;
+            }
+
+            .nav-link {
+                padding: 0.75rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .nav-link i {
+                font-size: 1rem;
+                margin-right: 0.5rem;
+            }
+
+            .user-info {
+                gap: 0.5rem;
+            }
+
+            .user-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.9rem;
+            }
+
+            .user-details {
+                font-size: 0.85rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content, .navbar {
+                padding: 0.75rem;
+            }
+
+            .sidebar-header {
+                padding: 1rem 0.75rem;
+            }
+
+            .sidebar-header h3 {
+                font-size: 1.1rem;
+            }
+
+            .nav-link {
+                padding: 0.6rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            .nav-link i {
+                font-size: 0.9rem;
+                margin-right: 0.4rem;
+            }
+
+            .user-info {
+                gap: 0.4rem;
+            }
+
+            .user-avatar {
+                width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+
+            .user-details {
+                font-size: 0.8rem;
+            }
+
+            .navbar-brand {
+                font-size: 1rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .sidebar-toggle {
+                display: none;
+            }
+        }
+
+        /* Overlay for mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .sidebar-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Alert Styles */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: #0c5460;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading animation */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Hover effects for buttons */
+        .btn {
+            transition: all var(--transition-speed) ease;
+            border-radius: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>
+                <i class="fas fa-tachometer-alt logo-icon"></i>
+                <span>Data Management</span>
+            </h3>
+        </div>
+        
+        <div class="nav-menu">
+            <!-- Main Navigation -->
+            <div class="nav-section">
+                <div class="nav-section-title">Main Menu</div>
+                <div class="nav-item dashboard-menu">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    {% if user_menu_access and user_menu_access.spo_menu_enabled %}
+                    <a class="nav-link {% if 'spo-rent' in request.path %}active{% endif %}" href="{% url 'spo_rent_list' %}">
+                        <i class="fas fa-building"></i>
+                        <span>SPO Rent Agreement</span>
+                    </a>
+                    {% endif %}
+                    {% if user_menu_access and user_menu_access.cfa_menu_enabled %}
+                    <a class="nav-link {% if 'cfa-agreement' in request.path %}active{% endif %}" href="{% url 'cfa_agreement_list' %}">
+                        <i class="fas fa-file-contract"></i>
+                        <span>CFA Agreement</span>
+                    </a>
+                    {% endif %}
+                    {% if user_menu_access and user_menu_access.transport_menu_enabled %}
+                    <a class="nav-link {% if 'transporter-agreement' in request.path %}active{% endif %}" href="{% url 'transporter_agreement_list' %}">
+                        <i class="fas fa-truck"></i>
+                        <span>Transporter Agreement</span>
+                    </a>
+                    {% endif %}
+                    <!-- DEBUG: Approval Menu Access Check -->
+                    <!-- User Menu Access: {{ user_menu_access|yesno:"Available,Not Available" }} -->
+                    <!-- Approval Enabled: {{ user_menu_access.approval_menu_enabled|yesno:"Yes,No" }} -->
+                    
+                    {% if user_menu_access and user_menu_access.approval_menu_enabled %}
+                    <a class="nav-link {% if 'approvals' in request.path %}active{% endif %}" href="{% url 'approval_list' %}">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Approvals</span>
+                    </a>
+                    {% else %}
+                    <!-- Approval Menu is DISABLED for this user -->
+                    {% endif %}
+                    
+                    {% if user_menu_access and user_menu_access.approval_workflow_enabled %}
+                    <a class="nav-link {% if 'approval-workflow' in request.path %}active{% endif %}" href="{% url 'approval_workflow_dashboard' %}">
+                        <i class="fas fa-tasks"></i>
+                        <span>Approval Workflow</span>
+                    </a>
+                    {% endif %}
+                    
+                    {% if user_menu_access and user_menu_access.report_enabled %}
+                    <a class="nav-link {% if 'reports' in request.path %}active{% endif %}" href="{% url 'reports' %}">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </a>
+                    {% endif %}
+                    
+                    {% if user_menu_access and user_menu_access.mail_reminder_enabled %}
+                    <a class="nav-link {% if 'mail-reminder' in request.path %}active{% endif %}" href="{% url 'mail_reminder' %}">
+                        <i class="fas fa-envelope"></i>
+                        <span>Mail Reminder</span>
+                    </a>
+                    {% endif %}
+
+
+                </div>
+            </div>
+
+         
+
+            <!-- Administration -->
+            <div class="nav-section">
+                <!-- <div class="nav-section-title">Administration</div> -->
+                {% if user_menu_access and user_menu_access.user_management_enabled %}
+                <div class="nav-item">
+                    <a class="nav-link {% if 'users' in request.path and 'menu-access' not in request.path %}active{% endif %}" href="{% url 'user_list' %}">
+                        <i class="fas fa-users"></i>
+                        <span>User Management</span>
+                    </a>
+                </div>
+                {% endif %}
+                {% if user_menu_access and user_menu_access.user_menu_access_control_enabled %}
+                <div class="nav-item">
+                    <a class="nav-link {% if 'menu-access' in request.path %}active{% endif %}" href="{% url 'menu_access_dashboard' %}">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>User Menu Control</span>
+                    </a>
+                </div>
+                {% endif %}
+                <!-- <div class="nav-item">
+                    <a class="nav-link" href="#" onclick="showComingSoon()">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div> -->
+            </div>
+
+            <!-- Quick Actions -->
+            <!-- <div class="nav-section">
+                <div class="nav-section-title">Quick Actions</div>
+                <div class="nav-item">
+                    <a class="nav-link" href="{% url 'spo_rent_create' %}">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add SPO Rent</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a class="nav-link" href="{% url 'cfa_agreement_create' %}">
+                        <i class="fas fa-plus-square"></i>
+                        <span>Add CFA Agreement</span>
+                    </a>
+                </div>
+            </div> -->
+        </div>
+    </nav>
+
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <button class="sidebar-toggle d-md-none" type="button" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <button class="sidebar-toggle d-none d-md-block" type="button" onclick="toggleSidebarCollapse()">
+                <i class="fas fa-chevron-left" id="toggleIcon"></i>
+            </button>
+
+            <div class="ms-auto">
+                <div class="user-info">
+                    <div class="user-avatar" title="{{ user.get_full_name|default:user.username }}">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="user-details d-none d-md-block">
+                        <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="user-role">{{ user.email }}</div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'user_profile' %}"><i class="fas fa-user me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="{% url 'user_settings' %}"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+
+
+
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar toggle for mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
+        // Sidebar collapse for desktop
+        function toggleSidebarCollapse() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            sidebar.classList.toggle('collapsed');
+            
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('fa-chevron-left');
+                toggleIcon.classList.add('fa-chevron-right');
+            } else {
+                toggleIcon.classList.remove('fa-chevron-right');
+                toggleIcon.classList.add('fa-chevron-left');
+            }
+        }
+
+        // Coming soon function
+        function showComingSoon() {
+            alert('🚧 This feature is coming soon! 🚧');
+        }
+
+        // Add loading state to navigation links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function() {
+                if (!this.classList.contains('active')) {
+                    document.body.classList.add('loading');
+                }
+            });
+        });
+
+        // Menu access control - ensure proper menu visibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuAccess = JSON.parse('{{ user_menu_access|default:"null"|escapejs }}');
+            console.log('Menu access data:', menuAccess);
+            
+            // Always ensure Dashboard menu is visible
+            const dashboardMenu = document.querySelector('.nav-item.dashboard-menu');
+            if (dashboardMenu) {
+                dashboardMenu.style.display = 'block';
+                dashboardMenu.style.opacity = '1';
+                dashboardMenu.style.visibility = 'visible';
+                console.log('✅ Dashboard menu protected and visible');
+            } else {
+                console.warn('⚠️ Dashboard menu not found - this should not happen');
+            }
+            
+            // Since menu items are already conditionally rendered on the server side,
+            // we only need to ensure they remain visible and handle any edge cases
+            if (menuAccess) {
+                console.log('Menu access control active - ensuring proper visibility');
+                
+                // Ensure all rendered menu items are visible
+                const allNavItems = document.querySelectorAll('.nav-item');
+                allNavItems.forEach(navItem => {
+                    // Skip if it's the dashboard menu (already handled above)
+                    if (navItem.classList.contains('dashboard-menu')) {
+                        return;
+                    }
+                    
+                    // Ensure the nav item is visible
+                    navItem.style.display = 'block';
+                    navItem.style.opacity = '1';
+                    navItem.style.visibility = 'visible';
+                });
+                
+                console.log('Menu visibility ensured - all rendered items are visible');
+            } else {
+                console.log('No menu access data available - showing all menus');
+            }
+        });
+        
+        // Function to restore hidden menu items (for debugging or admin use)
+        function restoreHiddenMenus() {
+            const hiddenNavItems = document.querySelectorAll('.nav-item[style*="display: none"]');
+            hiddenNavItems.forEach(item => {
+                item.style.display = '';
+                console.log('Restored hidden menu item:', item);
+            });
+            console.log(`Restored ${hiddenNavItems.length} hidden menu items`);
+        }
+        
+        // Function to show/hide specific menu sections
+        function toggleMenuSection(sectionName, show) {
+            const sectionLinks = document.querySelectorAll(`a[href*="${sectionName}"]`);
+            sectionLinks.forEach(link => {
+                const navItem = link.closest('.nav-item');
+                if (navItem) {
+                    navItem.style.display = show ? '' : 'none';
+                    console.log(`${show ? 'Showed' : 'Hid'} menu section: ${sectionName}`);
+                }
+            });
+        }
+        
+        // Function to show current menu status (for debugging)
+        function showMenuStatus() {
+            const allNavItems = document.querySelectorAll('.nav-item');
+            console.log('=== CURRENT MENU STATUS ===');
+            allNavItems.forEach((item, index) => {
+                const link = item.querySelector('a');
+                const isVisible = item.style.display !== 'none';
+                const isDashboard = item.classList.contains('dashboard-menu');
+                console.log(`${index + 1}. ${link ? link.textContent.trim() : 'Unknown'}: ${isVisible ? 'VISIBLE' : 'HIDDEN'} ${isDashboard ? '(DASHBOARD - PROTECTED)' : ''}`);
+            });
+            console.log('==========================');
+        }
+        
+        // Make functions available globally for debugging
+        window.restoreHiddenMenus = restoreHiddenMenus;
+        window.toggleMenuSection = toggleMenuSection;
+        window.showMenuStatus = showMenuStatus;
+
+        // Remove loading state when page loads
+        window.addEventListener('load', function() {
+            document.body.classList.remove('loading');
+        });
+
+        // Smooth scroll to top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Add scroll to top button when scrolling down
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 300) {
+                if (!document.getElementById('scrollToTop')) {
+                    const scrollBtn = document.createElement('button');
+                    scrollBtn.id = 'scrollToTop';
+                    scrollBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+                    scrollBtn.className = 'btn btn-primary position-fixed';
+                    scrollBtn.style.cssText = 'bottom: 2rem; right: 2rem; z-index: 1000; border-radius: 50%; width: 50px; height: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);';
+                    scrollBtn.onclick = scrollToTop;
+                    document.body.appendChild(scrollBtn);
+                }
+            } else {
+                const scrollBtn = document.getElementById('scrollToTop');
+                if (scrollBtn) {
+                    scrollBtn.remove();
+                }
+            }
+        });
+
+        // Add hover effects to navigation items
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px)';
+            });
+            
+            link.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('active')) {
+                    this.style.transform = 'translateX(0)';
+                }
+            });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,209 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Approve - {{ approval.nfa_no }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6dd5fa, #2980b9, #ffffff) !important;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .page-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .page-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .approve-container {
+            background: white;
+            border-radius: 18px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .approve-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 2rem;
+        }
+        
+        .approve-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .approve-message {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .approval-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .approve-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-check-circle"></i> Approve Request</h1>
+    <p>Confirm approval for {{ approval.nfa_no }}</p>
+</div>
+
+<div class="approve-container">
+    <div class="approve-icon">
+        <i class="fas fa-check"></i>
+    </div>
+    
+    <h2 class="approve-title">Are you sure you want to approve this request?</h2>
+    
+    <p class="approve-message">
+        By approving this request, you confirm that all information is correct and the approval meets all requirements.
+    </p>
+    
+    <div class="approval-details">
+        <div class="detail-item">
+            <span class="detail-label">NFA No:</span>
+            <span class="detail-value">{{ approval.nfa_no }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Name:</span>
+            <span class="detail-value">{{ approval.name }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Nature of Approval:</span>
+            <span class="detail-value">{{ approval.get_nature_of_approval_display }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Code:</span>
+            <span class="detail-value">{{ approval.code }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Valid From:</span>
+            <span class="detail-value">{{ approval.valid_from|date:"M d, Y" }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Valid To:</span>
+            <span class="detail-value">{{ approval.valid_to|date:"M d, Y" }}</span>
+        </div>
+    </div>
+    
+    <form method="post" style="display: inline;">
+        {% csrf_token %}
+        <div class="action-buttons">
+            <a href="{% url 'approval_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-check"></i>
+                Approve Request
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %} 

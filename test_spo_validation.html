@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPO Code Validation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .field-help {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+            transition: color 0.3s ease;
+        }
+        .field-help.active {
+            color: #007bff;
+            font-weight: 500;
+        }
+        .field-help.error {
+            color: #dc3545;
+            font-weight: 500;
+        }
+        .field-help.success {
+            color: #28a745;
+            font-weight: 500;
+        }
+        .spo-code-validation {
+            transition: all 0.3s ease;
+        }
+        .spo-code-validation.success {
+            border-color: #28a745 !important;
+            background-color: #f8fff9 !important;
+            box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.25) !important;
+        }
+        .spo-code-validation.error {
+            border-color: #dc3545 !important;
+            background-color: #fff8f8 !important;
+            box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25) !important;
+        }
+        .test-results {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .test-case {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .test-case.pass {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .test-case.fail {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>SPO Code Validation Test</h1>
+    <p>This page demonstrates the SPO code validation based on Sale Organization selection.</p>
+    
+    <div class="form-group">
+        <label for="sale-organization">Sale Organization:</label>
+        <select id="sale-organization">
+            <option value="">Select Sale Organization</option>
+            <option value="Chettinad">Chettinad</option>
+            <option value="Anjani">Anjani</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="spo-code">SPO Code:</label>
+        <input type="text" id="spo-code" maxlength="4" placeholder="Enter SPO code">
+        <div class="field-help" id="spo-code-help">Format: Chettinad (1 letter + 3 numbers: A012) or Anjani (2 letters + 2 numbers: AB12)</div>
+    </div>
+    
+    <div class="test-results">
+        <h3>Test Cases</h3>
+        <div class="test-case pass">
+            <strong>✓ Chettinad Format:</strong> A012, B123, C456 (1 letter + 3 numbers)
+        </div>
+        <div class="test-case pass">
+            <strong>✓ Anjani Format:</strong> AB12, CD34, EF56 (2 letters + 2 numbers)
+        </div>
+        <div class="test-case fail">
+            <strong>✗ Invalid Formats:</strong> A12, ABC1, 1234, ABCD
+        </div>
+    </div>
+
+    <script>
+        // SPO Code validation function
+        function validateSPOCode(spoCode, saleOrganization) {
+            if (!spoCode || !saleOrganization) return true;
+            
+            if (saleOrganization === 'Chettinad') {
+                // Chettinad: 1 letter + 3 numbers (e.g., A012, B123) - max 4 characters
+                const pattern = /^[A-Za-z]\d{3}$/;
+                return pattern.test(spoCode) && spoCode.length <= 4;
+            } else if (saleOrganization === 'Anjani') {
+                // Anjani: 2 letters + 2 numbers (e.g., AB12) - max 4 characters
+                const pattern = /^[A-Za-z]{2}\d{2}$/;
+                return pattern.test(spoCode) && spoCode.length <= 4;
+            }
+            return true;
+        }
+
+        function showSPOCodeError(field, message) {
+            // Add error styling using CSS classes
+            field.classList.remove('spo-code-validation', 'success');
+            field.classList.add('spo-code-validation', 'error');
+            
+            // Update help text to show error
+            const helpText = document.getElementById('spo-code-help');
+            if (helpText) {
+                helpText.className = 'field-help error';
+                helpText.innerHTML = message;
+            }
+        }
+
+        function showSPOCodeSuccess(field) {
+            // Add success styling using CSS classes
+            field.classList.remove('spo-code-validation', 'error');
+            field.classList.add('spo-code-validation', 'success');
+            
+            // Update help text to show success
+            const helpText = document.getElementById('spo-code-help');
+            if (helpText) {
+                const saleOrganization = document.getElementById('sale-organization').value;
+                if (saleOrganization === 'Chettinad') {
+                    helpText.innerHTML = '✓ Valid Chettinad format (1 letter + 3 numbers)';
+                    helpText.className = 'field-help success';
+                } else if (saleOrganization === 'Anjani') {
+                    helpText.innerHTML = '✓ Valid Anjani format (2 letters + 2 numbers)';
+                    helpText.className = 'field-help success';
+                }
+            }
+        }
+
+        function clearValidation(field) {
+            field.classList.remove('spo-code-validation', 'success', 'error');
+            const helpText = document.getElementById('spo-code-help');
+            if (helpText) {
+                helpText.className = 'field-help';
+                helpText.innerHTML = 'Format: Chettinad (1 letter + 3 numbers: A012) or Anjani (2 letters + 2 numbers: AB12)';
+            }
+        }
+
+        // Event listeners
+        const spoCodeField = document.getElementById('spo-code');
+        const saleOrganizationField = document.getElementById('sale-organization');
+        
+        // Real-time validation on SPO code input
+        spoCodeField.addEventListener('input', function() {
+            const spoCode = this.value.trim();
+            const saleOrganization = saleOrganizationField.value;
+            
+            if (!spoCode || !saleOrganization) {
+                clearValidation(this);
+                return;
+            }
+            
+            if (validateSPOCode(spoCode, saleOrganization)) {
+                showSPOCodeSuccess(this);
+            } else {
+                let message = '';
+                if (saleOrganization === 'Chettinad') {
+                    message = 'For Chettinad, SPO code must be 1 letter + 3 numbers (e.g., A012)';
+                } else if (saleOrganization === 'Anjani') {
+                    message = 'For Anjani, SPO code must be 2 letters + 2 numbers (e.g., AB12)';
+                }
+                showSPOCodeError(this, message);
+            }
+        });
+        
+        // Validation when sale organization changes
+        saleOrganizationField.addEventListener('change', function() {
+            const spoCode = spoCodeField.value.trim();
+            const saleOrganization = this.value;
+            
+            // Update help text based on selection
+            const helpText = document.getElementById('spo-code-help');
+            if (helpText) {
+                if (saleOrganization === 'Chettinad') {
+                    helpText.innerHTML = 'Format: Chettinad (1 letter + 3 numbers: A012)';
+                    helpText.className = 'field-help active';
+                } else if (saleOrganization === 'Anjani') {
+                    helpText.innerHTML = 'Format: Anjani (2 letters + 2 numbers: AB12)';
+                    helpText.className = 'field-help active';
+                } else {
+                    helpText.innerHTML = 'Format: Chettinad (1 letter + 3 numbers: A012) or Anjani (2 letters + 2 numbers: AB12)';
+                    helpText.className = 'field-help';
+                    // Clear SPO code field and validation when no sale organization is selected
+                    if (spoCodeField.value.trim()) {
+                        spoCodeField.value = '';
+                        clearValidation(spoCodeField);
+                    }
+                }
+            }
+            
+            if (spoCode && saleOrganization) {
+                if (validateSPOCode(spoCode, saleOrganization)) {
+                    showSPOCodeSuccess(spoCodeField);
+                } else {
+                    let message = '';
+                    if (saleOrganization === 'Chettinad') {
+                        message = 'For Chettinad, SPO code must be 1 letter + 3 numbers (e.g., A012)';
+                    } else if (saleOrganization === 'Anjani') {
+                        message = 'For Anjani, SPO code must be 2 letters + 2 numbers (e.g., AB12)';
+                    }
+                    showSPOCodeError(spoCodeField, message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

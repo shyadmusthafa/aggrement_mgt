@@ -1,0 +1,1319 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Approval Records{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+        }
+        .container {
+            background: #fff;
+            max-width: 100%;
+            margin: 0.25rem auto;
+            padding: 0.5rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px 0 rgba(31, 38, 135, 0.08);
+        }
+        h2 {
+            color: #2980b9;
+            text-align: left;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .add-btn-row {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .add-btn {
+            background: linear-gradient(90deg, #2980b9, #6dd5fa);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-decoration: none;
+            box-shadow: 0 1px 2px 0 rgba(31, 38, 135, 0.1);
+            transition: background 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        
+        .export-btn {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-decoration: none;
+            box-shadow: 0 1px 2px 0 rgba(39, 174, 96, 0.1);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(39, 174, 96, 0.2);
+            color: #fff;
+            text-decoration: none;
+        }
+        .add-btn:hover {
+            background: linear-gradient(90deg, #6dd5fa, #2980b9);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px 0 rgba(31, 38, 135, 0.15);
+        }
+        .filter-toggle {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 1px 2px 0 rgba(39, 174, 96, 0.1);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .filter-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px 0 rgba(39, 174, 96, 0.2);
+        }
+        
+        /* Material Design Table Styles */
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .table-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+        }
+        
+        .search-box {
+            position: relative;
+            min-width: 200px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 0.8rem 0.5rem 2rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.6rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 0.7rem;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .mat-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 1200px;
+        }
+        
+        .mat-table th {
+            background: #2c3e50;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.7rem 0.5rem;
+            text-align: left;
+            border-bottom: 2px solid #34495e;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .mat-table td {
+            padding: 0.6rem 0.5rem;
+            font-size: 0.75rem;
+            border-bottom: 1px solid #ecf0f1;
+            vertical-align: middle;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            background: white;
+        }
+        
+        .mat-table td.nowrap {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .mat-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .mat-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-expired {
+            background: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .action-btn {
+            padding: 0.3rem 0.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            transition: all 0.2s ease;
+            margin-right: 0.2rem;
+        }
+        
+        .view-btn {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #138496;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .edit-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .edit-btn:hover {
+            background: #e0a800;
+            color: #212529;
+            transform: translateY(-1px);
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .approve-btn {
+            background: #28a745;
+            color: white;
+        }
+        
+        .approve-btn:hover {
+            background: #218838;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .reject-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .reject-btn:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+            gap: 0.3rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.3rem 0.6rem;
+            border: 1px solid #dee2e6;
+            background: #fff;
+            color: #007bff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+        
+        .pagination-btn:hover {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .pagination-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .pagination-btn.disabled {
+            color: #6c757d;
+            pointer-events: none;
+            background: #f8f9fa;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: #495057;
+        }
+        
+        .empty-state p {
+            margin-bottom: 1rem;
+        }
+        
+        /* Filter Panel Styles */
+        .filter-panel {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        
+        .filter-label {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .filter-input {
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 0 2px rgba(41, 128, 185, 0.2);
+        }
+        
+        .filter-submit,
+        .filter-clear {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-submit {
+            background: #2980b9;
+            color: white;
+        }
+        
+        .filter-submit:hover {
+            background: #1f5f8b;
+        }
+        
+        .filter-clear {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .filter-clear:hover {
+            background: #545b62;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.2rem;
+            flex-wrap: wrap;
+        }
+        
+        .attachment-link {
+            color: #2980b9;
+            text-decoration: none;
+            font-size: 0.7rem;
+        }
+        
+        .attachment-link:hover {
+            text-decoration: underline;
+        }
+        
+        .no-attachment {
+            color: #6c757d;
+            font-size: 0.7rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .add-btn-row {
+                justify-content: center;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .search-box {
+                min-width: 100%;
+            }
+            
+            .mat-table th,
+            .mat-table td {
+                padding: 0.4rem 0.3rem;
+                font-size: 0.7rem;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.3rem;
+            }
+            
+            .mat-table th,
+            .mat-table td {
+                padding: 0.3rem 0.2rem;
+                font-size: 0.65rem;
+            }
+            
+            .action-btn {
+                padding: 0.2rem 0.3rem;
+                font-size: 0.6rem;
+            }
+        }
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(243, 156, 18, 0.2);
+        }
+        
+        .filter-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(243, 156, 18, 0.3);
+        }
+        
+        .filter-toggle.active {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        .filter-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .filter-panel.show {
+            display: block;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        
+        .filter-label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.65rem;
+        }
+        
+        .filter-input {
+            padding: 0.3rem;
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+        }
+        
+        .filter-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.1);
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 0.3rem;
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 0.3rem;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.3rem 0.6rem;
+            border: none;
+            border-radius: 3px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.65rem;
+        }
+        
+        .filter-apply {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .filter-apply:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .filter-clear {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+        
+        .filter-clear:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(108, 117, 125, 0.2);
+        }
+        
+        .filter-reset {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .filter-reset:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(231, 76, 60, 0.2);
+        }
+        
+        .stats-panel {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.3rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 0.3rem;
+        }
+        
+        .stat-number {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+        }
+        
+        .stat-label {
+            font-size: 0.65rem;
+            opacity: 0.9;
+        }
+        
+        /* Card/Box UI Styles */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .approval-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .approval-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: rgba(102, 126, 234, 0.4);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.4rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #f1f3f4;
+        }
+        
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2980b9;
+            margin: 0;
+        }
+        
+        .card-sno {
+            background: #2980b9;
+            color: white;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.6rem;
+            font-weight: 600;
+        }
+        
+        .card-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
+            margin-bottom: 0.4rem;
+        }
+        
+        .card-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+        
+        .field-label {
+            font-size: 0.6rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .field-value {
+            font-size: 0.7rem;
+            color: #2c3e50;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.3rem;
+            border-top: 1px solid #f1f3f4;
+        }
+        
+        .status-badge {
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.6rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.2rem;
+        }
+        
+        .action-btn {
+            padding: 0.4rem 0.6rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .view-btn {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #138496;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3);
+        }
+        
+        .edit-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .edit-btn:hover {
+            background: #e0a800;
+            color: #212529;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        .approve-btn {
+            background: #28a745;
+            color: white;
+        }
+        
+        .approve-btn:hover {
+            background: #218838;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        
+        .reject-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .reject-btn:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+        
+        .attachment-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.6rem;
+        }
+        
+        .attachment-link:hover {
+            text-decoration: underline;
+        }
+        
+        .no-attachment {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.6rem;
+        }
+        
+        .pagination-container {
+            display: flex;
+                justify-content: center;
+            align-items: center;
+            margin-top: 0.5rem;
+                gap: 0.3rem;
+            }
+            
+        .pagination-btn {
+            padding: 0.3rem 0.6rem;
+            border: 1px solid #dee2e6;
+            background: #fff;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+        }
+        
+        .pagination-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            text-decoration: none;
+        }
+        
+        .pagination-btn.active {
+            background: #2980b9;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .pagination-btn.disabled {
+            color: #6c757d;
+            cursor: not-allowed;
+            background: #f8f9fa;
+        }
+        
+        .search-container {
+            margin-bottom: 0.5rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.4rem;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            background: #f8f9fa;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #2980b9;
+            background: white;
+            box-shadow: 0 0 0 1px rgba(41, 128, 185, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 0.1rem;
+                padding: 0.3rem;
+            }
+            
+            h2 {
+                font-size: 0.9rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .header-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.2rem;
+            }
+            
+            .add-btn-row {
+                justify-content: center;
+                gap: 0.2rem;
+            }
+            
+            .add-btn,
+            .export-btn,
+            .filter-toggle {
+                padding: 0.2rem 0.6rem;
+                font-size: 0.65rem;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 0.2rem;
+            }
+            
+            .filter-actions {
+                justify-content: center;
+                gap: 0.2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.2rem;
+            }
+            
+            .stat-number {
+                font-size: 0.9rem;
+            }
+            
+            .stat-label {
+                font-size: 0.6rem;
+            }
+            
+            .cards-container {
+                grid-template-columns: 1fr;
+                gap: 0.4rem;
+            }
+            
+            .approval-card {
+                padding: 0.5rem;
+            }
+            
+            .card-content {
+                grid-template-columns: 1fr;
+                gap: 0.2rem;
+            }
+            
+            .card-actions {
+                flex-direction: column;
+                gap: 0.1rem;
+            }
+            
+            .action-btn {
+                justify-content: center;
+                padding: 0.1rem 0.2rem;
+                font-size: 0.55rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                margin: 0.05rem;
+                padding: 0.2rem;
+            }
+            
+            h2 {
+                font-size: 0.8rem;
+            }
+            
+            .add-btn,
+            .export-btn,
+            .filter-toggle {
+                padding: 0.15rem 0.4rem;
+                font-size: 0.6rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-number {
+                font-size: 0.8rem;
+            }
+            
+            .stat-label {
+                font-size: 0.55rem;
+            }
+            
+            .approval-card {
+                padding: 0.4rem;
+            }
+            
+            .card-title {
+                font-size: 0.75rem;
+            }
+            
+            .field-label {
+                font-size: 0.55rem;
+            }
+            
+            .field-value {
+                font-size: 0.65rem;
+            }
+            
+            .action-btn {
+                padding: 0.1rem 0.15rem;
+                font-size: 0.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2><i class="fas fa-clipboard-check"></i> Approval Records</h2>
+
+    <div class="header-section">
+        <div class="add-btn-row">
+            <a href="{% url 'approval_create' %}" class="add-btn">
+                <i class="fas fa-plus-circle"></i> Add New Approval
+            </a>
+            <button id="export-excel" class="export-btn">
+                <i class="fas fa-file-excel"></i> Export to Excel
+            </button>
+            <button id="filter-toggle" class="filter-toggle">
+                <i class="fas fa-filter"></i> Toggle Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Panel -->
+    <div id="filter-panel" class="filter-panel" style="display: none;">
+        <form id="filter-form" method="get" action=".">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="id_status" class="filter-label">Status:</label>
+                    <select name="status" id="id_status" class="filter-input">
+                        <option value="">All Status</option>
+                        {% for status_choice in status_choices %}
+                            <option value="{{ status_choice.0 }}" {% if status_filter == status_choice.0 %}selected{% endif %}>
+                                {{ status_choice.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="id_nature" class="filter-label">Nature of Approval:</label>
+                    <select name="nature" id="id_nature" class="filter-input">
+                        <option value="">All Types</option>
+                        {% for nature_choice in nature_choices %}
+                            <option value="{{ nature_choice.0 }}" {% if nature_filter == nature_choice.0 %}selected{% endif %}>
+                                {{ nature_choice.1 }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button type="submit" class="filter-submit">Apply Filters</button>
+                    <button type="button" class="filter-clear" onclick="clearFilters()">Clear</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Material Design Table -->
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Approval Records</h3>
+            <div class="table-actions">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" class="search-input" placeholder="Search records...">
+                </div>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            {% if records %}
+                <table class="mat-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>NFA No</th>
+                            <th>NFA Date</th>
+                            <th>Nature of Approval</th>
+                            <th>Code</th>
+                            <th>Name</th>
+                            <th>Valid From</th>
+                            <th>Valid To</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Remark</th>
+                            <th>Attachment</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in records %}
+                        <tr data-search="{{ a.nfa_no|lower }} {{ a.name|lower }} {{ a.code|lower }} {{ a.subject|lower }} {{ a.nature_of_approval|lower }}">
+                            <td class="nowrap">{{ forloop.counter }}</td>
+                            <td class="nowrap">{{ a.nfa_no }}</td>
+                            <td class="nowrap">{{ a.nfa_date|date:"d/m/Y" }}</td>
+                            <td class="nowrap">{{ a.nature_of_approval }}</td>
+                            <td class="nowrap">{{ a.code }}</td>
+                            <td class="nowrap">{{ a.name }}</td>
+                            <td class="nowrap">{{ a.valid_from|date:"d/m/Y" }}</td>
+                            <td class="nowrap">{{ a.valid_to|date:"d/m/Y" }}</td>
+                            <td class="nowrap">{{ a.subject|truncatechars:30 }}</td>
+                            <td class="nowrap">
+                                <span class="status-badge status-{{ a.status|lower }}">
+                                    {{ a.status }}
+                                </span>
+                            </td>
+                            <td class="nowrap">{{ a.remark|truncatechars:20|default:"-" }}</td>
+                            <td class="nowrap">
+                                {% if a.attachment %}
+                                    <a href="{{ a.attachment.url }}" class="attachment-link" target="_blank">
+                                        <i class="fas fa-file"></i> View
+                                    </a>
+                                {% else %}
+                                    <span class="no-attachment">-</span>
+                                {% endif %}
+                            </td>
+                            <td class="nowrap">{{ a.created_at|date:"d/m/Y" }}</td>
+                            <td class="nowrap">
+                                <div class="action-buttons">
+                                    <a href="{% url 'approval_view' a.id %}" class="action-btn view-btn" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'approval_edit' a.id %}" class="action-btn edit-btn" title="Edit Approval">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if a.status == 'pending' %}
+                                    <a href="{% url 'approval_approve' a.id %}" class="action-btn approve-btn" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </a>
+                                    <a href="{% url 'approval_reject' a.id %}" class="action-btn reject-btn" title="Reject">
+                                        <i class="fas fa-times"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'approval_delete' a.id %}" class="action-btn delete-btn" title="Delete Approval">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No Approval Records Found</h3>
+                    <p>No approval records match your current filters.</p>
+                    <a href="{% url 'approval_create' %}" class="add-btn">
+                        <i class="fas fa-plus-circle"></i> Create First Approval
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if records.has_other_pages %}
+    <div class="pagination-container">
+        {% if records.has_previous %}
+            <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ records.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        {% endif %}
+        
+        <span class="pagination-info">
+            Page {{ records.number }} of {{ records.paginator.num_pages }}
+        </span>
+        
+        {% for num in records.paginator.page_range %}
+            {% if records.number == num %}
+                <span class="pagination-btn active">{{ num }}</span>
+            {% elif num > records.number|add:'-3' and num < records.number|add:'3' %}
+                <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if records.has_next %}
+            <a href="?page={{ records.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ records.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Filter toggle functionality
+        $('#filter-toggle').on('click', function() {
+            $('#filter-panel').slideToggle(300);
+            $(this).toggleClass('active');
+        });
+
+        // Search functionality for table
+        $('#search-input').on('keyup', function() {
+            var searchTerm = $(this).val().toLowerCase();
+            $('.mat-table tbody tr').each(function() {
+                var searchData = $(this).attr('data-search');
+                if (searchData && searchData.toLowerCase().includes(searchTerm)) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        // Export functionality
+        $('#export-excel').on('click', function() {
+            // Get current filters
+            var filters = {};
+            $('#filter-form').serializeArray().forEach(function(item) {
+                if (item.value) {
+                    filters[item.name] = item.value;
+                }
+            });
+            
+            // Build export URL
+            var exportUrl = '{% url "approval_export_excel" %}?';
+            var params = new URLSearchParams(filters);
+            exportUrl += params.toString();
+            
+            // Trigger download
+            window.location.href = exportUrl;
+        });
+
+        // Show filter panel if any filters are applied
+        var filtersApplied = false;
+        $('#filter-form input[type="text"], #filter-form input[type="date"]').each(function() {
+            if ($(this).val()) {
+                filtersApplied = true;
+                return false;
+            }
+        });
+        $('#filter-form select').each(function() {
+            if ($(this).val()) {
+                filtersApplied = true;
+                return false;
+            }
+        });
+
+        if (filtersApplied) {
+            $('#filter-panel').show();
+            $('#filter-toggle').addClass('active');
+        }
+    });
+    
+    function clearFilters() {
+        $('#filter-form')[0].reset();
+        $('#filter-form').submit();
+    }
+</script>
+{% endblock %} 

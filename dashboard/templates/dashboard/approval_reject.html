@@ -1,0 +1,297 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Reject - {{ approval.nfa_no }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6dd5fa, #2980b9, #ffffff) !important;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .page-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .page-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .reject-container {
+            background: white;
+            border-radius: 18px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .reject-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .reject-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            margin: 0 auto 2rem;
+        }
+        
+        .reject-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .reject-message {
+            font-size: 1.1rem;
+            color: #6c757d;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .approval-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+        }
+        
+        .detail-value {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .form-section {
+            margin: 2rem 0;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+        
+        .form-group textarea::placeholder {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .reject-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-times-circle"></i> Reject Request</h1>
+    <p>Reject approval for {{ approval.nfa_no }}</p>
+</div>
+
+<div class="reject-container">
+    <div class="reject-header">
+        <div class="reject-icon">
+            <i class="fas fa-times"></i>
+        </div>
+        
+        <h2 class="reject-title">Are you sure you want to reject this request?</h2>
+        
+        <p class="reject-message">
+            Please provide a reason for rejection. This will help the requester understand why the approval was not granted.
+        </p>
+    </div>
+    
+    <div class="approval-details">
+        <div class="detail-item">
+            <span class="detail-label">NFA No:</span>
+            <span class="detail-value">{{ approval.nfa_no }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Name:</span>
+            <span class="detail-value">{{ approval.name }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Nature of Approval:</span>
+            <span class="detail-value">{{ approval.get_nature_of_approval_display }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Code:</span>
+            <span class="detail-value">{{ approval.code }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Valid From:</span>
+            <span class="detail-value">{{ approval.valid_from|date:"M d, Y" }}</span>
+        </div>
+        <div class="detail-item">
+            <span class="detail-label">Valid To:</span>
+            <span class="detail-value">{{ approval.valid_to|date:"M d, Y" }}</span>
+        </div>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-section">
+            <div class="form-group">
+                <label for="reason">Reason for Rejection *</label>
+                <textarea 
+                    id="reason" 
+                    name="reason" 
+                    placeholder="Please provide a detailed reason for rejecting this approval request..."
+                    required
+                ></textarea>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{% url 'approval_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-times"></i>
+                Reject Request
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const reason = document.getElementById('reason').value.trim();
+        
+        if (!reason) {
+            e.preventDefault();
+            alert('Please provide a reason for rejection.');
+            document.getElementById('reason').focus();
+            return false;
+        }
+        
+        if (reason.length < 10) {
+            e.preventDefault();
+            alert('Please provide a more detailed reason (at least 10 characters).');
+            document.getElementById('reason').focus();
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rejecting...';
+        submitBtn.disabled = true;
+        
+        // Re-enable after 5 seconds if no response
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 5000);
+    });
+</script>
+{% endblock %} 

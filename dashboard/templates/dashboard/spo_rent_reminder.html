@@ -1,0 +1,724 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}SPO Rent Email Reminders - Data Management System{% endblock %}
+
+{% block content %}
+<style>
+    .spo-reminder-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .stats-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 1.5rem;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .filter-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .filter-grid {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        align-items: end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+
+    .filter-input {
+        padding: 0.8rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .filter-input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .filter-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .btn-filter {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-primary-filter {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-secondary-filter {
+        background: #f7fafc;
+        color: #4a5568;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary-filter:hover {
+        background: #edf2f7;
+        color: #2d3748;
+        text-decoration: none;
+    }
+
+    .email-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .email-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .email-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .email-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+
+    .email-input, .email-textarea {
+        padding: 0.8rem 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .email-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .email-input:focus, .email-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .records-table {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .table-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-action {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(72, 187, 120, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        color: white;
+    }
+
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(237, 137, 54, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .records-table table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+    }
+
+    .records-table th {
+        background: #667eea;
+        color: white;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #5a67d8;
+        position: relative;
+    }
+
+    .records-table th i {
+        margin-left: 0.5rem;
+        font-size: 0.8rem;
+        opacity: 0.8;
+    }
+
+    .sort-info {
+        font-weight: 600;
+        color: #38a169;
+        background: #f0fff4;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        border: 1px solid #c6f6d5;
+        margin-left: 1rem;
+    }
+
+    .records-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+        vertical-align: middle;
+    }
+
+    .records-table tr:hover {
+        background: #f7fafc;
+    }
+
+    .checkbox-cell {
+        text-align: center;
+        width: 50px;
+    }
+
+    .checkbox-input {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .email-cell {
+        font-family: monospace;
+        color: #667eea;
+        font-weight: 500;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: #c6f6d5;
+        color: #22543d;
+    }
+
+    .status-inactive {
+        background: #fed7d7;
+        color: #742a2a;
+    }
+
+    .status-suspended {
+        background: #fef5e7;
+        color: #744210;
+    }
+
+    .status-terminated {
+        background: #e2e8f0;
+        color: #4a5568;
+    }
+
+    .expiring-soon {
+        background: #fff5f5;
+        border-left: 4px solid #f56565;
+    }
+
+    .no-records {
+        text-align: center;
+        padding: 3rem;
+        color: #718096;
+    }
+
+    .no-records i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    @media (max-width: 768px) {
+        .spo-reminder-container {
+            padding: 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .stats-panel {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .email-form {
+            grid-template-columns: 1fr;
+        }
+
+        .table-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .table-actions {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="spo-reminder-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-envelope"></i>
+            SPO Rent Email Reminders
+        </h1>
+        <p class="page-subtitle">Manage and send email reminders to SPO Rent users</p>
+    </div>
+
+    <!-- Statistics Panel -->
+    <div class="stats-panel">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_records }}</div>
+            <div class="stat-label">Total Records</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ active_records }}</div>
+            <div class="stat-label">Active Records</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ expiring_count }}</div>
+            <div class="stat-label">Expiring Soon</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ records|length }}</div>
+            <div class="stat-label">With Email</div>
+        </div>
+    </div>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel">
+        <form method="get" class="filter-form">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Expiring Soon</label>
+                    <select class="filter-input" name="expiring_soon">
+                        <option value="">All Records</option>
+                        <option value="true" {% if request.GET.expiring_soon == 'true' %}selected{% endif %}>
+                            Expiring in 30 days
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Sort By</label>
+                    <select class="filter-input" name="sort_by">
+                        <option value="spo_code" {% if request.GET.sort_by == 'spo_code' %}selected{% endif %}>SPO Code</option>
+                        <option value="spo_name" {% if request.GET.sort_by == 'spo_name' %}selected{% endif %}>SPO Name</option>
+                        <option value="owner_name" {% if request.GET.sort_by == 'owner_name' %}selected{% endif %}>Owner Name</option>
+                        <option value="state" {% if request.GET.sort_by == 'state' %}selected{% endif %}>State</option>
+                        <option value="rental_to_date" {% if request.GET.sort_by == 'rental_to_date' %}selected{% endif %}>Expiry Date</option>
+                        <option value="rent_pm" {% if request.GET.sort_by == 'rent_pm' %}selected{% endif %}>Monthly Rent</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Order</label>
+                    <select class="filter-input" name="order">
+                        <option value="asc" {% if request.GET.order == 'asc' or not request.GET.order %}selected{% endif %}>Ascending</option>
+                        <option value="desc" {% if request.GET.order == 'desc' %}selected{% endif %}>Descending</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter btn-primary-filter">
+                    <i class="fas fa-search"></i>
+                    Apply Filters
+                </button>
+                <a href="{% url 'spo_rent_reminder' %}" class="btn-filter btn-secondary-filter">
+                    <i class="fas fa-times"></i>
+                    Clear Filters
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Email Panel -->
+    <div class="email-panel">
+        <h2 class="table-title">
+            <i class="fas fa-paper-plane"></i>
+            Send Email Reminders
+        </h2>
+        <form method="post" action="{% url 'send_spo_rent_email' %}">
+            {% csrf_token %}
+            <div class="email-form">
+                <div class="email-group">
+                    <label class="email-label">Email Type</label>
+                    <select class="email-input" name="email_type" required>
+                        <option value="renewal">Renewal Reminder</option>
+                        <option value="expiry">Expiry Notice</option>
+                        <option value="payment">Payment Reminder</option>
+                        <option value="general">General Update</option>
+                    </select>
+                </div>
+                <div class="email-group">
+                    <label class="email-label">Custom Message (Optional)</label>
+                    <textarea class="email-textarea" name="custom_message" placeholder="Add a custom message to include in the email..."></textarea>
+                </div>
+            </div>
+            <div class="table-actions">
+                <button type="submit" class="btn-action btn-success" id="sendEmailBtn" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                    Send Email to Selected Records
+                </button>
+                <button type="button" class="btn-action btn-warning" id="selectAllBtn">
+                    <i class="fas fa-check-square"></i>
+                    Select All
+                </button>
+                <button type="button" class="btn-action btn-secondary-filter" id="deselectAllBtn">
+                    <i class="fas fa-square"></i>
+                    Deselect All
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Records Table -->
+    <div class="records-table">
+        <div class="table-header">
+            <h2 class="table-title">
+                <i class="fas fa-list"></i>
+                SPO Rent Records with Email Addresses
+            </h2>
+            <div class="table-actions">
+                <span class="selected-count">Selected: <span id="selectedCount">0</span></span>
+                {% if request.GET.sort_by %}
+                <span class="sort-info">
+                    <i class="fas fa-sort"></i>
+                    Sorted by: {{ request.GET.sort_by|title }} 
+                    ({{ request.GET.order|upper }})
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Debug Info -->
+        <div style="background: #f8f9fa; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; border-left: 4px solid #007bff;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #007bff;">Debug Information</h4>
+            <p style="margin: 0; font-size: 0.9rem;">
+                <strong>Total Records:</strong> {{ total_records }}<br>
+                <strong>Records with Email:</strong> {{ records|length }}<br>
+                <strong>Active Records:</strong> {{ active_records }}<br>
+                <strong>Expiring Count:</strong> {{ expiring_count }}<br>
+                <strong>Records List:</strong> 
+                {% for record in records %}
+                    {{ record.spo_code }} ({{ record.cfa_mail_id }})
+                {% empty %}
+                    No records found
+                {% endfor %}
+            </p>
+        </div>
+
+        {% if records %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th class="checkbox-cell">
+                            <input type="checkbox" id="selectAll" class="checkbox-input">
+                        </th>
+                        <th>
+                            SPO Code
+                            {% if request.GET.sort_by == 'spo_code' %}
+                                <i class="fas fa-sort-{% if request.GET.order == 'desc' %}down{% else %}up{% endif %}"></i>
+                            {% endif %}
+                        </th>
+                        <th>
+                            SPO Name
+                            {% if request.GET.sort_by == 'spo_name' %}
+                                <i class="fas fa-sort-{% if request.GET.order == 'desc' %}down{% else %}up{% endif %}"></i>
+                            {% endif %}
+                        </th>
+                        <th>
+                            Owner Name
+                            {% if request.GET.sort_by == 'owner_name' %}
+                                <i class="fas fa-sort-{% if request.GET.order == 'desc' %}down{% else %}up{% endif %}"></i>
+                            {% endif %}
+                        </th>
+                        <th>Email Address</th>
+                        <th>
+                            State
+                            {% if request.GET.sort_by == 'state' %}
+                                <i class="fas fa-sort-{% if request.GET.order == 'desc' %}down{% else %}up{% endif %}"></i>
+                            {% endif %}
+                        </th>
+                        <th>Status</th>
+                        <th>
+                            Rental Period
+                            {% if request.GET.sort_by == 'rental_to_date' %}
+                                <i class="fas fa-sort-{% if request.GET.order == 'desc' %}down{% else %}up{% endif %}"></i>
+                            {% endif %}
+                        </th>
+                        <th>
+                            Monthly Rent
+                            {% if request.GET.sort_by == 'rent_pm' %}
+                                <i class="fas fa-sort-{% if request.GET.order == 'desc' %}down{% else %}up{% endif %}"></i>
+                            {% endif %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr class="{% if record.rental_to_date and record.rental_to_date <= today_plus_30 %}expiring-soon{% endif %}">
+                        <td class="checkbox-cell">
+                            <input type="checkbox" name="selected_records" value="{{ record.id }}" class="checkbox-input record-checkbox">
+                        </td>
+                        <td><strong>{{ record.spo_code }}</strong></td>
+                        <td>{{ record.spo_name }}</td>
+                        <td>{{ record.owner_name|default:"N/A" }}</td>
+                        <td class="email-cell">{{ record.cfa_mail_id }}</td>
+                        <td>{{ record.state.state_name }}</td>
+                        <td>
+                            <span class="status-badge status-{{ record.status|lower }}">
+                                {{ record.status }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if record.rental_from_date and record.rental_to_date %}
+                                {{ record.rental_from_date|date:"d/m/Y" }} - {{ record.rental_to_date|date:"d/m/Y" }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>₹{{ record.rent_pm|default:"N/A" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-records">
+            <i class="fas fa-inbox"></i>
+            <h3>No SPO Rent Records Found</h3>
+            <p>No records with valid email addresses found matching your criteria.</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #6c757d;">
+                <strong>Debug:</strong> The query found {{ total_records }} total records, but {{ records|length }} records with email addresses.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const recordCheckboxes = document.querySelectorAll('.record-checkbox');
+        const selectedCountSpan = document.getElementById('selectedCount');
+        const sendEmailBtn = document.getElementById('sendEmailBtn');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deselectAllBtn = document.getElementById('deselectAllBtn');
+
+        // Update selected count
+        function updateSelectedCount() {
+            const selectedCount = document.querySelectorAll('.record-checkbox:checked').length;
+            selectedCountSpan.textContent = selectedCount;
+            sendEmailBtn.disabled = selectedCount === 0;
+        }
+
+        // Select all functionality
+        selectAllCheckbox.addEventListener('change', function() {
+            recordCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateSelectedCount();
+        });
+
+        // Individual checkbox change
+        recordCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(recordCheckboxes).every(cb => cb.checked);
+                const anyChecked = Array.from(recordCheckboxes).some(cb => cb.checked);
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+                updateSelectedCount();
+            });
+        });
+
+        // Select all button
+        selectAllBtn.addEventListener('click', function() {
+            recordCheckboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.indeterminate = false;
+            updateSelectedCount();
+        });
+
+        // Deselect all button
+        deselectAllBtn.addEventListener('click', function() {
+            recordCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+            updateSelectedCount();
+        });
+
+        // Form submission confirmation
+        document.querySelector('form[action*="send_spo_rent_email"]').addEventListener('submit', function(e) {
+            const selectedCount = document.querySelectorAll('.record-checkbox:checked').length;
+            if (selectedCount === 0) {
+                e.preventDefault();
+                alert('Please select at least one record to send email.');
+                return;
+            }
+            
+            const emailType = document.querySelector('select[name="email_type"]').value;
+            const confirmMessage = `Are you sure you want to send ${emailType} emails to ${selectedCount} selected record(s)?`;
+            
+            if (!confirm(confirmMessage)) {
+                e.preventDefault();
+            }
+        });
+
+        // Initialize count
+        updateSelectedCount();
+    });
+</script>
+{% endblock %} 

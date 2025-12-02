@@ -1,0 +1,825 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Transporter Agreement Details{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6dd5fa, #2980b9, #ffffff) !important;
+        }
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .page-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .page-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        .view-container {
+            background: #fff;
+            border-radius: 18px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        .view-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .view-section {
+            margin-bottom: 2.5rem;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .detail-value {
+            font-size: 1rem;
+            color: #2c3e50;
+            padding: 0.8rem;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .detail-value.empty {
+            color: #6c757d;
+            font-style: italic;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-active {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+        .status-inactive {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        .status-close {
+            background: rgba(149, 165, 166, 0.1);
+            color: #95a5a6;
+            border: 1px solid rgba(149, 165, 166, 0.3);
+        }
+        .status-suspended {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+        .status-terminated {
+            background: rgba(149, 165, 166, 0.1);
+            color: #95a5a6;
+            border: 1px solid rgba(149, 165, 166, 0.3);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        .edit-btn {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+        .edit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        .pdf-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .pdf-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        .back-btn {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+        .floating-nav {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .nav-item {
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6c757d;
+            text-align: center;
+            border: 1px solid transparent;
+        }
+        .nav-item:hover {
+            background: #667eea;
+            color: white;
+            transform: translateX(-5px);
+        }
+        .nav-item.active {
+            background: #667eea;
+            color: white;
+        }
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .scroll-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        }
+                .scroll-to-top.show {
+            display: flex;
+        }
+        .status-active {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+        .status-inactive {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        .status-close {
+            background: rgba(149, 165, 166, 0.1);
+            color: #95a5a6;
+            border: 1px solid rgba(149, 165, 166, 0.3);
+        }
+        .status-suspended {
+            background: rgba(243, 156, 18, 0.1);
+            color: #f39c12;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+        .status-terminated {
+            background: rgba(149, 165, 166, 0.1);
+            color: #95a5a6;
+            border: 1px solid rgba(149, 165, 166, 0.3);
+        }
+        .attachment-item {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+        .attachment-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        .attachment-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .file-name {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        .file-size {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        .attachment-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .attachment-link, .download-link {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .attachment-link {
+            background: #667eea;
+            color: white;
+        }
+        .attachment-link:hover {
+            background: #5a67d8;
+            color: white;
+        }
+        .download-link {
+            background: #27ae60;
+            color: white;
+        }
+        .download-link:hover {
+            background: #219a52;
+            color: white;
+        }
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .back-link:hover {
+            color: #5a67d8;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+        @media (max-width: 768px) {
+            .view-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'transporter_agreement_list' %}" class="back-link">
+    <i class="fas fa-arrow-left"></i>
+    Back to Transporter Agreements
+</a>
+
+<div class="page-header">
+    <h1><i class="fas fa-truck"></i> Transporter Agreement Details</h1>
+    <p>{{ transporter.transporter_name }} - {{ transporter.transporter_code }}</p>
+</div>
+
+<div class="view-container">
+    <!-- Basic Information Section -->
+    <div class="view-section" data-section="transporter-info">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <h2 class="section-title">Basic Information</h2>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                            <div class="detail-label">State</div>
+            <div class="detail-value">{{ transporter.state.state_name|default:transporter.state|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">District Name</div>
+                <div class="detail-value">{{ transporter.district.name|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Source Plant Code</div>
+                <div class="detail-value">{{ transporter.source_plant_code|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Source Plant Name</div>
+                <div class="detail-value">{{ transporter.source_plant_name|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Operating in Multiple Plant</div>
+                <div class="detail-value">{{ transporter.operating_in_multiple_plant|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Transporter Status</div>
+                <div class="detail-value">
+                    <span class="status-badge status-{{ transporter.transporter_status|lower }}">
+                        {{ transporter.transporter_status|default:"Not specified" }}
+                    </span>
+                </div>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+                <div class="detail-label">List of Plant</div>
+                <div class="detail-value">{{ transporter.list_of_plant|default:"Not specified" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agreement Details Section -->
+    <div class="view-section" data-section="location-info">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <h2 class="section-title">Agreement Details</h2>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Inception Date</div>
+                <div class="detail-value">{{ transporter.inception_date|date:"F j, Y"|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Agreement From Date</div>
+                <div class="detail-value">{{ transporter.agreement_from_date|date:"F j, Y"|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Agreement To Date</div>
+                <div class="detail-value">{{ transporter.agreement_to_date|date:"F j, Y"|default:"Not specified" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transporter Information Section -->
+    <div class="view-section" data-section="plant-info">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-truck"></i>
+            </div>
+            <h2 class="section-title">Transporter Information</h2>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Transporter Code</div>
+                <div class="detail-value">{{ transporter.transporter_code|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Transporter Name</div>
+                <div class="detail-value">{{ transporter.transporter_name|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+                <div class="detail-label">Transporter Address</div>
+                <div class="detail-value">{{ transporter.transporter_address|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Owner/Managing Partner</div>
+                <div class="detail-value">{{ transporter.owner_managing_partner|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Owner Contact No</div>
+                <div class="detail-value">{{ transporter.owner_contact_no|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Transporter Mail ID</div>
+                <div class="detail-value">{{ transporter.transporter_mail_id|default:"Not specified" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Business Details Section -->
+    <div class="view-section" data-section="contact-info">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+            <h2 class="section-title">Business Details</h2>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">GST No</div>
+                <div class="detail-value">{{ transporter.gst_no|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">PAN No</div>
+                <div class="detail-value">{{ transporter.pan_no|default:"Not specified" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bank Information Section -->
+    <div class="view-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-university"></i>
+            </div>
+            <h2 class="section-title">Bank Information</h2>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Bank Account Name</div>
+                <div class="detail-value">{{ transporter.bank_account_name|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Bank Account No</div>
+                <div class="detail-value">{{ transporter.bank_account_no|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Bank Name</div>
+                <div class="detail-value">{{ transporter.bank_name|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Branch Name</div>
+                <div class="detail-value">{{ transporter.branch.state_branch_name|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Bank IFSC Code</div>
+                <div class="detail-value">{{ transporter.bank_ifsc_code|default:"Not specified" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Financial Details Section -->
+    <div class="view-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <h2 class="section-title">Financial Details</h2>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Customer Code for Invoicing</div>
+                <div class="detail-value">{{ transporter.customer_code_for_invoicing|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Security Deposit Rs.</div>
+                <div class="detail-value">₹{{ transporter.security_deposit_rs|floatformat:2|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Security Deposit Doc. / DD</div>
+                <div class="detail-value">{{ transporter.security_deposit_doc_dd|default:"Not specified" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Information Section -->
+    <div class="view-section">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-plus-circle"></i>
+            </div>
+            <h2 class="section-title">Additional Information</h2>
+        </div>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <div class="detail-label">Reg. Office Destination Code</div>
+                <div class="detail-value">{{ transporter.reg_office_destination_code|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Closure Date</div>
+                <div class="detail-value">{{ transporter.closure_date|date:"F j, Y"|default:"Not specified" }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Status</div>
+                <div class="detail-value">
+                    <span class="status-badge status-{{ transporter.status|lower }}">
+                        {{ transporter.status|default:"Not specified" }}
+                    </span>
+                </div>
+            </div>
+            <div class="detail-item" style="grid-column: 1 / -1;">
+                <div class="detail-label">Remark</div>
+                <div class="detail-value">{{ transporter.remark|default:"Not specified" }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Documents Section -->
+    <div class="view-section" data-section="documents">
+        <div class="section-header">
+            <div class="section-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <h2 class="section-title">Documents</h2>
+        </div>
+        
+        {% if transporter.transporter_agreement %}
+        <div class="attachment-item">
+            <div class="attachment-title">Transporter Agreement</div>
+            <div class="attachment-info">
+                <div class="file-name">{{ transporter.transporter_agreement.name|slice:"25:" }}</div>
+                <div class="file-size">{{ transporter.transporter_agreement.size|filesizeformat }}</div>
+            </div>
+            <div class="attachment-actions">
+                <a href="{{ transporter.transporter_agreement.url }}" class="attachment-link" onclick="openFile('{{ transporter.transporter_agreement.url }}', 'Transporter Agreement')">
+                    <i class="fas fa-eye"></i> View File
+                </a>
+                <a href="{{ transporter.transporter_agreement.url }}" class="download-link" download>
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if transporter.closure_letter %}
+        <div class="attachment-item">
+            <div class="attachment-title">Closure Letter</div>
+            <div class="attachment-info">
+                <div class="file-name">{{ transporter.closure_letter.name|slice:"25:" }}</div>
+                <div class="file-size">{{ transporter.closure_letter.size|filesizeformat }}</div>
+            </div>
+            <div class="attachment-actions">
+                <a href="{{ transporter.closure_letter.url }}" class="attachment-link" onclick="openFile('{{ transporter.closure_letter.url }}', 'Closure Letter')">
+                    <i class="fas fa-eye"></i> View File
+                </a>
+                <a href="{{ transporter.closure_letter.url }}" class="download-link" download>
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if transporter.closure_acceptance_letter %}
+        <div class="attachment-item">
+            <div class="attachment-title">Closure Acceptance Letter</div>
+            <div class="attachment-info">
+                <div class="file-name">{{ transporter.closure_acceptance_letter.name|slice:"25:" }}</div>
+                <div class="file-size">{{ transporter.closure_acceptance_letter.size|filesizeformat }}</div>
+            </div>
+            <div class="attachment-actions">
+                <a href="{{ transporter.closure_acceptance_letter.url }}" class="attachment-link" onclick="openFile('{{ transporter.closure_acceptance_letter.url }}', 'Closure Acceptance Letter')">
+                    <i class="fas fa-eye"></i> View File
+                </a>
+                <a href="{{ transporter.closure_acceptance_letter.url }}" class="download-link" download>
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if transporter.ff_letter_calc %}
+        <div class="attachment-item">
+            <div class="attachment-title">F&F Letter & Calc.</div>
+            <div class="attachment-info">
+                <div class="file-name">{{ transporter.ff_letter_calc.name|slice:"25:" }}</div>
+                <div class="file-size">{{ transporter.ff_letter_calc.size|filesizeformat }}</div>
+            </div>
+            <div class="attachment-actions">
+                <a href="{{ transporter.ff_letter_calc.url }}" class="attachment-link" onclick="openFile('{{ transporter.ff_letter_calc.url }}', 'F&F Letter & Calc.')">
+                    <i class="fas fa-eye"></i> View File
+                </a>
+                <a href="{{ transporter.ff_letter_calc.url }}" class="download-link" download>
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if transporter.security_deposit %}
+        <div class="attachment-item">
+            <div class="attachment-title">Security Deposit</div>
+            <div class="attachment-info">
+                <div class="file-name">{{ transporter.security_deposit.name|slice:"25:" }}</div>
+                <div class="file-size">{{ transporter.security_deposit.size|filesizeformat }}</div>
+            </div>
+            <div class="attachment-actions">
+                <a href="{{ transporter.security_deposit.url }}" class="attachment-link" onclick="openFile('{{ transporter.security_deposit.url }}', 'Security Deposit')">
+                    <i class="fas fa-eye"></i> View File
+                </a>
+                <a href="{{ transporter.security_deposit.url }}" class="download-link" download>
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not transporter.transporter_agreement and not transporter.closure_letter and not transporter.closure_acceptance_letter and not transporter.ff_letter_calc and not transporter.security_deposit %}
+        <div class="detail-value empty">No documents uploaded</div>
+        {% endif %}
+    </div>
+
+    <div class="action-buttons">
+        <a href="{% url 'transporter_agreement_edit' transporter.id %}" class="action-btn edit-btn">
+            <i class="fas fa-edit"></i>
+            Edit Transporter Agreement
+        </a>
+        <a href="{% url 'transporter_agreement_pdf' transporter.id %}" class="action-btn pdf-btn" target="_blank">
+            <i class="fas fa-file-pdf"></i>
+            Download PDF
+        </a>
+        <a href="{% url 'transporter_agreement_list' %}" class="action-btn back-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to List
+        </a>
+    </div>
+</div>
+
+<!-- Floating Navigation -->
+<div class="floating-nav">
+    <div class="nav-item" data-section="transporter-info">Transporter Info</div>
+    <div class="nav-item" data-section="location-info">Location</div>
+    <div class="nav-item" data-section="plant-info">Plant Info</div>
+    <div class="nav-item" data-section="contact-info">Contact</div>
+    <div class="nav-item" data-section="documents">Documents</div>
+</div>
+
+<!-- Scroll to Top Button -->
+<button class="scroll-to-top" id="scrollToTop">
+    <i class="fas fa-arrow-up"></i>
+</button>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function openFile(url, fileName) {
+        try {
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error opening file:', error);
+            showFileError(fileName);
+        }
+    }
+
+    function showFileError(fileName) {
+        alert(`Unable to open ${fileName}. The file may not exist or you may not have permission to access it.`);
+    }
+
+    // Floating Navigation
+    document.addEventListener('DOMContentLoaded', function() {
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.view-section');
+        const scrollToTopBtn = document.getElementById('scrollToTop');
+
+        // Scroll to section
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const targetSection = this.getAttribute('data-section');
+                const targetElement = document.querySelector(`[data-section="${targetSection}"]`);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Scroll spy
+        window.addEventListener('scroll', function() {
+            const scrollPos = window.scrollY + 100;
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                
+                if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
+                    const sectionId = section.getAttribute('data-section');
+                    navItems.forEach(item => {
+                        item.classList.remove('active');
+                        if (item.getAttribute('data-section') === sectionId) {
+                            item.classList.add('active');
+                        }
+                    });
+                }
+            });
+
+            // Show/hide scroll to top button
+            if (window.scrollY > 300) {
+                scrollToTopBtn.classList.add('show');
+            } else {
+                scrollToTopBtn.classList.remove('show');
+            }
+        });
+
+        // Scroll to top
+        scrollToTopBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Home') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }
+        });
+    });
+</script>
+{% endblock %} 

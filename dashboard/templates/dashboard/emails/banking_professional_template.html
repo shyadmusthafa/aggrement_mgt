@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPO Rent Record Notification</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #1a202c;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        /* Email container */
+        .email-container {
+            max-width: 500px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        /* Header section */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+            opacity: 0.4;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .company-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+        
+        .company-tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        /* Content section */
+        .content {
+            padding: 30px 25px;
+        }
+        
+        .notification-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .greeting {
+            font-size: 1.2rem;
+            color: #1a202c;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+        
+        .message {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #4a5568;
+            margin-bottom: 25px;
+        }
+        
+        /* Record details section */
+        .record-details {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 18px;
+            text-transform: none;
+            letter-spacing: -0.5px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #4a5568;
+            min-width: 110px;
+            font-size: 0.85rem;
+        }
+        
+        .detail-value {
+            color: #2d3748;
+            font-weight: 500;
+            flex: 1;
+            font-size: 0.85rem;
+        }
+        
+        .highlight-value {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+        }
+        
+        /* Action section */
+        .action-section {
+            background: linear-gradient(135deg, #fef5e7, #fed7aa);
+            border: 1px solid #f6ad55;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .action-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #c05621;
+            margin-bottom: 12px;
+        }
+        
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            border: none;
+        }
+        
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Footer section */
+        .footer {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .footer-content {
+            margin-bottom: 18px;
+        }
+        
+        .footer-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .footer-text {
+            font-size: 0.85rem;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .contact-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .contact-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .contact-icon {
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        
+        .social-links {
+            margin-top: 18px;
+        }
+        
+        .social-link {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 36px;
+            margin: 0 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .social-link:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+        
+        .copyright {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 18px;
+            font-size: 0.75rem;
+            opacity: 0.7;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 500px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+            
+            .header {
+                padding: 25px 20px;
+            }
+            
+            .content {
+                padding: 25px 20px;
+            }
+            
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .detail-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .detail-label {
+                margin-bottom: 4px;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .email-container {
+                box-shadow: none;
+                max-width: none;
+            }
+            
+            .action-button {
+                background: #667eea !important;
+                color: white !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="logo">🏢</div>
+                <div class="company-name">Chettinad Software Center</div>
+                <div class="company-tagline">Secure Data Management Solutions</div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Notification Badge -->
+            <div class="notification-badge">
+                📋 New SPO Rent Record Created Successfully
+            </div>
+            
+            <!-- Greeting -->
+            <div class="greeting">
+                Dear {{ created_by }},
+            </div>
+            
+            <!-- Message -->
+            <div class="message">
+                A new SPO Rent record has been successfully created in our system. This notification contains all the essential details of the newly registered SPO Rent agreement. Please review the information below and take any necessary actions.
+            </div>
+            
+            <!-- Record Details -->
+            <div class="record-details">
+                <div class="section-title">📋 SPO Rent Record Details</div>
+                
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">SPO Code:</div>
+                        <div class="detail-value">
+                            <span class="highlight-value">{{ record.spo_code|default:"N/A" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">SPO Name:</div>
+                        <div class="detail-value">{{ record.spo_name|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">SPO Status:</div>
+                        <div class="detail-value">{{ record.spo_status|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Owner Name:</div>
+                        <div class="detail-value">{{ record.owner_name|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Owner Phone:</div>
+                        <div class="detail-value">{{ record.owner_contact_no|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Owner Email:</div>
+                        <div class="detail-value">{{ record.cfa_mail_id|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Rent Amount:</div>
+                        <div class="detail-value">₹{{ record.rent_pm|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Security Deposit:</div>
+                        <div class="detail-value">₹{{ record.security_deposit_paid|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Rent From:</div>
+                        <div class="detail-value">{{ record.rental_from_date|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Rent To:</div>
+                        <div class="detail-value">{{ record.rental_to_date|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Property Address:</div>
+                        <div class="detail-value">{{ record.godown_address|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">State:</div>
+                        <div class="detail-value">{{ record.state.state_name|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">District:</div>
+                        <div class="detail-value">{{ record.district_code|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Created Date:</div>
+                        <div class="detail-value">{{ record.created_at|date:"d-m-Y H:i"|default:"N/A" }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Section -->
+            <div class="action-section">
+                <div class="action-title">🔍 Review & Manage Record</div>
+                <p style="color: #856404; margin-bottom: 20px;">
+                    Click the button below to view the complete SPO Rent record details and manage the agreement.
+                </p>
+                <a href="http://127.0.0.1:8000/dashboard/spo-rent/" class="action-button">
+                    📋 View SPO Rent Records
+                </a>
+            </div>
+            
+            <!-- Additional Information -->
+            <div style="background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border-radius: 16px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                <h3 style="color: #2d3748; margin-bottom: 12px; font-size: 1rem; font-weight: 700;">📝 Important Notes:</h3>
+                <ul style="color: #4a5568; line-height: 1.6; padding-left: 18px; font-size: 0.85rem;">
+                    <li style="margin-bottom: 6px;">This record has been automatically generated and stored in our secure database.</li>
+                    <li style="margin-bottom: 6px;">All financial transactions and agreements are subject to our standard terms and conditions.</li>
+                    <li style="margin-bottom: 6px;">Please ensure all required documents are uploaded and verified within the specified timeframe.</li>
+                    <li>For any queries or modifications, please contact our support team.</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                <div class="footer-title">Chettinad Software Center</div>
+                <div class="footer-text">
+                    Your trusted partner in secure data management and business solutions.
+                </div>
+            </div>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <span class="contact-icon">📍</span>
+                    <span>Meyyammai Building,17, 35, Gandhi Nagar 2nd Main Rd, Noothencheri, Adyar, Chennai, Tamil Nadu 600020.</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-icon">📧</span>
+                    <span>chettinadsdc@chettinad.com</span>
+                </div>
+                <div class="contact-item">
+                    <span class="contact-icon">📞</span>
+                    <span>+91 93841 48769</span>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                © 2025 Chettinad Software Center. All rights reserved.<br>
+                This email was sent to you as part of our automated notification system.
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

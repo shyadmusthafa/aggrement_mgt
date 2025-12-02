@@ -1,0 +1,424 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .workflow-detail-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .workflow-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        position: relative;
+    }
+    
+    .workflow-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .workflow-header-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .workflow-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .workflow-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+    
+    .workflow-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+    
+    .meta-item {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .meta-label {
+        font-size: 0.875rem;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .meta-value {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+    
+    .workflow-content {
+        padding: 2rem;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .record-details {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .detail-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+    
+    .workflow-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+    
+    .history-timeline {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+    }
+    
+    .timeline-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .timeline-item:last-child {
+        border-bottom: none;
+    }
+    
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .timeline-icon.created { background: #28a745; color: white; }
+    .timeline-icon.updated { background: #17a2b8; color: white; }
+    .timeline-icon.approved { background: #28a745; color: white; }
+    .timeline-icon.rejected { background: #dc3545; color: white; }
+    
+    .timeline-content {
+        flex: 1;
+    }
+    
+    .timeline-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+    }
+    
+    .timeline-meta {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-bottom: 0.5rem;
+    }
+    
+    .timeline-remarks {
+        background: white;
+        padding: 0.75rem;
+        border-radius: 6px;
+        border-left: 3px solid #007bff;
+        font-style: italic;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .status-waiting {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-confirmed {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'approval_workflow_dashboard' %}">Approval Workflow</a></li>
+                        <li class="breadcrumb-item active">{{ workflow.record_code }}</li>
+                    </ol>
+                </nav>
+                <h1 class="page-title">
+                    <i class="fas fa-eye"></i>
+                    {{ title }}
+                </h1>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'approval_workflow_dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Header -->
+    <div class="workflow-detail-card">
+        <div class="workflow-header">
+            <div class="workflow-header-content">
+                <h2 class="workflow-title">{{ workflow.record_code }}</h2>
+                <p class="workflow-subtitle">{{ workflow.get_record_type_display }} - {{ workflow.get_status_display }}</p>
+                
+                <div class="workflow-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">Record Type</div>
+                        <div class="meta-value">{{ workflow.get_record_type_display }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value">
+                            <span class="status-badge status-{{ workflow.status }}">
+                                {{ workflow.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Submitted By</div>
+                        <div class="meta-value">{{ workflow.submitted_by.get_full_name|default:workflow.submitted_by.username }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Submitted On</div>
+                        <div class="meta-value">{{ workflow.submitted_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    {% if workflow.approved_by %}
+                    <div class="meta-item">
+                        <div class="meta-label">Approved By</div>
+                        <div class="meta-value">{{ workflow.approved_by.get_full_name|default:workflow.approved_by.username }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Approved On</div>
+                        <div class="meta-value">{{ workflow.approved_at|date:"M d, Y H:i" }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="workflow-content">
+            <!-- Record Details -->
+            {% if record_obj %}
+            <div class="section-title">
+                <i class="fas fa-info-circle"></i>
+                Record Details
+            </div>
+            <div class="record-details">
+                <div class="detail-grid">
+                    {% if workflow.record_type == 'spo_rent' %}
+                        <div class="detail-item">
+                            <div class="detail-label">SPO Code</div>
+                            <div class="detail-value">{{ record_obj.spo_code }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SPO Name</div>
+                            <div class="detail-value">{{ record_obj.spo_name }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">State</div>
+                            <div class="detail-value">{{ record_obj.state.state_name }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Branch</div>
+                            <div class="detail-value">{{ record_obj.branch.state_branch_name|default:"Not specified" }}</div>
+                        </div>
+                    {% elif workflow.record_type == 'cfa_agreement' %}
+                        <div class="detail-item">
+                            <div class="detail-label">CFA Code</div>
+                            <div class="detail-value">{{ record_obj.cfa_code|default:"Not specified" }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">CFA Name</div>
+                            <div class="detail-value">{{ record_obj.cfa_name }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">SPO Code</div>
+                            <div class="detail-value">{{ record_obj.spo_code }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Branch</div>
+                            <div class="detail-value">{{ record_obj.branch_name }}</div>
+                        </div>
+                    {% elif workflow.record_type == 'transporter_agreement' %}
+                        <div class="detail-item">
+                            <div class="detail-label">Transporter Code</div>
+                            <div class="detail-value">{{ record_obj.transporter_code }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Transporter Name</div>
+                            <div class="detail-value">{{ record_obj.transporter_name }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Source Plant</div>
+                            <div class="detail-value">{{ record_obj.source_plant_name }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">State</div>
+                            <div class="detail-value">{{ record_obj.state.state_name }}</div>
+                        </div>
+                    {% elif 'partner' in workflow.record_type %}
+                        <div class="detail-item">
+                            <div class="detail-label">Partner Name</div>
+                            <div class="detail-value">{{ record_obj.name }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Email</div>
+                            <div class="detail-value">{{ record_obj.mail_id }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Aadhar</div>
+                            <div class="detail-value">{{ record_obj.aadhar_no }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">PAN</div>
+                            <div class="detail-value">{{ record_obj.pan_no }}</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Workflow Actions -->
+            {% if workflow.status == 'waiting_confirmation' %}
+            <div class="workflow-actions">
+                <a href="{% url 'approval_workflow_approve' workflow.id %}" class="btn btn-success btn-lg">
+                    <i class="fas fa-check"></i>
+                    Approve Record
+                </a>
+                <a href="{% url 'approval_workflow_reject' workflow.id %}" class="btn btn-danger btn-lg">
+                    <i class="fas fa-times"></i>
+                    Reject Record
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Workflow History -->
+            <div class="section-title">
+                <i class="fas fa-history"></i>
+                Workflow History
+            </div>
+            <div class="history-timeline">
+                {% for item in history %}
+                <div class="timeline-item">
+                    <div class="timeline-icon {{ item.action }}">
+                        {% if item.action == 'created' %}
+                            <i class="fas fa-plus"></i>
+                        {% elif item.action == 'updated' %}
+                            <i class="fas fa-edit"></i>
+                        {% elif item.action == 'approved' %}
+                            <i class="fas fa-check"></i>
+                        {% elif item.action == 'rejected' %}
+                            <i class="fas fa-times"></i>
+                        {% else %}
+                            <i class="fas fa-comment"></i>
+                        {% endif %}
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">{{ item.get_action_display }}</div>
+                        <div class="timeline-meta">
+                            by {{ item.user.get_full_name|default:item.user.username }} on {{ item.timestamp|date:"M d, Y H:i" }}
+                        </div>
+                        {% if item.remarks %}
+                        <div class="timeline-remarks">{{ item.remarks }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <p>No workflow history available.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,433 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Edit Partner - {{ partner.name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    body {
+        background: #667eea !important;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.95);
+        max-width: 900px;
+        width: 95%;
+        margin: 1rem auto;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .header-title h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .transporter-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .info-card {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.75rem;
+        border-radius: 8px;
+        backdrop-filter: blur(10px);
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        opacity: 0.8;
+        margin-bottom: 0.25rem;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .back-button {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .form-section {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #667eea;
+    }
+
+    .section-title {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .errorlist {
+        color: #dc3545;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        list-style: none;
+        padding: 0;
+    }
+
+    .help-text {
+        color: #6c757d;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+    }
+
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border-color: #c3e6cb;
+    }
+
+    .alert-danger {
+        background: #f8d7da;
+        color: #721c24;
+        border-color: #f5c6cb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="header-title">
+            <i class="fas fa-edit"></i>
+            <h1>Edit Partner</h1>
+        </div>
+        
+        <div class="transporter-info">
+            <div class="info-card">
+                <div class="info-label">Transporter</div>
+                <div class="info-value">{{ transporter_record.transporter_name }}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Code</div>
+                <div class="info-value">{{ transporter_record.transporter_code }}</div>
+            </div>
+            <div class="info-card">
+                <div class="info-label">Partner</div>
+                <div class="info-value">{{ partner.name }}</div>
+            </div>
+        </div>
+        
+        <a href="{% url 'transporter_partners_list' transporter_record.id %}" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back to Partners List
+        </a>
+    </div>
+
+    <!-- Form Section -->
+    <div class="form-section">
+        <div class="section-header">
+            <i class="fas fa-user-edit"></i>
+            <h2 class="section-title">Update Partner Information</h2>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="form-grid">
+                <!-- Partner Name -->
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}">
+                        <i class="fas fa-user"></i>
+                        Partner Name
+                    </label>
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                
+                <!-- Gender -->
+                <div class="form-group">
+                    <label for="{{ form.gender.id_for_label }}">
+                        <i class="fas fa-venus-mars"></i>
+                        Gender
+                    </label>
+                    {{ form.gender }}
+                    {{ form.gender.errors }}
+                </div>
+                
+                <!-- Age -->
+                <div class="form-group">
+                    <label for="{{ form.age.id_for_label }}">
+                        <i class="fas fa-birthday-cake"></i>
+                        Age
+                    </label>
+                    {{ form.age }}
+                    {{ form.age.errors }}
+                </div>
+                
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="{{ form.mail_id.id_for_label }}">
+                        <i class="fas fa-envelope"></i>
+                        Email Address
+                    </label>
+                    {{ form.mail_id }}
+                    {{ form.mail_id.errors }}
+                </div>
+                
+                <!-- Aadhar Number -->
+                <div class="form-group">
+                    <label for="{{ form.aadhar_no.id_for_label }}">
+                        <i class="fas fa-id-card"></i>
+                        Aadhar Number
+                    </label>
+                    {{ form.aadhar_no }}
+                    {{ form.aadhar_no.errors }}
+                </div>
+                
+                <!-- PAN Number -->
+                <div class="form-group">
+                    <label for="{{ form.pan_no.id_for_label }}">
+                        <i class="fas fa-credit-card"></i>
+                        PAN Number
+                    </label>
+                    {{ form.pan_no }}
+                    {{ form.pan_no.errors }}
+                </div>
+                
+                <!-- Join Date -->
+                <div class="form-group">
+                    <label for="{{ form.partner_join_date.id_for_label }}">
+                        <i class="fas fa-calendar-plus"></i>
+                        Partner Join Date
+                    </label>
+                    {{ form.partner_join_date }}
+                    {{ form.partner_join_date.errors }}
+                </div>
+                
+                <!-- End Date -->
+                <div class="form-group">
+                    <label for="{{ form.partner_end_date.id_for_label }}">
+                        <i class="fas fa-calendar-minus"></i>
+                        Partner End Date
+                    </label>
+                    {{ form.partner_end_date }}
+                    {{ form.partner_end_date.errors }}
+                </div>
+            </div>
+            
+            <!-- Address (Full Width) -->
+            <div class="form-group full-width">
+                <label for="{{ form.address.id_for_label }}">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Address
+                </label>
+                {{ form.address }}
+                {{ form.address.errors }}
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'transporter_partners_list' transporter_record.id %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    Update Partner
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    // Aadhar number validation
+    const aadharField = document.querySelector('[name="aadhar_no"]');
+    if (aadharField) {
+        aadharField.addEventListener('input', function() {
+            const value = this.value.replace(/\D/g, '');
+            this.value = value.substring(0, 12);
+        });
+    }
+    
+    // PAN number validation
+    const panField = document.querySelector('[name="pan_no"]');
+    if (panField) {
+        panField.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+    }
+    
+    // Age validation
+    const ageField = document.querySelector('[name="age"]');
+    if (ageField) {
+        ageField.addEventListener('input', function() {
+            const value = parseInt(this.value);
+            if (value < 18) {
+                this.setCustomValidity('Age must be at least 18 years');
+            } else if (value > 100) {
+                this.setCustomValidity('Age cannot exceed 100 years');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,3286 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+        background: #667eea !important;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+    }
+
+    /* Modal overlay effect */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
+    }
+
+        .container {
+        background: rgba(255, 255, 255, 0.95);
+        max-width: 1200px;
+        width: 95%;
+        margin: 1rem auto;
+            padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        z-index: 1000;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-actions h2 {
+        margin: 0;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+        color: #333;
+            text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+        .form-card {
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        margin-bottom: 0;
+    }
+
+        .form-section {
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        padding: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: visible;
+        backdrop-filter: blur(5px);
+    }
+
+        .section-header {
+        display: flex !important;
+            align-items: center;
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
+        min-height: 60px;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+        .section-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        color: white !important;
+        display: inline-block !important;
+        visibility: visible !important;
+        }
+
+        .section-title {
+        color: white !important;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        display: inline-block !important;
+        visibility: visible !important;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0.5rem;
+            max-width: 100%;
+            min-height: 50px;
+        }
+
+        @media (min-width: 768px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .form-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .form-group {
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 0.5rem;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        display: block;
+        min-height: 40px;
+        backdrop-filter: blur(3px);
+    }
+
+
+    .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+      
+        /* Create single row layout for GST fields with fixed width */
+        #gst_fields_container {
+            display: grid;
+            grid-template-columns: repeat(4, 200px);
+            gap: 0.5rem;
+            justify-content: start;
+        }
+
+        /* Ensure each GST field div has proper width */
+        #gst_fields_container > div,
+        #gst_fields_container .gst-field {
+            width: 200px;
+            min-width: 200px;
+            max-width: 200px;
+        }
+
+        /* Ensure inputs and selects within GST fields have proper width */
+        #gst_fields_container input,
+        #gst_fields_container select {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+
+        /* Responsive single row layout */
+        @media (max-width: 1200px) {
+            #gst_fields_container {
+                grid-template-columns: repeat(2, 200px);
+                justify-content: start;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #gst_fields_container {
+                grid-template-columns: 200px;
+                justify-content: center;
+            }
+            
+            #gst_fields_container > div,
+            #gst_fields_container .gst-field {
+                width: 200px;
+                min-width: 200px;
+                max-width: 200px;
+            }
+            
+            #declaration_rcm_container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Declaration fields also use single row format */
+        #declaration_rcm_container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        #declaration_rcm_container input,
+        #declaration_rcm_container select {
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* GST Status Field Custom Styling */
+        .gst-status-field {
+            background: linear-gradient(135deg, #f8f9ff 0%, #e8f4fd 100%);
+            border: 2px solid #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.15);
+            padding: 1.5rem;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gst-status-field::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .gst-status-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .gst-icon {
+            font-size: 1.3rem;
+            margin-right: 0.75rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .required-indicator {
+            color: #e74c3c;
+            font-weight: 800;
+            margin-left: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .gst-status-select-wrapper {
+            position: relative;
+        }
+
+        .gst-status-field select {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23667eea' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5rem;
+        }
+
+        .gst-status-field select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .gst-status-field select:hover {
+            border-color: #764ba2;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .gst-status-info {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .gst-help-text {
+            color: #5a6c7d;
+            font-size: 0.875rem;
+            font-style: italic;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        /* GST Fields Custom Styling */
+        .gst-field {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            border: 2px solid #4a90e2;
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.12);
+            padding: 1.25rem;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .gst-field:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 144, 226, 0.2);
+            border-color: #357abd;
+        }
+
+        .gst-field::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4a90e2, #357abd, #4a90e2);
+            background-size: 200% 100%;
+            animation: gstShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes gstShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .gst-field-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .gst-field-icon {
+            font-size: 1.1rem;
+        }
+
+        /* New Partner Type Field Styling */
+        .new-partner-type-field {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            border: 2px solid #e53e3e;
+            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.12);
+            padding: 1.25rem;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .new-partner-type-field:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229, 62, 62, 0.2);
+            border-color: #c53030;
+        }
+
+        .new-partner-type-field::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #e53e3e, #c53030, #e53e3e);
+            background-size: 200% 100%;
+            animation: partnerShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes partnerShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .new-partner-type-field select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e53e3e;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: #ffffff;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23e53e3e' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.25rem;
+        }
+
+        .new-partner-type-field select:focus {
+            outline: none;
+            border-color: #c53030;
+            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .new-partner-type-field select:hover {
+            border-color: #c53030;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(229, 62, 62, 0.2);
+        }
+
+        /* Capacity MT Field Styling */
+        .capacity-mt-field {
+            background: linear-gradient(135deg, #f0fff4 0%, #dcfce7 100%);
+            border: 2px solid #38a169;
+            box-shadow: 0 4px 15px rgba(56, 161, 105, 0.12);
+            padding: 1.25rem;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .capacity-mt-field:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 161, 105, 0.2);
+            border-color: #2f855a;
+        }
+
+        .capacity-mt-field::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #38a169, #2f855a, #38a169);
+            background-size: 200% 100%;
+            animation: capacityShimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes capacityShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .capacity-mt-field input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #38a169;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: #ffffff;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .capacity-mt-field input:focus {
+            outline: none;
+            border-color: #2f855a;
+            box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .capacity-mt-field input:hover {
+            border-color: #2f855a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 161, 105, 0.2);
+        }
+
+        .gst-field-input-wrapper {
+            position: relative;
+        }
+
+        .gst-field input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+            color: #2c3e50;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.5px;
+        }
+
+        .gst-field input:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+            background: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .gst-field input:hover {
+            border-color: #357abd;
+            background: #ffffff;
+        }
+
+        .gst-field-info {
+            margin-top: 0.5rem;
+            padding: 0.6rem;
+            background: rgba(74, 144, 226, 0.08);
+            border-radius: 6px;
+            border-left: 3px solid #4a90e2;
+        }
+
+        /* Specific field styling */
+        .state-code-field {
+            border-color: #e74c3c;
+        }
+        .state-code-field::before {
+            background: linear-gradient(90deg, #e74c3c, #c0392b, #e74c3c);
+        }
+        .state-code-field .gst-field-icon {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .pan-number-field {
+            border-color: #f39c12;
+        }
+        .pan-number-field::before {
+            background: linear-gradient(90deg, #f39c12, #e67e22, #f39c12);
+        }
+        .pan-number-field .gst-field-icon {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .entity-code-field {
+            border-color: #9b59b6;
+        }
+        .entity-code-field::before {
+            background: linear-gradient(90deg, #9b59b6, #8e44ad, #9b59b6);
+        }
+        .entity-code-field .gst-field-icon {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .owner-gst-field {
+            border-color: #27ae60;
+        }
+        .owner-gst-field::before {
+            background: linear-gradient(90deg, #27ae60, #229954, #27ae60);
+        }
+        .owner-gst-field .gst-field-icon {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Form Row and Column Layout */
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            align-items: flex-start;
+        }
+        
+        .form-col {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .form-col label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-col input,
+        .form-col select,
+        .form-col textarea {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+        }
+        
+        .form-col input:focus,
+        .form-col select:focus,
+        .form-col textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            background-color: #ffffff;
+        }
+        
+        /* Read-only field styling */
+        .form-col input[readonly],
+        .form-col textarea[readonly] {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            cursor: not-allowed;
+            border-color: #dee2e6;
+        }
+        
+        .form-col input[readonly]:focus,
+        .form-col textarea[readonly]:focus {
+            border-color: #dee2e6;
+            box-shadow: none;
+        }
+        
+        /* GST Fields Section Styling */
+        .gst-fields-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .gst-fields-section .form-row {
+            margin-bottom: 1rem;
+        }
+        
+        .gst-fields-section .form-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .gst-fields-section .form-col label {
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .gst-fields-section .form-col input {
+            background-color: #ffffff;
+            border-color: #ced4da;
+        }
+        
+        .gst-fields-section .form-col input:focus {
+            border-color: #007bff;
+            background-color: #ffffff;
+        }
+        
+        /* Declaration Fields Section Styling */
+        .declaration-fields-section {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffc107;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(255, 193, 7, 0.1);
+        }
+        
+        .declaration-fields-section .form-row {
+            margin-bottom: 1rem;
+        }
+        
+        .declaration-fields-section .form-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .declaration-fields-section .form-col label {
+            color: #856404;
+            font-weight: 600;
+        }
+        
+        .declaration-fields-section .form-col select {
+            background-color: #ffffff;
+            border-color: #ffc107;
+        }
+        
+        .declaration-fields-section .form-col select:focus {
+            border-color: #ffc107;
+            background-color: #ffffff;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .form-col {
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        /* Enhanced Form Section Styling */
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .section-icon {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+            color: #007bff;
+        }
+        
+        .section-title {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        /* Field spacing improvements */
+        .form-grid > div {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-grid > div:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Input field enhancements */
+        .form-grid input,
+        .form-grid select,
+        .form-grid textarea {
+            padding: 0.875rem;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+        }
+        
+        .form-grid input:focus,
+        .form-grid select:focus,
+        .form-grid textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+            background-color: #ffffff;
+        }
+        
+        .form-grid label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+    /* Ensure all textareas have consistent sizing */
+    .form-grid textarea {
+        resize: vertical;
+        min-height: 30px;
+        max-height: 50px;
+        line-height: 1.2;
+        padding-top: 0.3rem;
+        padding-bottom: 0.3rem;
+    }
+
+    .form-grid label {
+            display: block;
+        margin-bottom: 0.5rem;
+            font-weight: 600;
+        color: #333;
+            font-size: 0.9rem;
+        position: relative;
+    }
+
+    .form-grid label::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 30px;
+        height: 2px;
+        /* background: #667eea; */
+        border-radius: 1px;
+    }
+
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+            width: 100%;
+        padding: 0.4rem;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        font-family: inherit;
+        display: block;
+        min-height: 35px;
+    }
+
+    .form-grid input:focus,
+    .form-grid select:focus,
+    .form-grid textarea:focus {
+            outline: none;
+        /* border-color: #667eea; */
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+        }
+        
+        /* Readonly field styling */
+    .form-grid input[readonly] {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            color: #495057;
+            cursor: not-allowed;
+        }
+        
+    .form-grid input[readonly]:focus {
+            border-color: #dee2e6;
+            box-shadow: none;
+            background-color: #f8f9fa;
+        }
+
+    /* All textareas now use consistent sizing */
+        .form-group textarea {
+            resize: vertical;
+        min-height: 30px;
+        max-height: 60px;
+        line-height: 1.3;
+        padding-top: 0.4rem;
+        padding-bottom: 0.4rem;
+    }
+
+        .form-group .errorlist {
+            color: #e74c3c;
+        font-size: 0.7rem;
+        margin-top: 0.2rem;
+            list-style: none;
+            padding: 0;
+        background: #fdf2f2;
+        border-radius: 4px;
+        padding: 0.2rem 0.3rem;
+        border-left: 3px solid #e74c3c;
+        }
+
+        .file-help {
+        font-size: 0.7rem;
+        color: #6c757d;
+        margin-top: 0.2rem;
+            font-style: italic;
+        background: #e3f2fd;
+        padding: 0.2rem 0.3rem;
+        border-radius: 4px;
+        border-left: 3px solid #2980b9;
+        }
+
+        .current-file {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+            border-radius: 6px;
+        padding: 0.3rem;
+        margin-top: 0.2rem;
+        font-size: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+        .current-file a {
+            color: #27ae60;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        
+        /* Attachment field styling - Green when data is selected */
+    .form-grid input[type="file"] {
+        border: 1px solid #e9ecef;
+            background: #f8f9fa;
+        }
+        
+    .form-grid input[type="file"]:not(:placeholder-shown),
+    .form-grid input[type="file"]:focus {
+            border-color: #28a745;
+            background: #f8fff9;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+        }
+        
+        /* Green styling for file inputs with data */
+    .form-grid input[type="file"]:valid,
+    .form-grid input[type="file"].has-file {
+            border-color: #28a745;
+            background: #f8fff9;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+        }
+        
+        /* Success state for file inputs */
+    .form-grid input[type="file"].has-file {
+            border-color: #28a745;
+            background: #f8fff9;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+        }
+        
+        /* Enhanced current file indicator with green theme */
+        .current-file {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+        padding: 0.6rem;
+        margin-top: 0.4rem;
+        font-size: 0.85rem;
+            color: #155724;
+        }
+        
+        .current-file a {
+            color: #155724;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        padding: 1.5rem;
+        /* border-top: 3px solid #667eea; */
+        background: rgba(102, 126, 234, 0.15);
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    }
+
+        .btn {
+        padding: 0.4rem 1rem;
+            border: none;
+        border-radius: 4px;
+        font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        gap: 0.2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+
+        .btn-primary {
+        background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .required-field label::after {
+            content: " *";
+            color: #e74c3c;
+        }
+        
+        /* Auto-fill styling */
+        .form-text {
+        font-size: 0.65rem;
+        margin-top: 0.05rem;
+        }
+        
+        .auto-filled.success {
+            background-color: #e8f5e8 !important;
+            border-color: #28a745 !important;
+            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        }
+
+    /* Date Field Styling */
+    .date-field {
+        position: relative;
+        margin-bottom: 0.5rem;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.8rem;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .date-field label {
+        display: block;
+        margin-bottom: 0.3rem;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .date-field input[type="date"] {
+                width: 100%;
+        padding: 0.4rem;
+        border: 1px solid #e9ecef;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        font-family: inherit;
+        display: block;
+        min-height: 35px;
+    }
+
+    .date-field input[type="date"]:focus {
+        outline: none;
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 1);
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.15);
+    }
+
+    .date-format-hint {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 0.7rem;
+        color: #6c757d;
+        font-style: italic;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        border-left: 3px solid #667eea;
+    }
+
+    .date-format-hint::before {
+        content: '📅 ';
+        margin-right: 0.2rem;
+    }
+
+    .field-hint {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 0.7rem;
+        color: #6c757d;
+        font-style: italic;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        border-left: 3px solid #667eea;
+    }
+
+    .field-hint::before {
+        content: '💡 ';
+        margin-right: 0.2rem;
+        }
+
+    .field-help {
+        display: block;
+        margin-top: 0.3rem;
+        font-size: 0.7rem;
+        color: #6c757d;
+        font-style: italic;
+        background: rgba(102, 126, 234, 0.1);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        border-left: 3px solid #667eea;
+    }
+
+    /* Validation styles for form fields */
+    .validation-error {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        background-color: #fff5f5 !important;
+    }
+
+    .validation-success {
+        border-color: #28a745 !important;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+        background-color: #f8fff9 !important;
+    }
+
+    /* Remove validation styles on focus */
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+        background-color: white !important;
+    }
+
+    /* Attachment section styling */
+    .attachments-header {
+        color: #2c3e50;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+        padding: 0.5rem 0;
+        border-bottom: 2px solid #667eea;
+        position: relative;
+    }
+    
+    .attachments-header::before {
+        content: '📎';
+        margin-right: 0.5rem;
+        font-size: 1.2rem;
+    }
+    
+    .attachment-group {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .attachment-subheader {
+        color: #667eea;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .attachment-subheader::before {
+        content: '📁';
+        font-size: 1.2rem;
+    }
+
+    .attachment-group:nth-child(1) .attachment-subheader::before {
+        content: '📋';
+    }
+
+    .attachment-group:nth-child(2) .attachment-subheader::before {
+        content: '💰';
+    }
+
+    .attachment-group:nth-child(3) .attachment-subheader::before {
+        content: '📎';
+    }
+
+    /* Improve attachment field styling */
+    .attachment-group .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .attachment-group .form-grid > div {
+        background: rgba(255, 255, 255, 0.8);
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+    }
+
+
+
+
+
+    /* File info styling */
+    .file-info {
+        background: rgba(40, 167, 69, 0.1);
+        border: 1px solid rgba(40, 167, 69, 0.3);
+        border-radius: 4px;
+        padding: 0.5rem;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        color: #28a745;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .file-info::before {
+        content: '📎';
+        font-size: 1rem;
+    }
+    
+
+    
+
+
+
+    /* Enhanced error styling for form fields */
+    .form-group .errorlist {
+        color: #dc3545;
+        font-size: 0.8rem;
+        margin-top: 0.3rem;
+        list-style: none;
+        padding: 0.5rem;
+        background: #f8d7da;
+        border-radius: 6px;
+        border-left: 4px solid #dc3545;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1);
+    }
+
+    /* Field error styling */
+    .field-error {
+        color: #dc3545;
+        font-size: 0.8rem;
+        margin-top: 0.3rem;
+        padding: 0.5rem;
+        background: #f8d7da;
+        border-radius: 6px;
+        border-left: 4px solid #dc3545;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(220, 53, 69, 0.1);
+        display: block;
+    }
+
+    /* Error state for form fields */
+    .form-field-error {
+        border-color: #dc3545 !important;
+        background-color: #fff5f5 !important;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+    }
+
+    /* Success state for form fields */
+    .form-field-success {
+        border-color: #28a745 !important;
+        background-color: #f8fff9 !important;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+    }
+
+    /* Required field indicator */
+    .required-field {
+        border-left: 3px solid #dc3545;
+        background-color: #fff9f9;
+    }
+
+    .required-field label {
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    /* Error summary at top of form */
+    .error-summary {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #721c24;
+        font-weight: 500;
+    }
+
+    .error-summary h4 {
+        margin: 0 0 0.5rem 0;
+        color: #721c24;
+        font-size: 1.1rem;
+    }
+
+    .error-summary ul {
+        margin: 0;
+        padding-left: 1.5rem;
+    }
+
+    .error-summary li {
+        margin-bottom: 0.25rem;
+    }
+
+    /* Success message styling */
+    .success-message {
+        background: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        color: #155724;
+        font-weight: 500;
+        text-align: center;
+        animation: fadeIn 0.5s ease-in;
+    }
+
+    /* Animation for success message */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Enhanced form field focus states */
+    .form-grid input:focus,
+    .form-grid select:focus,
+    .form-grid textarea:focus {
+        border-color: #667eea !important;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+        background-color: white !important;
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    /* Hover effects for form fields */
+    .form-grid input:hover,
+    .form-grid select:hover,
+    .form-grid textarea:hover {
+        border-color: #5a6fd8;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form method="post" enctype="multipart/form-data" class="form-card">
+        {% csrf_token %}
+        
+        <!-- Error Summary Section -->
+        {% if form.errors %}
+        <div class="error-summary">
+            <h4><i class="fas fa-exclamation-triangle"></i> Please correct the following errors:</h4>
+            <ul>
+                {% for field_name, errors in form.errors.items %}
+                    {% for error in errors %}
+                        <li><strong>
+                            {% if field_name == 'sale_organization' %}Sale Organization
+                            {% elif field_name == 'spo_code' %}SPO Code
+                            {% elif field_name == 'state' %}State
+                            {% elif field_name == 'branch' %}Branch
+                            {% elif field_name == 'district' %}District
+                            {% elif field_name == 'district_code' %}District Code
+                            {% elif field_name == 'spo_name' %}SPO Name
+                            {% elif field_name == 'stru_grp' %}Structure Group
+                            {% elif field_name == 'cfa_status' %}SPO Status
+                            {% elif field_name == 'renewal_with' %}Renewal With
+                            {% elif field_name == 'inception_date' %}Inception Date
+                            {% elif field_name == 'godown_address' %}Godown Address
+                            {% elif field_name == 'owner_name' %}Owner Name
+                            {% elif field_name == 'owner_contact_no' %}Owner Contact No
+                            {% elif field_name == 'owner_code' %}Owner Code
+                            {% elif field_name == 'owner_address' %}Owner Address
+                            {% elif field_name == 'owner_pan' %}Owner PAN
+                            {% elif field_name == 'gst_status' %}GST Status
+                            {% elif field_name == 'state_code' %}State Code
+                            {% elif field_name == 'pan_number' %}PAN Number
+                            {% elif field_name == 'entity_code' %}Last Characters
+                            {% elif field_name == 'owner_gst' %}Owner GST
+                            {% elif field_name == 'declaration_rcm' %}Declaration/RCM
+                            {% elif field_name == 'declaration_status' %}Declaration Status
+                            {% elif field_name == 'pin_code' %}Pin Code
+                            {% elif field_name == 'nature_of_construction' %}Nature of Construction
+                            {% elif field_name == 'stamp_no' %}Stamp No
+                            {% elif field_name == 'stamp_name' %}Stamp Name
+                            {% elif field_name == 'partner_type' %}Partner Type
+                            {% elif field_name == 'cfa_mail_id' %}Owner Mail ID
+                            {% elif field_name == 'bank_account_name' %}Bank Account Name
+                            {% elif field_name == 'bank_account_no' %}Bank Account No
+                            {% elif field_name == 'bank_name' %}Bank Name
+                            {% elif field_name == 'bank_branch_name' %}Bank Branch Name
+                            {% elif field_name == 'bank_ifsc_code' %}Bank IFSC Code
+                            {% elif field_name == 'destination_code' %}Depot Sq.Ft
+                            {% elif field_name == 'office_sqft' %}Office Sq.ft
+                            {% elif field_name == 'open_space_sqft' %}Open Space Sq.ft
+                            {% elif field_name == 'total_space' %}Total Space
+                            {% elif field_name == 'capacity_mt' %}Capacity (In Mt)
+                            {% elif field_name == 'rental_from_date' %}From Date
+                            {% elif field_name == 'rental_to_date' %}To Date
+                            {% elif field_name == 'days_count' %}Days Count
+                            {% elif field_name == 'security_deposit_paid' %}Security Deposit Paid
+                            {% elif field_name == 'security_deposit_doc' %}Security Deposit Doc
+                            {% elif field_name == 'rent_pm' %}Rent PM
+                            {% elif field_name == 'yearly_hike_percent' %}Yearly Hike %
+                            {% elif field_name == 'latitude' %}Latitude
+                            {% elif field_name == 'longitude' %}Longitude
+                            {% elif field_name == 'remarks' %}Remarks
+                            {% elif field_name == 'status' %}Status
+                            {% elif field_name == 'vacation_letter' %}Vacation Letter
+                            {% elif field_name == 'transporter_agreement' %}Rent Agreement
+                            {% elif field_name == 'closure_letter' %}Closure Letter
+                            {% elif field_name == 'closure_acceptance_letter' %}Closure Acceptance Letter
+                            {% elif field_name == 'ff_letter_calc' %}F&F Letter & Calc
+                            {% elif field_name == 'security_deposit' %}Security Deposit
+                            {% elif field_name == 'kyc_document' %}KYC Document
+                            {% elif field_name == 'consolidate_document' %}Consolidate Document
+                            {% elif field_name == 'bank_details' %}Bank Details
+                            {% else %}{{ field_name|title }}
+                            {% endif %}
+                        </strong>: {{ error }}</li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <!-- All Form Fields Section -->
+        <div class="form-section">
+            <div class="form-grid">
+                <div>
+                    <label for="{{ form.sale_organization.id_for_label }}">Sale Organization: <span style="color: red;">*</span></label>
+                    {{ form.sale_organization }}
+                    {{ form.sale_organization.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.spo_code.id_for_label }}">SPO Code:</label>
+                    {{ form.spo_code }}
+                   
+                    {{ form.spo_code.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.state.id_for_label }}">State: <span style="color: red;">*</span></label>
+                    {{ form.state }}
+                    {{ form.state.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.branch.id_for_label }}">Branch: <span style="color: red;">*</span></label>
+                    {{ form.branch }}
+                    {{ form.branch.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.district.id_for_label }}">District: <span style="color: red;">*</span></label>
+                    {{ form.district }}
+                    {{ form.district.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.district_code.id_for_label }}">District Code: <span style="color: red;">*</span></label>
+                    {{ form.district_code }}
+                    {{ form.district_code.errors }}
+                </div>
+                
+                <div>
+                    <label for="{{ form.spo_name.id_for_label }}">SPO Name: <span style="color: red;">*</span></label>
+                    {{ form.spo_name }}
+                    {{ form.spo_name.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.stru_grp.id_for_label }}">Structure Group: <span style="color: red;">*</span></label>
+                    {{ form.stru_grp }}
+                    {{ form.stru_grp.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.cfa_status.id_for_label }}">SPO Status: <span style="color: red;">*</span></label>
+                    {{ form.cfa_status }}
+                    {{ form.cfa_status.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.renewal_with.id_for_label }}">Renewal With: <span style="color: red;">*</span></label>
+                    {{ form.renewal_with }}
+                    {{ form.renewal_with.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.inception_date.id_for_label }}">Inception Date: <span style="color: red;">*</span></label>
+                    {{ form.inception_date }}
+                    {{ form.inception_date.errors }}
+                </div>
+                
+                <div>
+                    <label for="{{ form.godown_address.id_for_label }}">Godown Address: <span style="color: red;">*</span></label>
+                    {{ form.godown_address }}
+                    {{ form.godown_address.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.owner_name.id_for_label }}">Owner Name: <span style="color: red;">*</span></label>
+                    {{ form.owner_name }}
+                    {{ form.owner_name.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.owner_contact_no.id_for_label }}">Owner Contact No: <span style="color: red;">*</span></label>
+                    {{ form.owner_contact_no }}
+                    {{ form.owner_contact_no.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.owner_code.id_for_label }}">Owner Code: <span style="color: red;">*</span></label>
+                    {{ form.owner_code }}
+                    {{ form.owner_code.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.owner_address.id_for_label }}">Owner Address: <span style="color: red;">*</span></label>
+                    {{ form.owner_address }}
+                    {{ form.owner_address.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.owner_pan.id_for_label }}">Owner PAN:</label>
+                    {{ form.owner_pan }}
+                    {{ form.owner_pan.errors }}
+                </div>
+                <div>
+                    <label for="{{ form.gst_status.id_for_label }}" class="gst-status-label">
+                        <i class="fas fa-gst gst-icon"></i>
+                        GST Status:
+                    </label>
+                    <div class="gst-status-select-wrapper">
+                        {{ form.gst_status }}
+                    </div>
+                    {{ form.gst_status.errors }}
+                </div>
+                
+                <div id="gst_fields_container" style="display: none;" class="gst-field-group">
+                    <div>
+                        <label for="{{ form.state_code.id_for_label }}">State Code:</label>
+                        {{ form.state_code }}
+                        {{ form.state_code.errors }}
+                    </div>
+                    <div>
+                        <label for="{{ form.pan_number.id_for_label }}" class="gst-field-label">
+                            PAN Number:
+                        </label>
+                        {{ form.pan_number }}
+                        {{ form.pan_number.errors }}
+                    </div>
+                    <div>
+                        <label for="{{ form.entity_code.id_for_label }}">Last Characters:</label>
+                        {{ form.entity_code }}
+                        <small class="field-help" style="color: #6c757d; font-size: 0.75rem; margin-top: 0.2rem; display: block;">
+                            1 to 5 characters (letters or numbers, e.g., A, AB, ABC, ABC5, ABCDE)
+                        </small>
+                        {{ form.entity_code.errors }}
+                    </div>
+                    <div class="owner-gst-field">
+                        <label for="{{ form.owner_gst.id_for_label }}" class="gst-field-label">
+                            Owner GST:
+                        </label>
+                        {{ form.owner_gst }}
+                        <small class="field-help" style="color: #6c757d; font-size: 0.75rem; margin-top: 0.2rem; display: block;">
+                            Format: 22AAAAA0000A1Z5 or 22-AAAAA-0000-A-1Z5 (15-20 characters, allows letters, numbers, spaces, hyphens, periods)
+                        </small>
+                        {{ form.owner_gst.errors }}
+                    </div>
+                </div>
+                    
+                <!-- Declaration Fields Container (shown when GST Status = NO) -->
+                <div id="declaration_rcm_container" style="display: none;">
+                    <div>
+                        <label for="{{ form.declaration_rcm.id_for_label }}">Declaration / RCM:</label>
+                        {{ form.declaration_rcm }}
+                        {{ form.declaration_rcm.errors }}
+                    </div>
+                    <div id="declaration_status_container" style="display: none;">
+                        <label for="{{ form.declaration_status.id_for_label }}">Declaration Status:</label>
+                        {{ form.declaration_status }}
+                        {{ form.declaration_status.errors }}
+                    </div>
+                </div>
+                
+
+                <div>
+                    <label for="{{ form.pin_code.id_for_label }}">Pin Code:</label>
+                    {{ form.pin_code }}
+                    {{ form.pin_code.errors }}
+                </div>
+                <div>{{ form.nature_of_construction.label_tag }}{{ form.nature_of_construction }}{{ form.nature_of_construction.errors }}</div>
+               
+                <div>{{ form.stamp_no.label_tag }}{{ form.stamp_no }}{{ form.stamp_no.errors }}</div>
+                <div>
+                    <label for="{{ form.stamp_name.id_for_label }}">Stamp Vendor Name:</label>
+                    {{ form.stamp_name }}
+                    {{ form.stamp_name.errors }}
+                </div>
+                <div>{{ form.partner_type.label_tag }}{{ form.partner_type }}{{ form.partner_type.errors }}</div>
+                <div>{{ form.cfa_mail_id.label_tag }}{{ form.cfa_mail_id }}{{ form.cfa_mail_id.errors }}</div>
+
+                
+                <div>{{ form.bank_account_name.label_tag }}{{ form.bank_account_name }}{{ form.bank_account_name.errors}}</div>
+                <div>{{ form.bank_account_no.label_tag }}{{ form.bank_account_no }}{{ form.bank_account_no.errors }}
+                </div>
+                <div>{{ form.bank_name.label_tag }}{{ form.bank_name }}{{ form.bank_name.errors }}</div>
+                <div>{{ form.bank_branch_name.label_tag }}{{ form.bank_branch_name }}{{ form.bank_branch_name.errors }}
+                </div>
+                <div>{{ form.bank_ifsc_code.label_tag }}{{ form.bank_ifsc_code }}{{ form.bank_ifsc_code.errors }}</div>
+
+                
+                <div>{{ form.destination_code.label_tag }}{{ form.destination_code }}{{ form.destination_code.errors }}
+                </div>
+                <div>{{ form.office_sqft.label_tag }}{{ form.office_sqft }}{{ form.office_sqft.errors }}</div>
+                <div>{{ form.open_space_sqft.label_tag }}{{ form.open_space_sqft }}{{ form.open_space_sqft.errors }}
+                </div>
+
+                
+                <div>{{ form.total_space.label_tag }}{{ form.total_space }}{{ form.total_space.errors }}</div>
+                <div>{{ form.capacity_mt.label_tag }}{{ form.capacity_mt }}{{ form.capacity_mt.errors }}</div>
+                
+                <div>{{ form.rental_from_date.label_tag }}{{ form.rental_from_date }}{{ form.rental_from_date.errors }}
+                </div>
+                <div>{{ form.rental_to_date.label_tag }}{{ form.rental_to_date }}{{ form.rental_to_date.errors }}</div>
+                <div>{{ form.days_count.label_tag }}{{ form.days_count }}{{ form.days_count.errors }}</div>
+
+                
+                <div>{{ form.security_deposit_paid.label_tag }}{{ form.security_deposit_paid }}{{ form.security_deposit_paid.errors }}</div>
+                <div>{{ form.security_deposit_doc.label_tag }}{{ form.security_deposit_doc }}{{ form.security_deposit_doc.errors }}</div>
+                <div>{{ form.rent_pm.label_tag }}{{ form.rent_pm }}{{ form.rent_pm.errors }}</div>
+                <div>{{ form.yearly_hike_percent.label_tag }}{{ form.yearly_hike_percent }}{{ form.yearly_hike_percent.errors }}</div>
+
+                
+                <div>{{ form.latitude.label_tag }}{{ form.latitude }}{{ form.latitude.errors }}</div>
+                <div>{{ form.longitude.label_tag }}{{ form.longitude }}{{ form.longitude.errors }}</div>
+
+                
+                <div>{{ form.remarks.label_tag }}{{ form.remarks }}{{ form.remarks.errors }}</div>
+                <!-- <div>{{ form.status.label_tag }}{{ form.status }}{{ form.status.errors }}</div> -->
+            </div>
+        </div>
+
+        <!-- Attachments Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-paperclip"></i>
+                <h3 class="attachments-header">Attachments</h3>
+            </div>
+            <div class="form-grid">
+                <div>
+                    <label for="{{ form.transporter_agreement.id_for_label }}">Rent Agreement:</label>
+                    {{ form.transporter_agreement }}
+                    <small class="field-help">Upload document (Max file size: 50 MB)</small>
+                    {{ form.transporter_agreement.errors }}
+                </div>
+                
+                <div>
+                    <label for="{{ form.closure_letter.id_for_label }}">Closure Letter:</label>
+                    {{ form.closure_letter }}
+                    <small class="field-help">Upload document (Max file size: 50 MB)</small>
+                    {{ form.closure_letter.errors }}
+                </div>
+                
+                <div>
+                    <label for="{{ form.closure_acceptance_letter.id_for_label }}">Closure Acceptance Letter:</label>
+                    {{ form.closure_acceptance_letter }}
+                    <small class="field-help">Upload document (Max file size: 50 MB)</small>
+                    {{ form.closure_acceptance_letter.errors }}
+                </div>
+                
+                <div>
+                    <label for="{{ form.ff_letter_calc.id_for_label }}">F&F Letter Calc:</label>
+                    {{ form.ff_letter_calc }}
+                    <small class="field-help">Upload document (Max file size: 50 MB)</small>
+                    {{ form.ff_letter_calc.errors }}
+                </div>
+                
+                <div>
+                    <label for="{{ form.security_deposit.id_for_label }}">Security Deposit:</label>
+                    {{ form.security_deposit }}
+                    <small class="field-help">Upload document (Max file size: 50 MB)</small>
+                    {{ form.security_deposit.errors }}
+                </div>
+                
+                <div>
+                    <label for="{{ form.kyc_document.id_for_label }}">KYC Document:</label>
+                    {{ form.kyc_document }}
+                    <small class="field-help">Upload document (Max file size: 50 MB)</small>
+                    {{ form.kyc_document.errors }}
+                </div>
+
+                <div>
+                    <label for="{{ form.consolidate_document.id_for_label }}">Consolidate Document:</label>
+                    {{ form.consolidate_document }}
+                    <small class="field-help">Upload document (Max file size: 50 MB)</small>
+                    {{ form.consolidate_document.errors }}
+                </div>
+                
+
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                {% if is_edit %}Update SPO Rent{% else %}Create SPO Rent{% endif %}
+            </button>
+            <a href="{% url 'spo_rent_list' %}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Cancel button function
+    function goBack() {
+        window.history.back();
+    }
+
+    // Date format validation and formatting
+    function formatDateInput(input) {
+        let value = input.value;
+
+        // Remove any non-digit characters except hyphens
+        value = value.replace(/[^\d-]/g, '');
+
+        // Auto-format as user types for DD-MM-YYYY
+        if (value.length >= 2 && !value.includes('-')) {
+            value = value.slice(0, 2) + '-' + value.slice(2);
+        }
+        if (value.length >= 5 && value.split('-').length === 2) {
+            value = value.slice(0, 5) + '-' + value.slice(5);
+        }
+
+        // Limit to 10 characters (DD-MM-YYYY)
+        value = value.slice(0, 10);
+
+        input.value = value;
+    }
+
+    // Validate date format
+    function validateDate(dateString) {
+        const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
+        if (!dateRegex.test(dateString)) {
+            return false;
+        }
+
+        // Parse DD-MM-YYYY format
+        const parts = dateString.split('-');
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Month is 0-indexed
+        const year = parseInt(parts[2], 10);
+
+        const date = new Date(year, month, day);
+        return date instanceof Date && !isNaN(date) &&
+            date.getDate() === day &&
+            date.getMonth() === month &&
+            date.getFullYear() === year;
+    }
+
+    // Enhanced date field validation
+    function validateDateField(field) {
+        const value = field.value;
+        const dateField = field.closest('.date-field');
+
+        if (value && !validateDate(value)) {
+            // Show error styling
+            field.style.borderColor = '#dc3545';
+            field.style.boxShadow = '0 0 0 2px rgba(220, 53, 69, 0.25)';
+
+            // Add error message
+            let errorMsg = dateField.querySelector('.date-error');
+            if (!errorMsg) {
+                errorMsg = document.createElement('small');
+                errorMsg.className = 'date-error';
+                errorMsg.style.color = '#dc3545';
+                errorMsg.style.fontSize = '0.7rem';
+                errorMsg.style.marginTop = '0.2rem';
+                dateField.appendChild(errorMsg);
+            }
+            errorMsg.textContent = 'Please enter a valid date in DD-MM-YYYY format';
+        } else {
+            // Remove error styling
+            field.style.borderColor = '#667eea';
+            field.style.boxShadow = '0 0 0 2px rgba(102, 126, 234, 0.15)';
+
+            // Remove error message
+            const errorMsg = dateField.querySelector('.date-error');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        }
+    }
+
+    // Enhanced PAN validation functions
+    function validatePAN(pan) {
+        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+        return panRegex.test(pan);
+    }
+
+    function formatPAN(input) {
+        let value = input.value.toUpperCase();
+        
+        // Remove any non-alphanumeric characters
+        value = value.replace(/[^A-Z0-9]/g, '');
+        
+        // Limit to 10 characters
+        value = value.slice(0, 10);
+        
+        input.value = value;
+        
+        // Auto-format as user types
+        if (value.length >= 5 && value.length <= 9) {
+            // After 5 letters, ensure next 4 are numbers
+            const letters = value.slice(0, 5);
+            const numbers = value.slice(5).replace(/[^0-9]/g, '');
+            const lastChar = value.slice(9).replace(/[^A-Z]/g, '');
+            
+            if (numbers.length <= 4) {
+                input.value = letters + numbers + lastChar;
+            }
+        }
+        
+        return value;
+    }
+
+    function validatePANField(panInput) {
+        const pan = panInput.value.trim();
+        const panField = panInput.closest('div');
+        
+        // Remove existing error styling
+        panInput.style.borderColor = '';
+        panInput.style.boxShadow = '';
+        
+        // Remove existing error message
+        let existingError = panField.querySelector('.pan-error');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        if (!pan) {
+            // Field is empty, no validation needed
+            return true;
+        }
+        
+        if (pan.length !== 10) {
+            showPANError(panInput, 'PAN must be exactly 10 characters long');
+            return false;
+        }
+        
+        if (!validatePAN(pan)) {
+            showPANError(panInput, 'Invalid PAN format. Must be: ABCDE1234F (5 letters + 4 numbers + 1 letter)');
+            return false;
+        }
+        
+        // PAN is valid
+        showPANSuccess(panInput);
+        return true;
+    }
+
+    function showPANError(panInput, message) {
+        const panField = panInput.closest('div');
+        
+        // Add error styling
+        panInput.style.borderColor = '#dc3545';
+        panInput.style.boxShadow = '0 0 0 2px rgba(220, 53, 69, 0.25)';
+        
+        // Add error message
+        let errorMsg = panField.querySelector('.pan-error');
+        if (!errorMsg) {
+            errorMsg = document.createElement('small');
+            errorMsg.className = 'pan-error';
+            errorMsg.style.cssText = 'color: #dc3545; font-size: 0.75rem; margin-top: 0.3rem; display: block; font-weight: 500;';
+            panField.appendChild(errorMsg);
+        }
+        errorMsg.textContent = message;
+    }
+
+    function showPANSuccess(panInput) {
+        const panField = panInput.closest('div');
+        
+        // Add success styling
+        panInput.style.borderColor = '#28a745';
+        panInput.style.boxShadow = '0 0 0 2px rgba(40, 167, 69, 0.25)';
+        
+        // Remove error message if exists
+        const errorMsg = panField.querySelector('.pan-error');
+        if (errorMsg) {
+            errorMsg.remove();
+        }
+        
+        // Add success message
+        let successMsg = panField.querySelector('.pan-success');
+        if (!successMsg) {
+            successMsg = document.createElement('small');
+            successMsg.className = 'pan-success';
+            successMsg.style.cssText = 'color: #28a745; font-size: 0.75rem; margin-top: 0.3rem; display: block; font-weight: 500;';
+            panField.appendChild(successMsg);
+        }
+        successMsg.textContent = '✓ Valid PAN format';
+    }
+
+    // SPO Code validation functions - Removed old conflicting validation
+    // New validation is based on Sale Organization selection
+
+    function validatePhone(phone) {
+        const phoneRegex = /^[6-9]\d{9}$/;
+        return phoneRegex.test(phone);
+    }
+
+    function validateBankAccount(account) {
+        const accountRegex = /^\d{9,18}$/;
+        return accountRegex.test(account);
+    }
+
+    function validateIFSC(ifsc) {
+        const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+        return ifscRegex.test(ifsc);
+    }
+
+ 
+
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    function validateLatitude(lat) {
+        const latRegex = /^-?([1-8]?[0-9](\.[0-9]+)?|90(\.0+)?)$/;
+        return latRegex.test(lat);
+    }
+
+    function validateLongitude(lng) {
+        const lngRegex = /^-?((1[0-7][0-9]|[1-9]?[0-9])(\.[0-9]+)?|180(\.0+)?)$/;
+        return lngRegex.test(lng);
+    }
+
+    function validateNumeric(value) {
+        return /^\d+(\.\d+)?$/.test(value);
+    }
+
+    function validatePositiveNumber(value) {
+        return /^\d+(\.\d+)?$/.test(value) && parseFloat(value) >= 0;
+    }
+
+    function validatePercentage(value) {
+        return /^\d+(\.\d+)?$/.test(value) && parseFloat(value) >= 0 && parseFloat(value) <= 100;
+    }
+
+    function showFieldError(field, message) {
+        // Remove existing error styling
+        field.classList.remove('form-field-success');
+        field.classList.add('form-field-error');
+        
+        // Add error styling to parent container
+        const fieldContainer = field.closest('.form-grid > div') || field.parentNode;
+        if (fieldContainer) {
+            fieldContainer.classList.add('required-field');
+        }
+
+        // Create or update error message
+        let errorDiv = field.parentNode.querySelector('.field-error');
+        if (!errorDiv) {
+            errorDiv = document.createElement('div');
+            errorDiv.className = 'field-error';
+            field.parentNode.appendChild(errorDiv);
+        }
+        
+        errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+        errorDiv.style.display = 'block';
+
+        // Scroll to the first error field
+        if (!document.querySelector('.field-error')) {
+            field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function clearFieldError(field) {
+        // Remove error styling
+        field.classList.remove('form-field-error');
+        field.classList.add('form-field-success');
+        
+        // Remove error styling from parent container
+        const fieldContainer = field.closest('.form-grid > div') || field.parentNode;
+        if (fieldContainer) {
+            fieldContainer.classList.remove('required-field');
+        }
+
+        // Hide error message
+        const errorDiv = field.parentNode.querySelector('.field-error');
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+
+        // Reset field styling after a delay
+        setTimeout(() => {
+            field.classList.remove('form-field-success');
+        }, 2000);
+    }
+
+    function validateField(field, validationType, customMessage = null) {
+        const value = field.value.trim();
+
+        if (!value) return true; // Skip validation for empty fields
+
+        let isValid = false;
+        let message = '';
+
+        switch (validationType) {
+            case 'spo_code':
+                // SPO code validation is now handled by the form and dynamic JavaScript validation
+                // based on sale organization selection
+                isValid = true; // Skip this validation as it's handled elsewhere
+                message = '';
+                break;
+            case 'gst':
+                // GST validation - allow empty or valid GST format
+                if (!value) {
+                    isValid = true; // Empty GST is allowed
+                    message = '';
+                    console.log('  GST validation: PASSED (empty)');
+                } else {
+                    // More flexible GST validation: allows common formats
+                    // Remove spaces, hyphens, and periods for validation
+                    const cleanGST = value.replace(/[\s\-\.]/g, '');
+                    
+                    // Debug logging
+                    console.log('GST Validation Debug:');
+                    console.log('  Original value:', value);
+                    console.log('  Cleaned GST:', cleanGST);
+                    console.log('  Cleaned length:', cleanGST.length);
+                    console.log('  Original length:', value.length);
+                    
+                    // Check if it's a valid GST format after cleaning
+                    // GST can be: 2 digits + 10 characters + 1 digit + 1 character
+                    // Or just 15-16 characters total
+                    if (cleanGST.length >= 15 && cleanGST.length <= 16) {
+                        // Additional validation: ensure the cleaned GST contains only valid characters
+                        if (/^[A-Z0-9]+$/.test(cleanGST)) {
+                            isValid = true;
+                            message = customMessage || 'GST format accepted';
+                            console.log('  GST validation: PASSED');
+                        } else {
+                            isValid = false;
+                            message = customMessage || 'Invalid GST format. GST contains invalid characters after removing separators';
+                            console.log('  GST validation: FAILED - invalid characters in cleaned GST');
+                        }
+                    } else {
+                        // More lenient validation: allow up to 20 characters as per model
+                        if (cleanGST.length <= 20) {
+                            if (/^[A-Z0-9]+$/.test(cleanGST)) {
+                                isValid = true;
+                                message = customMessage || 'GST format accepted (extended length)';
+                                console.log('  GST validation: PASSED (extended length:', cleanGST.length, ')');
+                            } else {
+                                isValid = false;
+                                message = customMessage || 'Invalid GST format. GST contains invalid characters after removing separators';
+                                console.log('  GST validation: FAILED - invalid characters in extended GST');
+                            }
+                        } else {
+                            isValid = false;
+                            message = customMessage || 'Invalid GST format. GST should be 15-20 characters (allowing letters, numbers, spaces, hyphens, and periods)';
+                            console.log('  GST validation: FAILED - too long:', cleanGST.length);
+                        }
+                    }
+                }
+                break;
+            case 'entity_code':
+                // Entity code validation - 1 to 5 characters
+                if (!value) {
+                    isValid = true; // Empty entity code is allowed
+                    message = '';
+                } else {
+                    // Must be 1 to 5 characters, alphanumeric only
+                    isValid = /^[A-Za-z0-9]{1,5}$/.test(value);
+                    message = customMessage || 'Entity code must be 1 to 5 characters (letters or numbers)';
+                }
+                break;
+            case 'pan':
+                isValid = validatePAN(value);
+                message = customMessage || 'Invalid PAN format. Use format: ABCDE1234F';
+                break;
+            case 'phone':
+                isValid = validatePhone(value);
+                message = customMessage || 'Invalid phone number. Use 10-digit mobile number starting with 6-9';
+                break;
+            case 'bank_account':
+                isValid = validateBankAccount(value);
+                message = customMessage || 'Invalid bank account number. Use 9-18 digits';
+                break;
+            case 'ifsc':
+                isValid = validateIFSC(value);
+                message = customMessage || 'Invalid IFSC code. Use format: ABCD0123456';
+                break;
+
+            case 'email':
+                isValid = validateEmail(value);
+                message = customMessage || 'Invalid email address format';
+                break;
+            case 'latitude':
+                isValid = validateLatitude(value);
+                message = customMessage || 'Invalid latitude. Use value between -90 and 90';
+                break;
+            case 'longitude':
+                isValid = validateLongitude(value);
+                message = customMessage || 'Invalid longitude. Use value between -180 and 180';
+                break;
+            case 'numeric':
+                isValid = validateNumeric(value);
+                message = customMessage || 'Please enter a valid number';
+                break;
+            case 'positive':
+                isValid = validatePositiveNumber(value);
+                message = customMessage || 'Please enter a positive number (0 or greater)';
+                break;
+            case 'percentage':
+                isValid = validatePercentage(value);
+                message = customMessage || 'Please enter a percentage between 0 and 100';
+                break;
+        }
+
+        if (!isValid) {
+            showFieldError(field, message);
+            return false;
+        } else {
+            clearFieldError(field);
+            return true;
+        }
+    }
+
+    // Debug form fields display
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize date fields with enhanced functionality
+        const dateFields = document.querySelectorAll('.date-field input[type="date"]');
+
+        dateFields.forEach(function (field) {
+            // Set type to date for better mobile experience
+            field.type = 'date';
+
+            // Add placeholder and title for better UX
+            field.placeholder = 'DD-MM-YYYY';
+            field.title = 'Enter date in DD-MM-YYYY format';
+
+            // Add event listener for date validation
+            field.addEventListener('change', function () {
+                validateDateField(this);
+            });
+
+            // Add event listener for input formatting
+            field.addEventListener('input', function () {
+                formatDateInput(this);
+            });
+        });
+
+        // Initialize PAN validation
+        const panInput = document.getElementById('id_pan_number');
+        if (panInput) {
+            // Add event listeners for real-time validation
+            panInput.addEventListener('input', function() {
+                formatPAN(this);
+                validatePANField(this);
+            });
+            
+            panInput.addEventListener('blur', function() {
+                validatePANField(this);
+            });
+            
+            panInput.addEventListener('focus', function() {
+                // Clear any existing styling on focus
+                this.style.borderColor = '';
+                this.style.boxShadow = '';
+            });
+            
+            // Add placeholder and title for better UX
+            panInput.placeholder = 'ABCDE1234F';
+            panInput.title = 'Enter PAN in format: ABCDE1234F (5 letters + 4 numbers + 1 letter)';
+            
+            console.log('PAN validation initialized for:', panInput.id);
+        } else {
+            console.warn('PAN input field not found');
+        }
+
+        // SPO Code validation is now handled by the Sale Organization-based validation
+        // No additional event listeners needed - the field is fully editable
+
+        // Initialize GST field auto-update functionality
+        const gstStateCodeInput = document.getElementById('id_state_code');
+        const gstPanNumberInput = document.getElementById('id_pan_number');
+        const gstEntityCodeInput = document.getElementById('id_entity_code');
+        const gstOwnerGstInput = document.getElementById('id_owner_gst');
+        
+        if (gstStateCodeInput && gstPanNumberInput && gstEntityCodeInput && gstOwnerGstInput) {
+            // Function to automatically update Owner GST field
+            function updateOwnerGSTField() {
+                const gstStatusSelect = document.getElementById('id_gst_status');
+                const gstStatus = gstStatusSelect ? gstStatusSelect.value : '';
+                
+                // Only auto-update if GST Status is YES
+                if (gstStatus === 'YES') {
+                    const stateCode = gstStateCodeInput.value.trim();
+                    const panNumber = gstPanNumberInput.value.trim();
+                    const entityCode = gstEntityCodeInput.value.trim();
+                    
+                    if (stateCode && panNumber && entityCode) {
+                        // Create GST with optional formatting (State Code + PAN + Entity Code)
+                        const gstValue = stateCode + panNumber + entityCode;
+                        gstOwnerGstInput.value = gstValue;
+                        console.log('Owner GST auto-updated:', gstValue);
+                        
+                        // Optional: Add formatting for better readability
+                        // Format: XX-XXXXX-XXXX-X-Z (example: 22-AAAAA-0000-A-1Z5)
+                        if (gstValue.length === 15) {
+                            const formattedGST = gstValue.replace(/(\d{2})(\w{5})(\w{4})(\w{1})(\w{1})/, '$1-$2-$3-$4-$5');
+                            gstOwnerGstInput.value = formattedGST;
+                            console.log('Owner GST formatted:', formattedGST);
+                        } else if (gstValue.length === 16) {
+                            // Handle 16-character GST format
+                            const formattedGST = gstValue.replace(/(\d{2})(\w{5})(\w{4})(\w{1})(\w{2})/, '$1-$2-$3-$4-$5');
+                            gstOwnerGstInput.value = formattedGST;
+                            console.log('Owner GST formatted (16 chars):', formattedGST);
+                        }
+                    } else {
+                        gstOwnerGstInput.value = '';
+                    }
+                } else if (gstStatus === 'NO') {
+                    // Clear GST when status is NO (will be NULL in database)
+                    gstOwnerGstInput.value = '';
+                    console.log('Owner GST cleared (GST Status is NO)');
+                }
+            }
+            
+            // Add event listeners for auto-update
+            gstStateCodeInput.addEventListener('input', updateOwnerGSTField);
+            gstPanNumberInput.addEventListener('input', updateOwnerGSTField);
+            gstEntityCodeInput.addEventListener('input', updateOwnerGSTField);
+            
+            console.log('GST field auto-update initialized');
+        } else {
+            console.warn('Some GST fields not found for auto-update');
+        }
+
+        // Initialize Owner PAN to PAN Number auto-population
+        const ownerPanInput = document.getElementById('id_owner_pan');
+        const panNumberInput = document.getElementById('id_pan_number');
+        
+        if (ownerPanInput && panNumberInput) {
+            // Function to auto-populate PAN Number from Owner PAN
+            function updatePANNumberFromOwnerPAN() {
+                const ownerPAN = ownerPanInput.value.trim();
+                
+                if (ownerPAN) {
+                    // Auto-populate PAN Number field
+                    panNumberInput.value = ownerPAN;
+                    console.log('PAN Number auto-populated from Owner PAN:', panNumberInput.value);
+                    
+                    // Trigger GST update if GST Status is YES
+                    const gstStatusSelect = document.getElementById('id_gst_status');
+                    if (gstStatusSelect && gstStatusSelect.value === 'YES') {
+                        // Trigger the GST update function
+                        if (typeof updateOwnerGSTField === 'function') {
+                            updateOwnerGSTField();
+                        }
+                    }
+                } else {
+                    // Clear PAN Number when Owner PAN is empty
+                    panNumberInput.value = '';
+                    console.log('PAN Number cleared (Owner PAN is empty)');
+                }
+            }
+            
+            // Add event listener for Owner PAN changes
+            ownerPanInput.addEventListener('input', updatePANNumberFromOwnerPAN);
+            ownerPanInput.addEventListener('blur', updatePANNumberFromOwnerPAN);
+            
+            console.log('Owner PAN to PAN Number auto-population initialized');
+        } else {
+            console.warn('Owner PAN or PAN Number input fields not found for auto-population');
+        }
+
+        // SPO Code is now manually editable - no auto-generation
+        console.log('SPO Code field is manually editable');
+
+        // Ensure all form fields are visible
+        const formDivs = document.querySelectorAll('.form-grid > div');
+        console.log('Total form divs found:', formDivs.length);
+
+        formDivs.forEach(function (div, index) {
+            const inputs = div.querySelectorAll('input, select, textarea');
+            const labels = div.querySelectorAll('label');
+            console.log(`Form div ${index + 1}:`, inputs.length, 'inputs found,', labels.length, 'labels found');
+            console.log(`Form div ${index + 1} HTML:`, div.innerHTML);
+
+            if (inputs.length === 0) {
+                console.warn(`Form div ${index + 1} has no inputs:`, div.innerHTML);
+            }
+        });
+
+        // Debug section headers
+        const sectionHeaders = document.querySelectorAll('.section-header');
+        console.log('Total section headers found:', sectionHeaders.length);
+
+        sectionHeaders.forEach(function (header, index) {
+            console.log(`Section header ${index + 1}:`, header.innerHTML);
+            const icon = header.querySelector('.section-icon');
+            const title = header.querySelector('.section-title');
+            console.log(`Section ${index + 1} - Icon:`, icon ? icon.innerHTML : 'Not found');
+            console.log(`Section ${index + 1} - Title:`, title ? title.innerHTML : 'Not found');
+        });
+
+    // Date validation and days count calculation
+        const rentalFromDateInput = document.getElementById('id_rental_from_date');
+        const rentalToDateInput = document.getElementById('id_rental_to_date');
+        const daysCountInput = document.getElementById('id_days_count');
+        
+        // Function to calculate days count
+        function calculateDaysCount() {
+            if (rentalFromDateInput && rentalToDateInput && daysCountInput) {
+                const fromDate = new Date(rentalFromDateInput.value);
+                const toDate = new Date(rentalToDateInput.value);
+                
+                if (fromDate && toDate && !isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
+                    const timeDiff = toDate.getTime() - fromDate.getTime();
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+                    daysCountInput.value = daysDiff;
+                    
+                    // Visual feedback
+                    daysCountInput.classList.add('auto-filled', 'success');
+                }
+            }
+        }
+        
+        // Add event listeners for date changes
+        if (rentalFromDateInput && rentalToDateInput) {
+            rentalFromDateInput.addEventListener('change', function () {
+                if (rentalToDateInput.value) {
+                    rentalToDateInput.min = this.value;
+                    calculateDaysCount();
+                }
+            });
+            
+            rentalToDateInput.addEventListener('change', function () {
+                if (rentalFromDateInput.value) {
+                    rentalFromDateInput.max = this.value;
+                    calculateDaysCount();
+                }
+            });
+        }
+        
+
+        
+        // Dynamic branch and district loading
+        const stateSelect = document.getElementById('id_state');
+        const branchSelect = document.getElementById('id_branch');
+        const districtSelect = document.getElementById('id_district');
+        const districtCodeInput = document.getElementById('id_district_code');
+        
+        // Store branches and districts data for later use
+        let branchesData = [];
+        let districtsData = [];
+        
+        if (stateSelect && branchSelect) {
+            console.log('SPO Rent - State and Branch elements found:', {
+                stateSelect: stateSelect,
+                branchSelect: branchSelect,
+                stateOptions: stateSelect.options.length,
+                branchOptions: branchSelect.options.length
+            });
+            
+            stateSelect.addEventListener('change', function () {
+                const stateId = this.value;
+                console.log('SPO Rent - State selected:', stateId);
+                console.log('SPO Rent - State element:', this);
+                console.log('SPO Rent - State options:', this.options);
+                console.log('SPO Rent - Selected option:', this.options[this.selectedIndex]);
+                
+                // Clear current branch options, district options, and district code
+                branchSelect.innerHTML = '<option value="">Select Branch</option>';
+                districtSelect.innerHTML = '<option value="">Select State and Branch First</option>';
+                districtCodeInput.value = '';
+                districtCodeInput.classList.remove('auto-filled', 'success');
+                branchesData = []; // Clear stored data
+                districtsData = []; // Clear stored data
+                
+                if (stateId) {
+                    // Show loading state
+                    branchSelect.innerHTML = '<option value="">Loading branches...</option>';
+                    branchSelect.disabled = true;
+                    
+                    // Fetch branches for selected state
+                    console.log('SPO Rent - Fetching branches for state_id:', stateId);
+                    console.log('SPO Rent - Fetch URL:', `{% url 'get_branches_by_state' %}?state_id=${stateId}`);
+                    
+                    fetch(`{% url 'get_branches_by_state' %}?state_id=${stateId}`)
+                        .then(response => {
+                            console.log('SPO Rent - Response status:', response.status);
+                            console.log('SPO Rent - Response headers:', response.headers);
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('SPO Rent - Branches received:', data);
+                            branchesData = data.branches; // Store the data
+                            
+                            // Reset branch dropdown
+                            branchSelect.innerHTML = '<option value="">Select Branch</option>';
+                            branchSelect.disabled = false;
+                            
+                            if (data.branches && data.branches.length > 0) {
+                                data.branches.forEach(branch => {
+                                    const option = document.createElement('option');
+                                    option.value = branch.id;
+                                    option.textContent = branch.state_branch_name;
+                                    option.setAttribute('data-branch-code', branch.state_branch_code);
+                                    branchSelect.appendChild(option);
+                                });
+                            } else {
+                                branchSelect.innerHTML = '<option value="">No branches found</option>';
+                                showErrorMessage('No branches found for selected state');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('SPO Rent - Error loading branches:', error);
+                            console.error('SPO Rent - Error details:', {
+                                name: error.name,
+                                message: error.message,
+                                stack: error.stack
+                            });
+                            branchSelect.innerHTML = '<option value="">Error loading branches</option>';
+                            branchSelect.disabled = true;
+                            showErrorMessage('Error loading branches: ' + error.message);
+                        });
+                } else {
+                    branchSelect.innerHTML = '<option value="">Select State First</option>';
+                    branchSelect.disabled = true;
+                }
+            });
+            
+            // Auto-fill branch code when branch is selected
+            branchSelect.addEventListener('change', function () {
+                const selectedBranchId = this.value;
+                console.log('SPO Rent - Branch selected:', selectedBranchId);
+                
+                // Clear district and district code when branch changes
+                districtSelect.innerHTML = '<option value="">Select District</option>';
+                districtCodeInput.value = '';
+                districtCodeInput.classList.remove('auto-filled', 'success');
+                districtsData = []; // Clear stored data
+                
+                if (selectedBranchId) {
+                    const selectedBranch = branchesData.find(branch => branch.id == selectedBranchId);
+                    if (selectedBranch) {
+                        console.log('SPO Rent - Branch selected:', selectedBranch);
+                        
+                        // Load districts for selected state and branch
+                        loadDistricts(stateSelect.value, selectedBranchId);
+                    }
+                }
+            });
+            
+            // Auto-fill district code when district is selected
+            districtSelect.addEventListener('change', function () {
+                const selectedDistrictId = this.value;
+                console.log('SPO Rent - District selected:', selectedDistrictId);
+                
+                if (selectedDistrictId && districtCodeInput) {
+                    const selectedDistrict = districtsData.find(district => district.id == selectedDistrictId);
+                    if (selectedDistrict) {
+                        districtCodeInput.value = selectedDistrict.code;
+                        console.log('SPO Rent - District code set to:', selectedDistrict.code);
+                        
+                        // Visual feedback using CSS classes
+                        districtCodeInput.classList.add('auto-filled', 'success');
+                        showSuccessMessage('District code auto-filled from selected district');
+                    }
+                } else if (districtCodeInput) {
+                    districtCodeInput.value = ''; // Clear if no district selected
+                    districtCodeInput.classList.remove('auto-filled', 'success');
+                }
+            });
+        }
+        
+        // Helper function to show success message
+        function showSuccessMessage(message) {
+            const helpText = document.getElementById('branch-code-help');
+            if (helpText) {
+                helpText.innerHTML = `<i class="fas fa-check-circle text-success"></i> ${message}`;
+                helpText.className = 'form-text text-success';
+            }
+        }
+
+        // Helper function to show error message
+        function showErrorMessage(message) {
+            const helpText = document.getElementById('branch-code-help');
+            if (helpText) {
+                helpText.innerHTML = `<i class="fas fa-exclamation-triangle text-danger"></i> ${message}`;
+            }
+        }
+        
+        // Function to load districts based on selected state and branch
+        function loadDistricts(stateId, branchId) {
+            if (!stateId || !branchId) {
+                console.log('Missing stateId or branchId:', { stateId, branchId });
+                return;
+            }
+            
+            console.log('Loading districts for state:', stateId, 'and branch:', branchId);
+            
+            // Check if districtSelect exists
+            if (!districtSelect) {
+                console.error('districtSelect element not found!');
+                return;
+            }
+            
+            // Show loading state
+            districtSelect.innerHTML = '<option value="">Loading districts...</option>';
+            districtSelect.disabled = true;
+            
+            const url = `{% url 'get_districts_by_branch' %}?state_id=${stateId}&branch_id=${branchId}`;
+            console.log('Fetching from URL:', url);
+            
+            // Fetch districts for selected state and branch
+            fetch(url)
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Districts received:', data);
+                districtsData = data.districts || []; // Store the data
+                
+                // Reset district dropdown
+                districtSelect.innerHTML = '<option value="">Select District</option>';
+                districtSelect.disabled = false;
+                
+                if (data.districts && data.districts.length > 0) {
+                    data.districts.forEach(district => {
+                        const option = document.createElement('option');
+                        option.value = district.id;
+                        option.textContent = district.name;
+                        districtSelect.appendChild(option);
+                    });
+                    console.log(`Added ${data.districts.length} districts to dropdown`);
+                    showSuccessMessage(`${data.districts.length} districts found`);
+                } else {
+                    districtSelect.innerHTML = '<option value="">No districts found</option>';
+                    console.log('No districts found in response');
+                    showErrorMessage('No districts found for selected state and branch');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading districts:', error);
+                districtSelect.innerHTML = '<option value="">Error loading districts</option>';
+                districtSelect.disabled = true;
+                showErrorMessage('Error loading districts');
+            });
+        }
+
+        // Field validation event listeners
+        const validationFields = {
+            'id_owner_pan': 'pan',
+            'id_owner_contact_no': 'phone',
+            'id_bank_account_no': 'bank_account',
+            'id_bank_ifsc_code': 'ifsc',
+            'id_owner_gst': 'gst',
+            'id_entity_code': 'entity_code',
+            'id_owner_email': 'email',
+            'id_cfa_mail_id': 'email',
+            'id_latitude': 'latitude',
+            'id_longitude': 'longitude',
+            'id_office_sqft': 'positive',
+            'id_open_space_sqft': 'positive',
+            'id_total_space': 'positive',
+            'id_capacity': 'positive',
+            'id_rent_pm': 'positive',
+            'id_yearly_hike_percent': 'percentage',
+            'id_security_deposit_paid': 'positive',
+            'id_pin_code': 'numeric'
+        };
+
+        // Add validation listeners to all fields
+        Object.keys(validationFields).forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                // Validate on blur (when user leaves the field)
+                field.addEventListener('blur', function () {
+                    validateField(this, validationFields[fieldId]);
+                });
+
+                // Validate on input (real-time validation)
+                field.addEventListener('input', function () {
+                    if (this.value.trim()) {
+                        validateField(this, validationFields[fieldId]);
+                    } else {
+                        clearFieldError(this);
+                    }
+                });
+
+                // Auto-format certain fields
+                if (fieldId === 'id_spo_code') {
+                    field.addEventListener('input', function () {
+                        // Convert to uppercase only - let the dynamic validation handle format
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+
+                if (fieldId === 'id_owner_pan') {
+                    field.addEventListener('input', function () {
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+
+                if (fieldId === 'id_bank_ifsc_code') {
+                    field.addEventListener('input', function () {
+                        this.value = this.value.toUpperCase();
+                    });
+                }
+
+                if (fieldId === 'id_owner_gst') {
+                    field.addEventListener('input', function () {
+                        // Allow letters, numbers, spaces, hyphens, and periods
+                        // Convert to uppercase for consistency
+                        this.value = this.value.toUpperCase();
+                        
+                        // Auto-format GST as user types (optional)
+                        // Allow common GST separators
+                        const currentValue = this.value;
+                        if (currentValue.length > 0) {
+                            // Remove any invalid characters except allowed ones
+                            const cleaned = currentValue.replace(/[^A-Z0-9\s\-\.]/g, '');
+                            if (cleaned !== currentValue) {
+                                this.value = cleaned;
+                            }
+                        }
+                    });
+                }
+
+                if (fieldId === 'id_entity_code') {
+                    field.addEventListener('input', function () {
+                        // Convert to uppercase for consistency
+                        this.value = this.value.toUpperCase();
+                        
+                        // Enforce maximum 5 character limit
+                        if (this.value.length > 5) {
+                            this.value = this.value.substring(0, 5);
+                        }
+                        
+                        // Remove any non-alphanumeric characters
+                        this.value = this.value.replace(/[^A-Z0-9]/g, '');
+                        
+                        // Show character count feedback (optional)
+                        const charCount = this.value.length;
+                        if (charCount > 0) {
+                            // You can add visual feedback here if needed
+                            console.log(`Entity code length: ${charCount}/5 characters`);
+                        }
+                    });
+                }
+            }
+        });
+
+        // File size validation
+        function validateFileSize(file, maxSizeMB = 10) {
+            const maxSizeBytes = maxSizeMB * 1024 * 1024; // Convert MB to bytes
+            if (file.size > maxSizeBytes) {
+                alert(`File "${file.name}" is too large. Maximum file size is ${maxSizeMB} MB.`);
+                return false;
+            }
+            return true;
+        }
+
+        // Add file size validation to all file inputs
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            fileInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    const files = this.files;
+                    for (let i = 0; i < files.length; i++) {
+                        if (!validateFileSize(files[i], 10)) {
+                            this.value = ''; // Clear the input
+                            return false;
+                        }
+                    }
+                });
+            });
+        });
+
+        // Form submission validation
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                let isValid = true;
+
+                // Validate file sizes before submission
+                const fileInputs = document.querySelectorAll('input[type="file"]');
+                fileInputs.forEach(input => {
+                    const files = input.files;
+                    for (let i = 0; i < files.length; i++) {
+                        if (!validateFileSize(files[i], 10)) {
+                            isValid = false;
+                            e.preventDefault();
+                            return false;
+                        }
+                    }
+                });
+
+                // Validate PAN field before submission
+                const panInput = document.getElementById('id_pan_number');
+                if (panInput && panInput.value.trim()) {
+                    if (!validatePANField(panInput)) {
+                        isValid = false;
+                        e.preventDefault();
+                        alert('Please enter a valid PAN number before submitting the form.');
+                        panInput.focus();
+                        return false;
+                    }
+                }
+
+                // SPO Code validation is handled by Sale Organization-based validation
+                // No additional validation needed here
+
+                // Validate all fields before submission
+                Object.keys(validationFields).forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field && field.value.trim()) {
+                        if (!validateField(field, validationFields[fieldId])) {
+                            isValid = false;
+                        }
+                    }
+                });
+
+                // Check required fields and highlight empty ones
+                const requiredFields = [
+                    'id_sale_organization', 'id_state', 'id_branch', 'id_district', 'id_district_code',
+                    'id_spo_name', 'id_stru_grp', 'id_cfa_status', 'id_renewal_with', 'id_inception_date',
+                    'id_godown_address', 'id_owner_name', 'id_owner_contact_no', 'id_owner_code', 'id_owner_address'
+                ];
+                
+                requiredFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (field && !field.value.trim()) {
+                        showFieldError(field, 'This field is required');
+                        isValid = false;
+                    }
+                });
+
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('Please correct the validation errors before submitting the form.');
+                    return false;
+                }
+
+                // Check if we're in a modal iframe
+                if (window.parent && window.parent !== window) {
+                    // We're in an iframe, handle modal submission
+                    e.preventDefault();
+
+                    // Submit form via AJAX
+                    const formData = new FormData(form);
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Clear all error styling and messages
+                                document.querySelectorAll('.field-error').forEach(error => {
+                                    error.style.display = 'none';
+                                });
+                                document.querySelectorAll('.form-field-error').forEach(field => {
+                                    field.classList.remove('form-field-error');
+                                });
+                                document.querySelectorAll('.required-field').forEach(container => {
+                                    container.classList.remove('required-field');
+                                });
+                                document.querySelectorAll('.error-summary').forEach(summary => {
+                                    summary.remove();
+                                });
+                                
+                                // Show success message
+                                const successMessage = document.createElement('div');
+                                successMessage.className = 'success-message';
+                                successMessage.style.cssText = 'background: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; color: #155724; font-weight: 500; text-align: center;';
+                                successMessage.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message || 'SPO Rent record created successfully!'}`;
+                                
+                                // Insert success message at the top of the form
+                                const form = document.querySelector('form');
+                                if (form) {
+                                    form.insertBefore(successMessage, form.firstChild);
+                                }
+                                
+                                // Send message to parent window
+                                window.parent.postMessage({
+                                    type: 'formSubmitted',
+                                    success: true,
+                                    message: data.message || 'SPO Rent record created successfully!'
+                                }, '*');
+                            } else {
+                                // Show errors in the form
+                                if (data.errors) {
+                                    // Clear all previous errors first
+                                    document.querySelectorAll('.field-error').forEach(error => {
+                                        error.style.display = 'none';
+                                    });
+                                    document.querySelectorAll('.form-field-error').forEach(field => {
+                                        field.classList.remove('form-field-error');
+                                    });
+                                    document.querySelectorAll('.required-field').forEach(container => {
+                                        container.classList.remove('required-field');
+                                    });
+                                    
+                                    // Show new errors
+                                    Object.keys(data.errors).forEach(fieldName => {
+                                        const field = document.getElementById(fieldName);
+                                        if (field) {
+                                            showFieldError(field, data.errors[fieldName].join(', '));
+                                        }
+                                    });
+                                    
+                                    // Field label mapping for better error display
+                                    const fieldLabels = {
+                                        'sale_organization': 'Sale Organization',
+                                        'spo_code': 'SPO Code',
+                                        'state': 'State',
+                                        'branch': 'Branch',
+                                        'district': 'District',
+                                        'district_code': 'District Code',
+                                        'spo_name': 'SPO Name',
+                                        'stru_grp': 'Structure Group',
+                                        'cfa_status': 'SPO Status',
+                                        'renewal_with': 'Renewal With',
+                                        'inception_date': 'Inception Date',
+                                        'godown_address': 'Godown Address',
+                                        'owner_name': 'Owner Name',
+                                        'owner_contact_no': 'Owner Contact No',
+                                        'owner_code': 'Owner Code',
+                                        'owner_address': 'Owner Address',
+                                        'owner_pan': 'Owner PAN',
+                                        'gst_status': 'GST Status',
+                                        'state_code': 'State Code',
+                                        'pan_number': 'PAN Number',
+                                        'entity_code': 'Last Characters',
+                                        'owner_gst': 'Owner GST (15-20 characters)',
+                                        'declaration_rcm': 'Declaration/RCM',
+                                        'declaration_status': 'Declaration Status',
+                                        'pin_code': 'Pin Code',
+                                        'nature_of_construction': 'Nature of Construction',
+                                        'stamp_no': 'Stamp No',
+                                        'stamp_name': 'Stamp Name',
+                                        'partner_type': 'Partner Type',
+                                        'cfa_mail_id': 'Owner Mail ID',
+                                        'bank_account_name': 'Bank Account Name',
+                                        'bank_account_no': 'Bank Account No',
+                                        'bank_name': 'Bank Name',
+                                        'bank_branch_name': 'Bank Branch Name',
+                                        'bank_ifsc_code': 'Bank IFSC Code',
+                                        'destination_code': 'Depot Sq.Ft',
+                                        'office_sqft': 'Office Sq.ft',
+                                        'open_space_sqft': 'Open Space Sq.ft',
+                                        'total_space': 'Total Space',
+                                        'capacity_mt': 'Capacity (In Mt)',
+                                        'rental_from_date': 'From Date',
+                                        'rental_to_date': 'To Date',
+                                        'days_count': 'Days Count',
+                                        'security_deposit_paid': 'Security Deposit Paid',
+                                        'security_deposit_doc': 'Security Deposit Doc',
+                                        'rent_pm': 'Rent PM',
+                                        'yearly_hike_percent': 'Yearly Hike %',
+                                        'latitude': 'Latitude',
+                                        'longitude': 'Longitude',
+                                        'remarks': 'Remarks',
+                                        'status': 'Status',
+                                        'vacation_letter': 'Vacation Letter',
+                                        'transporter_agreement': 'Rent Agreement',
+                                        'closure_letter': 'Closure Letter',
+                                        'closure_acceptance_letter': 'Closure Acceptance Letter',
+                                        'ff_letter_calc': 'F&F Letter & Calc',
+                                        'security_deposit': 'Security Deposit',
+                                        'kyc_document': 'KYC Document',
+                                        'consolidate_document': 'Consolidate Document',
+                                        'bank_details': 'Bank Details'
+                                    };
+
+                                    // Show error summary
+                                    const errorSummary = document.createElement('div');
+                                    errorSummary.className = 'error-summary';
+                                    errorSummary.innerHTML = `
+                                        <h4><i class="fas fa-exclamation-triangle"></i> Please correct the following errors:</h4>
+                                        <ul>
+                                            ${Object.keys(data.errors).map(fieldName => {
+                                                const label = fieldLabels[fieldName] || fieldName.replace(/_/g, ' ').toUpperCase();
+                                                return `<li><strong>${label}:</strong> ${data.errors[fieldName].join(', ')}</li>`;
+                                            }).join('')}
+                                        </ul>
+                                    `;
+                                    
+                                    // Insert error summary at the top of the form
+                                    const form = document.querySelector('form');
+                                    if (form && !form.querySelector('.error-summary')) {
+                                        form.insertBefore(errorSummary, form.firstChild);
+                                    }
+                                    
+                                    // Scroll to first error
+                                    const firstErrorField = document.querySelector('.form-field-error');
+                                    if (firstErrorField) {
+                                        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }
+                                }
+                                
+                                // Show alert with error message
+                                const errorMessage = data.message || 'Error creating SPO Rent record. Please check the form.';
+                                alert(errorMessage);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while submitting the form. Please try again.');
+                        });
+                }
+            });
+        }
+        
+        // File input styling - Green when files are selected
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        
+        fileInputs.forEach(input => {
+            // Check if file is already selected (for edit mode)
+            if (input.files && input.files.length > 0) {
+                input.classList.add('has-file');
+            }
+            
+            // Listen for file selection
+            input.addEventListener('change', function () {
+                if (this.files && this.files.length > 0) {
+                    this.classList.add('has-file');
+                    // Add visual feedback
+                    this.style.borderColor = '#28a745';
+                    this.style.background = '#f8fff9';
+                    this.style.boxShadow = '0 0 0 2px rgba(40, 167, 69, 0.1)';
+                    
+                    // Show success message
+                    const fileName = this.files[0].name;
+                    const helpText = this.parentNode.querySelector('.file-help');
+                    if (helpText) {
+                        helpText.innerHTML = `<i class="fas fa-check-circle" style="color: #28a745;"></i> File selected: ${fileName}`;
+                        helpText.style.color = '#28a745';
+                    }
+                } else {
+                    this.classList.remove('has-file');
+                    // Reset styling
+                    this.style.borderColor = '#e9ecef';
+                    this.style.background = '#f8f9fa';
+                    this.style.boxShadow = 'none';
+                    
+                    // Reset help text
+                    const helpText = this.parentNode.querySelector('.file-help');
+                    if (helpText) {
+                        helpText.innerHTML = this.getAttribute('data-original-help') || helpText.innerHTML;
+                        helpText.style.color = '#6c757d';
+                    }
+                }
+            });
+            
+            // Store original help text
+            const helpText = input.parentNode.querySelector('.file-help');
+            if (helpText) {
+                input.setAttribute('data-original-help', helpText.innerHTML);
+            }
+        });
+        
+        // Add event listeners to clear errors when users interact with fields
+        document.querySelectorAll('input, select, textarea').forEach(field => {
+            field.addEventListener('input', function() {
+                if (this.classList.contains('form-field-error')) {
+                    clearFieldError(this);
+                }
+            });
+            
+            field.addEventListener('change', function() {
+                if (this.classList.contains('form-field-error')) {
+                    clearFieldError(this);
+                }
+            });
+            
+            field.addEventListener('focus', function() {
+                if (this.classList.contains('form-field-error')) {
+                    this.style.borderColor = '#667eea';
+                    this.style.boxShadow = '0 0 0 0.2rem rgba(102, 126, 234, 0.25)';
+                }
+            });
+        });
+
+        // SPO Code validation based on Sale Organization
+        const saleOrganizationSelect = document.getElementById('id_sale_organization');
+        const spoCodeInput = document.getElementById('id_spo_code');
+        
+        if (saleOrganizationSelect && spoCodeInput) {
+            // Add format hint below SPO code input
+            const formatHint = document.createElement('div');
+            formatHint.className = 'format-hint';
+            formatHint.style.cssText = 'font-size: 0.875rem; color: #6c757d; margin-top: 0.25rem; font-style: italic;';
+            spoCodeInput.parentNode.appendChild(formatHint);
+            
+            // Function to update format hint and validation
+            function updateSPOCodeValidation() {
+                const selectedOrg = saleOrganizationSelect.value;
+                const spoCode = spoCodeInput.value;
+                
+                // Clear previous validation styling
+                spoCodeInput.classList.remove('is-valid', 'is-invalid');
+                formatHint.style.color = '#6c757d';
+                
+                if (selectedOrg === 'Chettinad') {
+                    formatHint.textContent = 'Format: 1 letter + 3 numbers (e.g., A012, B123) - maximum 4 characters';
+                    formatHint.style.color = '#007bff';
+                    
+                    // Real-time validation for Chettinad
+                    if (spoCode && !/^[A-Za-z]\d{3}$/.test(spoCode)) {
+                        spoCodeInput.classList.add('is-invalid');
+                        formatHint.style.color = '#dc3545';
+                    } else if (spoCode && /^[A-Za-z]\d{3}$/.test(spoCode)) {
+                        spoCodeInput.classList.add('is-valid');
+                        formatHint.style.color = '#28a745';
+                    }
+                } else if (selectedOrg === 'Anjani') {
+                    formatHint.textContent = 'Format: 2 letters + 2 numbers (e.g., AB12) - maximum 4 characters';
+                    formatHint.style.color = '#007bff';
+                    
+                    // Real-time validation for Anjani
+                    if (spoCode && !/^[A-Za-z]{2}\d{2}$/.test(spoCode)) {
+                        spoCodeInput.classList.add('is-invalid');
+                        formatHint.style.color = '#dc3545';
+                    } else if (spoCode && /^[A-Za-z]{2}\d{2}$/.test(spoCode)) {
+                        spoCodeInput.classList.add('is-valid');
+                        formatHint.style.color = '#28a745';
+                    }
+                } 
+            }
+            
+            // Add event listeners
+            saleOrganizationSelect.addEventListener('change', updateSPOCodeValidation);
+            spoCodeInput.addEventListener('input', updateSPOCodeValidation);
+            
+            // Initialize validation on page load
+            updateSPOCodeValidation();
+        }
+        
+        // GST Status conditional field logic
+        const gstStatusSelect = document.getElementById('id_gst_status');
+        const declarationRcmSelect = document.getElementById('id_declaration_rcm');
+        const declarationStatusSelect = document.getElementById('id_declaration_status');
+        const stateCodeInput = document.getElementById('id_state_code');
+        const entityCodeInput = document.getElementById('id_entity_code');
+        const ownerGstInput = document.getElementById('id_owner_gst');
+        
+        if (gstStatusSelect) {
+            // Function to handle GST status changes
+            function updateGSTFields() {
+                const gstStatus = gstStatusSelect.value;
+                const gstFieldsContainer = document.getElementById('gst_fields_container');
+                const declarationRcmContainer = document.getElementById('declaration_rcm_container');
+                const declarationStatusContainer = document.getElementById('declaration_status_container');
+                
+                console.log('GST Status changed to:', gstStatus);
+                console.log('GST Fields Container:', gstFieldsContainer);
+                console.log('Declaration RCM Container:', declarationRcmContainer);
+                console.log('Declaration Status Container:', declarationStatusContainer);
+                
+                // Hide all conditional fields initially
+                gstFieldsContainer.style.display = 'none';
+                declarationRcmContainer.style.display = 'none';
+                declarationStatusContainer.style.display = 'none';
+                
+                // Reset values when hiding fields
+                if (stateCodeInput) stateCodeInput.value = '';
+                if (entityCodeInput) entityCodeInput.value = '';
+                if (ownerGstInput) ownerGstInput.value = '';
+                if (declarationRcmSelect) declarationRcmSelect.value = '';
+                if (declarationStatusSelect) declarationStatusSelect.value = '';
+                
+                // Don't clear PAN Number here - it will be auto-populated from Owner PAN
+                // Also don't clear Owner PAN - user might want to keep it
+                
+                if (gstStatus === 'YES') {
+                    console.log('GST Status is YES - showing GST fields');
+                    // Show GST fields
+                    gstFieldsContainer.style.display = 'block';
+                    console.log('GST Fields Container display set to:', gstFieldsContainer.style.display);
+                    // Clear Owner GST when switching to YES (will be auto-populated)
+                    if (ownerGstInput) ownerGstInput.value = '';
+                    
+                    // Auto-populate PAN Number from Owner PAN if available
+                    if (ownerPanInput && ownerPanInput.value.trim()) {
+                        panNumberInput.value = ownerPanInput.value.trim();
+                        console.log('PAN Number auto-populated from Owner PAN:', panNumberInput.value);
+                    }
+                } else if (gstStatus === 'NO') {
+                    // Show Declaration/RCM field
+                    declarationRcmContainer.style.display = 'block';
+                    // Clear Owner GST when GST Status is NO (will be NULL in database)
+                    if (ownerGstInput) ownerGstInput.value = '';
+                }
+            }
+            
+            // Add event listener for GST status changes
+            gstStatusSelect.addEventListener('change', updateGSTFields);
+            
+            // Initialize on page load
+            updateGSTFields();
+            
+            // Debug: Check initial state
+            console.log('SPO Rent - Initial state value:', stateSelect.value);
+            console.log('SPO Rent - Initial branch value:', branchSelect.value);
+            if (stateSelect.value) {
+                console.log('SPO Rent - Initial state selected, triggering branch load...');
+                // Trigger branch loading for initial state if it exists
+                const event = new Event('change');
+                stateSelect.dispatchEvent(event);
+            }
+        }
+        
+        // GST auto-generation removed - fields are now independent
+        
+        // Add real-time validation for state code
+        if (stateCodeInput) {
+            stateCodeInput.addEventListener('input', function() {
+                const value = this.value.trim();
+                if (value && !/^[0-9]{2}$/.test(value)) {
+                    this.setCustomValidity('State Code must be exactly 2 digits (e.g., 01, 02, 33)');
+                    this.classList.remove('validation-success');
+                    this.classList.add('validation-error');
+                } else {
+                    this.setCustomValidity('');
+                    this.classList.remove('validation-error');
+                    if (value) this.classList.add('validation-success');
+                }
+            });
+            
+            stateCodeInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                this.classList.remove('validation-success', 'validation-error');
+                if (value && !/^[0-9]{2}$/.test(value)) {
+                    this.classList.add('validation-error');
+                } else if (value) {
+                    this.classList.add('validation-success');
+                }
+            });
+        }
+        
+        // Add real-time validation for PAN number
+        if (panNumberInput) {
+            panNumberInput.addEventListener('input', function() {
+                const value = this.value.trim();
+                if (value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value)) {
+                    this.setCustomValidity('PAN must be in format: ABCDE1234F (5 letters + 4 digits + 1 letter)');
+                    this.classList.remove('validation-success');
+                    this.classList.add('validation-error');
+                } else {
+                    this.setCustomValidity('');
+                    this.classList.remove('validation-error');
+                    if (value) this.classList.add('validation-success');
+                }
+            });
+            
+            panNumberInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                this.classList.remove('validation-success', 'validation-error');
+                if (value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value)) {
+                    this.classList.add('validation-error');
+                } else if (value) {
+                    this.classList.add('validation-success');
+                }
+            });
+        }
+        
+        // Add real-time validation for entity code
+        if (entityCodeInput) {
+            entityCodeInput.addEventListener('input', function() {
+                const value = this.value.trim();
+                if (value && value.length > 5) {
+                    this.setCustomValidity('Entity code must be maximum 5 characters');
+                    this.classList.remove('validation-success');
+                    this.classList.add('validation-error');
+                } else if (value && !/^[A-Za-z0-9]{5}$/.test(value)) {
+                    this.setCustomValidity('Entity code must be exactly 5 alphanumeric characters (letters or numbers)');
+                    this.classList.remove('validation-success');
+                    this.classList.add('validation-error');
+                } else {
+                    this.setCustomValidity('');
+                    this.classList.remove('validation-error');
+                    if (value) this.classList.add('validation-success');
+                }
+            });
+            
+            entityCodeInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                this.classList.remove('validation-success', 'validation-error');
+                if (value && value.length > 5) {
+                    this.classList.add('validation-error');
+                } else if (value && !/^[A-Za-z0-9]{5}$/.test(value)) {
+                    this.classList.add('validation-error');
+                } else if (value) {
+                    this.classList.add('validation-success');
+                }
+            });
+        }
+        
+        // Add real-time validation for Owner PAN
+        if (ownerPanInput) {
+            ownerPanInput.addEventListener('input', function() {
+                const value = this.value.trim();
+                if (value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value)) {
+                    this.setCustomValidity('Owner PAN must be in format: ABCDE1234F (5 letters + 4 digits + 1 letter)');
+                    this.classList.remove('validation-success');
+                    this.classList.add('validation-error');
+                } else {
+                    this.setCustomValidity('');
+                    this.classList.remove('validation-error');
+                    if (value) this.classList.add('validation-success');
+                }
+            });
+            
+            ownerPanInput.addEventListener('blur', function() {
+                const value = this.value.trim();
+                this.classList.remove('validation-success', 'validation-error');
+                if (value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(value)) {
+                    this.classList.add('validation-error');
+                } else if (value) {
+                    this.classList.add('validation-success');
+                }
+            });
+        }
+        
+        // Owner PAN field is now independent - no auto-population
+        
+        // GST fields are now independent - no auto-generation
+        
+        if (declarationRcmSelect) {
+            // Function to handle Declaration/RCM changes
+            function updateDeclarationFields() {
+                const declarationRcm = declarationRcmSelect.value;
+                const declarationStatusContainer = document.getElementById('declaration_status_container');
+                
+                // Hide Declaration Status field initially
+                declarationStatusContainer.style.display = 'none';
+                
+                // Reset values when hiding fields
+                if (declarationStatusSelect) declarationStatusSelect.value = '';
+                
+                if (declarationRcm === 'Declaration') {
+                    // Show Declaration Status field
+                    declarationStatusContainer.style.display = 'block';
+                }
+                // Note: RCM selection is now allowed without restrictions
+            }
+            
+            // Add event listener for Declaration/RCM changes
+            declarationRcmSelect.addEventListener('change', updateDeclarationFields);
+            
+                    // Initialize on page load to set correct initial state
+        updateDeclarationFields();
+    }
+    
+
+
+    });
+</script>
+{% endblock %} 

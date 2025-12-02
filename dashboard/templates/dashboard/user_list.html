@@ -1,0 +1,379 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}User Management{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+        }
+        .container {
+            background: #fff;
+            max-width: 100%;
+            margin: 0.25rem auto;
+            padding: 0.5rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px 0 rgba(31, 38, 135, 0.08);
+        }
+        h2 {
+            color: #2980b9;
+            text-align: left;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .add-btn {
+            background: linear-gradient(90deg, #2980b9, #6dd5fa);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-decoration: none;
+            box-shadow: 0 1px 2px 0 rgba(31, 38, 135, 0.1);
+            transition: background 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .add-btn:hover {
+            background: linear-gradient(90deg, #6dd5fa, #2980b9);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px 0 rgba(31, 38, 135, 0.15);
+        }
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .dataTables_wrapper {
+            padding: 0.75rem;
+        }
+        .dataTables_length,
+        .dataTables_filter {
+            margin-bottom: 0.75rem;
+        }
+        .dataTables_length label,
+        .dataTables_filter label {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .dataTables_length select,
+        .dataTables_filter input {
+            padding: 0.4rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+        .dataTables_info {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.75rem;
+        }
+        .dataTables_paginate {
+            margin-top: 0.75rem;
+        }
+        .dataTables_paginate .paginate_button {
+            padding: 0.4rem 0.8rem;
+            margin: 0 0.2rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #666;
+            background: #fff;
+            cursor: pointer;
+        }
+        .dataTables_paginate .paginate_button:hover {
+            background: #f8f9fa;
+            color: #333;
+        }
+        .dataTables_paginate .paginate_button.current {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .dataTables_paginate .paginate_button.disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+        .dataTables_processing {
+            background: rgba(255, 255, 255, 0.9);
+            color: #666;
+            font-size: 0.85rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        .dataTables_empty {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-style: italic;
+        }
+        .mat-table td {
+            vertical-align: middle;
+            padding: 0.5rem 0.75rem;
+        }
+        .mat-table td:first-child {
+            text-align: center;
+        }
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        .username {
+            font-weight: 700;
+            color: #2980b9;
+            font-size: 0.85rem;
+            line-height: 1.2;
+        }
+        .user-details {
+            color: #7f8c8d;
+            font-size: 0.75rem;
+            line-height: 1.2;
+        }
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .status-active {
+            background: rgba(39, 174, 96, 0.1);
+            color: #27ae60;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+        }
+        .status-inactive {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border: 1px solid rgba(231, 76, 60, 0.3);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 0.3rem 0.6rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+        .view-btn {
+            background: #17a2b8;
+            color: white;
+        }
+        .view-btn:hover {
+            background: #138496;
+            color: white;
+            transform: translateY(-1px);
+        }
+        .edit-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        .edit-btn:hover {
+            background: #e0a800;
+            color: #212529;
+            transform: translateY(-1px);
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+        .delete-btn:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-1px);
+        }
+        @media (max-width: 768px) {
+            .container {
+                margin: 0.25rem;
+                padding: 0.5rem;
+            }
+            h2 {
+                font-size: 0.9rem;
+                margin-bottom: 0.4rem;
+            }
+            .header-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.3rem;
+            }
+            .add-btn {
+                padding: 0.25rem 0.6rem;
+                font-size: 0.65rem;
+                justify-content: center;
+            }
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            .action-btn {
+                justify-content: center;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            .username {
+                font-size: 0.8rem;
+            }
+            .user-details {
+                font-size: 0.7rem;
+            }
+            .mat-table td {
+                padding: 0.4rem 0.5rem;
+            }
+            .status-badge {
+                font-size: 0.75rem;
+                padding: 0.25rem 0.6rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .container {
+                margin: 0.15rem;
+                padding: 0.4rem;
+            }
+            h2 {
+                font-size: 0.85rem;
+            }
+            .add-btn {
+                padding: 0.2rem 0.5rem;
+                font-size: 0.6rem;
+            }
+            .action-btn {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+            }
+            .username {
+                font-size: 0.75rem;
+            }
+            .user-details {
+                font-size: 0.65rem;
+            }
+            .mat-table td {
+                padding: 0.3rem 0.4rem;
+            }
+            .status-badge {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header-section">
+        <h2><i class="fas fa-users"></i> User Management</h2>
+        <a href="/dashboard/users/add/" class="add-btn">
+            <i class="fas fa-plus"></i>
+            Add User
+        </a>
+    </div>
+    
+    {% if users %}
+    <table id="users-table" class="display" style="width:100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User Information</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Date Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>
+                    <div class="user-info">
+                        <div class="username">{{ user.username }}</div>
+                        <div class="user-details">{{ user.first_name }} {{ user.last_name }}</div>
+                    </div>
+                </td>
+                <td>{{ user.email }}</td>
+                <td>
+                    {% if user.is_active %}
+                        <span class="status-badge status-active">Active</span>
+                    {% else %}
+                        <span class="status-badge status-inactive">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                <td>
+                    <div class="action-buttons">
+                        <a href="/dashboard/users/reset-password/{{ user.id }}/" class="reset-btn" title="Reset Password">
+                            <i class="fas fa-key"></i>
+                            Reset
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-users"></i>
+        <h3>No Users Found</h3>
+        <p>Get started by adding your first user to the system.</p>
+        <a href="/dashboard/users/add/" class="add-btn">
+            <i class="fas fa-plus"></i>
+            Add First User
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#users-table').DataTable({
+            pageLength: 25,
+            lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+            order: [[0, 'desc']],
+            responsive: true,
+            language: {
+                search: "Search Users:",
+                lengthMenu: "Show _MENU_ users per page",
+                info: "Showing _START_ to _END_ of _TOTAL_ users",
+                paginate: {
+                    first: "First",
+                    last: "Last",
+                    next: "Next",
+                    previous: "Previous"
+                },
+                emptyTable: "No users found",
+                zeroRecords: "No matching users found"
+            },
+            columnDefs: [
+                { orderable: false, targets: 5 } // Disable sorting on Actions column
+            ]
+        });
+    });
+</script>
+{% endblock %} 

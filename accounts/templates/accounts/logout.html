@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logged Out - Data Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6dd5fa, #2980b9, #ffffff);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+        }
+        .logout-container {
+            background: #fff;
+            padding: 3rem 2.5rem 2.5rem 2.5rem;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            width: 400px;
+            max-width: 95vw;
+            text-align: center;
+        }
+        .logout-icon {
+            font-size: 4rem;
+            color: #2980b9;
+            margin-bottom: 1.5rem;
+        }
+        .logout-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2980b9;
+            margin-bottom: 1rem;
+        }
+        .logout-message {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .logout-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .logout-actions a {
+            background: linear-gradient(90deg, #2980b9, #6dd5fa);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.8rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .logout-actions a:hover {
+            background: linear-gradient(90deg, #6dd5fa, #2980b9);
+        }
+        .logout-actions a.secondary {
+            background: transparent;
+            color: #2980b9;
+            border: 2px solid #2980b9;
+        }
+        .logout-actions a.secondary:hover {
+            background: #2980b9;
+            color: #fff;
+        }
+        .footer {
+            margin-top: 2rem;
+            font-size: 0.95rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <div class="logout-icon">
+            <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <div class="logout-title">Successfully Logged Out</div>
+        <div class="logout-message">
+            You have been successfully logged out of the Data Management System.<br>
+            Thank you for using our platform!
+        </div>
+        <div class="logout-actions">
+            <a href="/accounts/login/">
+                <i class="fas fa-sign-in-alt"></i> Login Again
+            </a>
+            <a href="/" class="secondary">
+                <i class="fas fa-home"></i> Go to Home
+            </a>
+        </div>
+        <div class="footer">
+            <i class="fas fa-shield-alt"></i> Secure Data Management &copy; {{ now|date:"Y" }}
+        </div>
+    </div>
+</body>
+</html> 

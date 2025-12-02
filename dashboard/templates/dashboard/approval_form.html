@@ -1,0 +1,668 @@
+{% extends 'dashboard/base.html' %}
+{% load form_utils %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+        background: #667eea !important;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+    }
+
+    /* Modal overlay effect */
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.95);
+        max-width: 1000px;
+        width: 98%;
+        margin: 0.5rem auto;
+        padding: 1rem;
+        border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        z-index: 1000;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-actions h2 {
+        margin: 0;
+        color: white;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.2);
+            color: white;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+
+    .form-card {
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        margin-bottom: 0;
+        }
+        
+        .form-section {
+        margin-bottom: 1rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: visible;
+        backdrop-filter: blur(10px);
+        }
+        
+        .section-header {
+        display: flex !important;
+            align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
+        min-height: 45px;
+        visibility: visible !important;
+        opacity: 1 !important;
+        }
+        
+        .section-icon {
+            font-size: 1.2rem;
+        margin-right: 0.75rem;
+        color: white !important;
+        display: inline-block !important;
+        visibility: visible !important;
+        }
+        
+        .section-title {
+        color: white !important;
+        font-size: 1.1rem;
+        font-weight: 600;
+            margin: 0;
+        display: inline-block !important;
+        visibility: visible !important;
+        }
+        
+        .form-grid {
+            display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.75rem;
+        max-width: 100%;
+        min-height: 80px;
+    }
+
+    @media (min-width: 768px) {
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .form-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        }
+        
+        .form-group {
+        margin-bottom: 0.75rem;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        display: block;
+        min-height: 50px;
+        backdrop-filter: blur(5px);
+    }
+
+    .form-grid .full-width {
+            grid-column: 1 / -1;
+        }
+        
+    /* Ensure all textareas have consistent sizing */
+    .form-grid textarea {
+        resize: vertical;
+        min-height: 25px;
+        max-height: 40px;
+        line-height: 1.2;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    .form-grid label {
+        display: block;
+        margin-bottom: 0.3rem;
+            font-weight: 600;
+        color: #333;
+        font-size: 0.8rem;
+        position: relative;
+    }
+
+    .form-grid label::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 4px solid #667eea;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .form-grid label:hover::after {
+        opacity: 1;
+    }
+
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+        width: 100%;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+        box-sizing: border-box;
+        min-height: 32px;
+        line-height: 1.2;
+        }
+        
+    .form-grid input:focus,
+    .form-grid select:focus,
+    .form-grid textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 1);
+    }
+
+    .form-grid input[type="file"] {
+        padding: 0.3rem;
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px dashed #667eea;
+        border-radius: 4px;
+        cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+    .form-grid input[type="file"]:hover {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: #764ba2;
+    }
+
+    .form-grid input[type="file"]:focus {
+        outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+            align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+        background: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        padding: 0.75rem 1.5rem;
+            border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        transition: all 0.3s ease;
+        }
+        
+    .btn-secondary:hover {
+        background: #5a6268;
+            color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .error {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.75rem;
+        margin-top: 0.2rem;
+        display: block;
+    }
+
+    .help-text {
+        color: #6c757d;
+        font-size: 0.7rem;
+        margin-top: 0.2rem;
+        font-style: italic;
+    }
+
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+        font-weight: bold;
+    }
+
+    /* Improved alignment fixes */
+    .form-group label i {
+        margin-right: 0.3rem;
+        width: 14px;
+        text-align: center;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+    }
+
+    .section-icon {
+        flex-shrink: 0;
+    }
+
+    .section-title {
+        flex: 1;
+        }
+        
+        @media (max-width: 768px) {
+        .container {
+            width: 98%;
+            margin: 0.5rem auto;
+            padding: 1rem;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            padding: 0.5rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            gap: 0.5rem;
+            }
+            
+        .btn-primary,
+        .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+    /* Print Styles */
+    @media print {
+        body {
+            background: white;
+        }
+
+        .container {
+            max-width: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-section {
+            box-shadow: none;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn {
+            display: none;
+        }
+    }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="header-actions">
+        <h2><i class="fas fa-clipboard-check"></i> {{ title }}</h2>
+        <a href="{% url 'approval_list' %}" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i>
+            Back to List
+        </a>
+</div>
+
+    <form method="post" enctype="multipart/form-data" class="form-card">
+        {% csrf_token %}
+        
+        <div class="form-section">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="{{ form.nfa_no.id_for_label }}" class="required-field">
+                        <i class="fas fa-hashtag"></i> NFA No
+                    </label>
+                    {{ form.nfa_no }}
+                    {% if form.nfa_no.errors %}
+                        <span class="error-message">{{ form.nfa_no.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.nfa_no.help_text %}
+                        <span class="help-text">{{ form.nfa_no.help_text }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.nfa_date.id_for_label }}" class="required-field">
+                        <i class="fas fa-calendar"></i> NFA Date
+                    </label>
+                    {{ form.nfa_date }}
+                    {% if form.nfa_date.errors %}
+                        <span class="error-message">{{ form.nfa_date.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.nfa_date.help_text %}
+                        <span class="help-text">{{ form.nfa_date.help_text }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.nature_of_approval.id_for_label }}" class="required-field">
+                        <i class="fas fa-clipboard-list"></i> Nature of Approval
+                    </label>
+                    {{ form.nature_of_approval }}
+                    {% if form.nature_of_approval.errors %}
+                        <span class="error-message">{{ form.nature_of_approval.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.nature_of_approval.help_text %}
+                        <span class="help-text">{{ form.nature_of_approval.help_text }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.code.id_for_label }}" class="required-field">
+                        <i class="fas fa-code"></i> Code
+                    </label>
+                    {{ form.code }}
+                    {% if form.code.errors %}
+                        <span class="error-message">{{ form.code.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.code.help_text %}
+                        <span class="help-text">{{ form.code.help_text }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.name.id_for_label }}" class="required-field">
+                        <i class="fas fa-user"></i> Name
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <span class="error-message">{{ form.name.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.name.help_text %}
+                        <span class="help-text">{{ form.name.help_text }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.valid_from.id_for_label }}" class="required-field">
+                        <i class="fas fa-calendar-plus"></i> Valid From
+                    </label>
+                    {{ form.valid_from }}
+                    {% if form.valid_from.errors %}
+                        <span class="error-message">{{ form.valid_from.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.valid_from.help_text %}
+                        <span class="help-text">{{ form.valid_from.help_text }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.valid_to.id_for_label }}" class="required-field">
+                        <i class="fas fa-calendar-minus"></i> Valid To
+                    </label>
+                    {{ form.valid_to }}
+                    {% if form.valid_to.errors %}
+                        <span class="error-message">{{ form.valid_to.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.valid_to.help_text %}
+                        <span class="help-text">{{ form.valid_to.help_text }}</span>
+                    {% endif %}
+        </div>
+        
+                <div class="form-group">
+                    <label for="{{ form.status.id_for_label }}" class="required-field">
+                        <i class="fas fa-toggle-on"></i> Status
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <span class="error-message">{{ form.status.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.status.help_text %}
+                        <span class="help-text">{{ form.status.help_text }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="{{ form.subject.id_for_label }}" class="required-field">
+                        <i class="fas fa-align-left"></i> Subject
+                    </label>
+                    {{ form.subject }}
+                    {% if form.subject.errors %}
+                        <span class="error-message">{{ form.subject.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.subject.help_text %}
+                        <span class="help-text">{{ form.subject.help_text }}</span>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="{{ form.remark.id_for_label }}">
+                        <i class="fas fa-comment"></i> Remark
+                    </label>
+                    {{ form.remark }}
+                    {% if form.remark.errors %}
+                        <span class="error-message">{{ form.remark.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.remark.help_text %}
+                        <span class="help-text">{{ form.remark.help_text }}</span>
+                    {% endif %}
+                        </div>
+
+                <div class="form-group full-width">
+                    <label for="{{ form.attachment.id_for_label }}">
+                        <i class="fas fa-paperclip"></i> Attachment
+                    </label>
+                    {{ form.attachment }}
+                    {% if form.attachment.errors %}
+                        <span class="error-message">{{ form.attachment.errors.0 }}</span>
+                    {% endif %}
+                    {% if form.attachment.help_text %}
+                        <span class="help-text">{{ form.attachment.help_text }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i>
+                {% if object %}Update Approval{% else %}Create Approval{% endif %}
+            </button>
+            <a href="{% url 'approval_list' %}" class="btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Client-side validation for numeric fields
+    document.addEventListener('DOMContentLoaded', function() {
+        const approvalAmountField = document.getElementById('{{ form.approval_amount.id_for_label }}');
+        
+        if (approvalAmountField) {
+            approvalAmountField.addEventListener('input', function() {
+                const value = this.value;
+                if (value && !/^\d+(\.\d{0,2})?$/.test(value)) {
+                    this.classList.add('error');
+                    this.setCustomValidity('Please enter a valid amount (numbers only, max 2 decimal places)');
+                } else {
+                    this.classList.remove('error');
+                    this.setCustomValidity('');
+                }
+            });
+        }
+
+        // Date field validation
+        const approvalDateField = document.getElementById('{{ form.approval_date.id_for_label }}');
+        if (approvalDateField) {
+            approvalDateField.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                
+                if (selectedDate > today) {
+                    this.classList.add('error');
+                    this.setCustomValidity('Approval date cannot be in the future');
+                } else {
+                    this.classList.remove('error');
+                    this.setCustomValidity('');
+                }
+            });
+        }
+
+        // Form submission validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            let hasErrors = false;
+        
+        // Check required fields
+            const requiredFields = form.querySelectorAll('.required-field');
+            requiredFields.forEach(function(label) {
+                const field = document.getElementById(label.getAttribute('for'));
+                if (field && !field.value.trim()) {
+                    field.classList.add('error');
+                    hasErrors = true;
+                } else if (field) {
+                    field.classList.remove('error');
+                }
+            });
+            
+            if (hasErrors) {
+            e.preventDefault();
+                alert('Please fill in all required fields marked with *');
+            }
+        });
+    });
+</script>
+{% endblock %} 

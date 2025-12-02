@@ -1,0 +1,74 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Delete Role{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i> Confirm Deletion
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-user-tag fa-3x text-danger mb-3"></i>
+                    <h4>Delete Role</h4>
+                    <p class="text-muted">
+                        Are you sure you want to delete the role 
+                        <strong>"{{ role.name }}"</strong>?
+                    </p>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Warning:</strong> This action cannot be undone. 
+                        If this role is assigned to users, those assignments will also be removed.
+                    </div>
+                    
+                    <div class="role-details text-start mb-3">
+                        <h6>Role Details:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Name:</strong> {{ role.name }}</li>
+                            <li><strong>Description:</strong> 
+                                {% if role.description %}
+                                    {{ role.description }}
+                                {% else %}
+                                    <em class="text-muted">No description</em>
+                                {% endif %}
+                            </li>
+                            <li><strong>Status:</strong> 
+                                {% if role.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </li>
+                            <li><strong>Created:</strong> {{ role.created_at|date:"M d, Y" }}</li>
+                            <li><strong>Users Assigned:</strong> 
+                                {% if role.users.exists %}
+                                    {{ role.users.count }} user{{ role.users.count|pluralize }}
+                                {% else %}
+                                    <em class="text-muted">No users assigned</em>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2 justify-content-center">
+                            <a href="{% url 'role_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Delete Role
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

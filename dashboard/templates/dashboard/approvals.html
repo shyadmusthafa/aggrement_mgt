@@ -1,0 +1,478 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Approvals{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6dd5fa, #2980b9, #ffffff) !important;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .page-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .page-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .stat-card.pending {
+            border-left: 4px solid #ffc107;
+        }
+        
+        .stat-card.approved {
+            border-left: 4px solid #28a745;
+        }
+        
+        .stat-card.rejected {
+            border-left: 4px solid #dc3545;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-number.pending {
+            color: #ffc107;
+        }
+        
+        .stat-number.approved {
+            color: #28a745;
+        }
+        
+        .stat-number.rejected {
+            color: #dc3545;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .approvals-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .approval-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .section-count {
+            background: #e9ecef;
+            color: #6c757d;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .approval-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .approval-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .approval-item.pending {
+            border-left-color: #ffc107;
+        }
+        
+        .approval-item.approved {
+            border-left-color: #28a745;
+        }
+        
+        .approval-item.rejected {
+            border-left-color: #dc3545;
+        }
+        
+        .approval-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        
+        .approval-type {
+            font-size: 0.8rem;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .approval-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0.25rem 0;
+            font-size: 1rem;
+        }
+        
+        .approval-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .approval-details {
+            color: #6c757d;
+            font-size: 0.85rem;
+            margin: 0.5rem 0;
+        }
+        
+        .approval-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.8rem;
+        }
+        
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-view {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .rejection-reason {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #721c24;
+        }
+        
+        @media (max-width: 1200px) {
+            .approvals-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .approval-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-clipboard-check"></i> Approvals</h1>
+    <p>Manage and review pending approvals for all agreement types</p>
+</div>
+
+<!-- Statistics Row -->
+<div class="stats-row">
+    <div class="stat-card pending">
+        <div class="stat-number pending">{{ pending_approvals|length }}</div>
+        <div class="stat-label">Pending Approvals</div>
+    </div>
+    <div class="stat-card approved">
+        <div class="stat-number approved">{{ approved_items|length }}</div>
+        <div class="stat-label">Approved Items</div>
+    </div>
+    <div class="stat-card rejected">
+        <div class="stat-number rejected">{{ rejected_items|length }}</div>
+        <div class="stat-label">Rejected Items</div>
+    </div>
+</div>
+
+<!-- Approvals Container -->
+<div class="approvals-container">
+    <!-- Pending Approvals -->
+    <div class="approval-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-clock"></i>
+                Pending Approvals
+            </h2>
+            <span class="section-count">{{ pending_approvals|length }}</span>
+        </div>
+        
+        {% if pending_approvals %}
+            {% for item in pending_approvals %}
+            <div class="approval-item pending">
+                <div class="approval-header">
+                    <div>
+                        <div class="approval-type">{{ item.type }}</div>
+                        <div class="approval-title">{{ item.title }}</div>
+                    </div>
+                    <span class="approval-status status-pending">Pending</span>
+                </div>
+                <div class="approval-details">
+                    <div><strong>Submitted:</strong> {{ item.submitted_date }}</div>
+                    <div><strong>By:</strong> {{ item.submitted_by }}</div>
+                </div>
+                <div class="approval-actions">
+                    <button class="btn btn-approve" onclick="approveItem({{ item.id }})">
+                        <i class="fas fa-check"></i>
+                        Approve
+                    </button>
+                    <button class="btn btn-reject" onclick="rejectItem({{ item.id }})">
+                        <i class="fas fa-times"></i>
+                        Reject
+                    </button>
+                    <button class="btn btn-view" onclick="viewItem({{ item.id }})">
+                        <i class="fas fa-eye"></i>
+                        View
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-check-circle"></i>
+                <h3>No Pending Approvals</h3>
+                <p>All items have been processed.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Approved Items -->
+    <div class="approval-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-check-circle"></i>
+                Approved Items
+            </h2>
+            <span class="section-count">{{ approved_items|length }}</span>
+        </div>
+        
+        {% if approved_items %}
+            {% for item in approved_items %}
+            <div class="approval-item approved">
+                <div class="approval-header">
+                    <div>
+                        <div class="approval-type">{{ item.type }}</div>
+                        <div class="approval-title">{{ item.title }}</div>
+                    </div>
+                    <span class="approval-status status-approved">Approved</span>
+                </div>
+                <div class="approval-details">
+                    <div><strong>Approved:</strong> {{ item.approved_date }}</div>
+                    <div><strong>By:</strong> {{ item.approved_by }}</div>
+                </div>
+                <div class="approval-actions">
+                    <button class="btn btn-view" onclick="viewItem({{ item.id }})">
+                        <i class="fas fa-eye"></i>
+                        View Details
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-info-circle"></i>
+                <h3>No Approved Items</h3>
+                <p>Approved items will appear here.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Rejected Items -->
+    <div class="approval-section">
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="fas fa-times-circle"></i>
+                Rejected Items
+            </h2>
+            <span class="section-count">{{ rejected_items|length }}</span>
+        </div>
+        
+        {% if rejected_items %}
+            {% for item in rejected_items %}
+            <div class="approval-item rejected">
+                <div class="approval-header">
+                    <div>
+                        <div class="approval-type">{{ item.type }}</div>
+                        <div class="approval-title">{{ item.title }}</div>
+                    </div>
+                    <span class="approval-status status-rejected">Rejected</span>
+                </div>
+                <div class="approval-details">
+                    <div><strong>Rejected:</strong> {{ item.rejected_date }}</div>
+                    <div><strong>By:</strong> {{ item.rejected_by }}</div>
+                </div>
+                {% if item.reason %}
+                <div class="rejection-reason">
+                    <strong>Reason:</strong> {{ item.reason }}
+                </div>
+                {% endif %}
+                <div class="approval-actions">
+                    <button class="btn btn-view" onclick="viewItem({{ item.id }})">
+                        <i class="fas fa-eye"></i>
+                        View Details
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-info-circle"></i>
+                <h3>No Rejected Items</h3>
+                <p>Rejected items will appear here.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    function approveItem(itemId) {
+        if (confirm('Are you sure you want to approve this item?')) {
+            // Placeholder for approval logic
+            alert(`Item ${itemId} has been approved successfully!`);
+            // In a real implementation, this would make an AJAX call to the backend
+            location.reload();
+        }
+    }
+    
+    function rejectItem(itemId) {
+        const reason = prompt('Please provide a reason for rejection:');
+        if (reason !== null) {
+            // Placeholder for rejection logic
+            alert(`Item ${itemId} has been rejected. Reason: ${reason}`);
+            // In a real implementation, this would make an AJAX call to the backend
+            location.reload();
+        }
+    }
+    
+    function viewItem(itemId) {
+        // Placeholder for view logic
+        alert(`Viewing details for item ${itemId}`);
+        // In a real implementation, this would navigate to the item details page
+    }
+    
+    // Auto-refresh every 30 seconds
+    setInterval(function() {
+        console.log('Refreshing approvals...');
+        // In a real implementation, this would make an AJAX call to refresh data
+    }, 30000);
+</script>
+{% endblock %} 

@@ -1,0 +1,80 @@
+{% extends "dashboard/emails/base_email.html" %}
+
+{% block header_title %}{{ subject|default:"SPO Rent Agreement Update" }}{% endblock %}
+{% block header_subtitle %}Important Information{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Dear {{ record.owner_name|default:"Valued Customer" }},
+</div>
+
+<div class="content-section">
+    <h2>📢 Important Update</h2>
+    <p>{{ content|default:"This is an important update regarding your SPO Rent Agreement." }}</p>
+</div>
+
+<div class="content-section">
+    <h2>📋 Agreement Details</h2>
+    <table class="details-table">
+        <tr>
+            <td class="label">SPO Code</td>
+            <td class="value">{{ record.spo_code }}</td>
+        </tr>
+        <tr>
+            <td class="label">SPO Name</td>
+            <td class="value">{{ record.spo_name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Current Status</td>
+            <td class="value">
+                <span style="color: {% if record.status == 'Active' %}#28a745{% elif record.status == 'Expired' %}#dc3545{% else %}#ffc107{% endif %}; font-weight: 600;">
+                    {{ record.status|default:"Active" }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Agreement Period</td>
+            <td class="value">{{ record.rental_from_date|date:"F j, Y" }} to {{ record.rental_to_date|date:"F j, Y" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Monthly Rent</td>
+            <td class="value">₹{{ record.rent_pm|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Security Deposit</td>
+            <td class="value">₹{{ record.security_deposit_paid|default:"N/A" }}</td>
+        </tr>
+    </table>
+</div>
+
+{% if custom_message %}
+<div class="content-section">
+    <h2>💬 Additional Information</h2>
+    <div class="highlight-box">
+        <p>{{ custom_message }}</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="content-section">
+    <h2>📞 Contact Information</h2>
+    <p>If you have any questions or need clarification regarding this update, please don't hesitate to contact us:</p>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>Email: <a href="mailto:chettinadsdc@chettinad.com" style="color: #2196f3;">chettinadsdc@chettinad.com</a></li>
+        <li>Phone: +91-44-2836 0000</li>
+        <li>Support Hours: Monday to Friday, 9:00 AM - 6:00 PM IST</li>
+    </ul>
+</div>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="mailto:chettinadsdc@chettinad.com?subject=Query: {{ subject|default:'SPO Update' }} - {{ record.spo_code }}" class="action-button">
+        Contact Support Team
+    </a>
+</div>
+
+<div style="background-color: #e2e3e5; border: 1px solid #d6d8db; border-radius: 8px; padding: 15px; margin: 20px 0;">
+    <p style="margin: 0; color: #383d41; font-weight: 600;">
+        📋 <strong>Note:</strong> Please keep this information for your records. This is an automated notification from our Data Management System.
+    </p>
+</div>
+{% endblock %} 

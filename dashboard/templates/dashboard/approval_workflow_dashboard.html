@@ -1,0 +1,1349 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .container {
+            background: #fff;
+            max-width: 100%;
+            margin: 0.25rem auto;
+            padding: 0.5rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px 0 rgba(31, 38, 135, 0.08);
+        }
+        h2 {
+            color: #2980b9;
+            text-align: left;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .add-btn-row {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .add-btn {
+            background: linear-gradient(90deg, #2980b9, #6dd5fa);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-decoration: none;
+            box-shadow: 0 1px 2px 0 rgba(31, 38, 135, 0.1);
+            transition: background 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .add-btn:hover {
+            background: linear-gradient(90deg, #6dd5fa, #2980b9);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        /* Material Design Table Styles */
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .table-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .table-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+        }
+        
+        .search-box {
+            position: relative;
+            min-width: 200px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 0.8rem 0.5rem 2rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.6rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 0.7rem;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .mat-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 1200px;
+        }
+        
+        .mat-table th {
+            background: #2c3e50;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.7rem 0.5rem;
+            text-align: left;
+            border-bottom: 2px solid #34495e;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .mat-table td {
+            padding: 0.6rem 0.5rem;
+            font-size: 0.75rem;
+            border-bottom: 1px solid #ecf0f1;
+            vertical-align: middle;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            background: white;
+        }
+        
+        .mat-table td.nowrap {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .mat-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .mat-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-suspended {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-terminated {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .status-waiting {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-btn {
+            padding: 0.3rem 0.5rem;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.2rem;
+            transition: all 0.2s ease;
+            margin: 0.1rem;
+        }
+        
+        .approve-btn {
+            background: #28a745;
+            color: white;
+        }
+        
+        .approve-btn:hover {
+            background: #218838;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .approve-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .approve-btn.approved {
+            background: #6c757d;
+            cursor: default;
+        }
+        
+        .approval-status {
+            color: #6c757d;
+            font-size: 0.7rem;
+        }
+        
+        .approval-status .text-warning {
+            color: #ffc107 !important;
+            font-weight: 600;
+        }
+        
+        .approval-status .text-success {
+            color: #28a745 !important;
+            font-weight: 600;
+        }
+        
+        .approval-status .text-danger {
+            color: #dc3545 !important;
+            font-weight: 600;
+        }
+        
+        .approval-status .text-muted {
+            color: #6c757d !important;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 0;
+            margin: 0 0 0.5rem 0;
+            list-style: none;
+            display: flex;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .tab-navigation li {
+            margin: 0;
+        }
+        
+        .tab-navigation .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0.6rem 1rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .tab-navigation .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .tab-navigation .nav-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab-navigation .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: white;
+        }
+        
+        .tab-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.15rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-left: 0.3rem;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block !important;
+        }
+        
+        /* Ensure CFA and Transporter tabs are visible when active */
+        #content-cfa_agreement.active,
+        #content-transporter_agreement.active {
+            display: block !important;
+        }
+        
+        /* Debug styling to see tab content */
+        .tab-content {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2><i class="fas fa-tasks"></i> {{ title }}</h2>
+    
+
+    
+    <!-- Tab Navigation -->
+    <ul class="tab-navigation" id="approvalTabs">
+        <li>
+            <button class="nav-link active" data-record-type="spo_rent" onclick="switchToSPOTab()">
+                SPO Agreement
+                <span class="tab-badge">0</span>
+            </button>
+        </li>
+        <li>
+            <button class="nav-link" data-record-type="cfa_agreement" onclick="switchToCFATab()">
+                CFA Agreement
+                <span class="tab-badge">0</span>
+            </button>
+        </li>
+        <li>
+            <button class="nav-link" data-record-type="transporter_agreement" onclick="switchToTransporterTab()">
+                Transporter Agreement
+                <span class="tab-badge">0</span>
+            </button>
+        </li>
+    </ul>
+    
+    <!-- SPO Tab Content -->
+    <div class="tab-content active" id="content-spo_rent">
+        <div class="header-section">
+            <div class="add-btn-row">
+                <button class="add-btn" onclick="loadSPORecords()">
+                    <i class="fas fa-sync-alt"></i> Refresh SPO Records
+                </button>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">SPO Rent Records</h3>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="spo-search-input" class="search-input" placeholder="Search SPO records...">
+                    </div>
+                    <div id="spo-status" style="color: white; font-size: 0.8rem; margin-left: 1rem;">
+                        <i class="fas fa-info-circle"></i> Ready to load
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="mat-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>SPO Code</th>
+                            <th>SPO Name</th>
+                            <th>State</th>
+                            <th>Branch</th>
+                            <th>Owner Name</th>
+                            <th>Status</th>
+                            <th>Approval Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spo-records-tbody">
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">
+                                <div class="loading-spinner"></div> Click on SPO Agreement tab to load records...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CFA Tab Content -->
+    <div class="tab-content" id="content-cfa_agreement">
+        <div class="header-section">
+            <div class="add-btn-row">
+                <button class="add-btn" onclick="loadCFARecords()">
+                    <i class="fas fa-sync-alt"></i> Refresh CFA Records
+                </button>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">CFA Agreement Records</h3>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="cfa-search-input" class="search-input" placeholder="Search CFA records...">
+                    </div>
+                    <div id="cfa-status" style="color: white; font-size: 0.8rem; margin-left: 1rem;">
+                        <i class="fas fa-info-circle"></i> Ready to load
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="mat-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>CFA Code</th>
+                            <th>CFA Name</th>
+                            <th>State</th>
+                            <th>Branch</th>
+                            <th>Owner Name</th>
+                            <th>Status</th>
+                            <th>Approval Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cfa-records-tbody">
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">
+                                <div class="loading-spinner"></div> Click on CFA Agreement tab to load records...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transporter Tab Content -->
+    <div class="tab-content" id="content-transporter_agreement">
+        <div class="header-section">
+            <div class="add-btn-row">
+                <button class="add-btn" onclick="loadTransporterRecords()">
+                    <i class="fas fa-sync-alt"></i> Refresh Transporter Records
+                </button>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <div class="table-header">
+                <h3 class="table-title">Transporter Agreement Records</h3>
+                <div class="table-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="transporter-search-input" class="search-input" placeholder="Search Transporter records...">
+                    </div>
+                    <div id="transporter-status" style="color: white; font-size: 0.8rem; margin-left: 1rem;">
+                        <i class="fas fa-info-circle"></i> Ready to load
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="mat-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Transporter Code</th>
+                            <th>Transporter Name</th>
+                            <th>State</th>
+                            <th>Branch</th>
+                            <th>Source Plant</th>
+                            <th>Status</th>
+                            <th>Approval Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transporter-records-tbody">
+                        <tr>
+                            <td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">
+                                <div class="loading-spinner"></div> Click on Transporter Agreement tab to load records...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('[data-record-type]');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Initialize tab functionality
+        function initializeTabs() {
+            console.log('Initializing tabs...');
+            console.log('Found tab buttons:', tabButtons.length);
+            console.log('Found tab contents:', tabContents.length);
+            
+            // Remove any existing event listeners to prevent duplicates
+            tabButtons.forEach(button => {
+                button.removeEventListener('click', handleTabClick);
+                button.addEventListener('click', handleTabClick);
+            });
+            
+            // Set initial active tab
+            const initialTab = document.querySelector('.nav-link.active');
+            if (initialTab) {
+                const recordType = initialTab.getAttribute('data-record-type');
+                const initialContent = document.querySelector(`#content-${recordType}`);
+                if (initialContent) {
+                    initialContent.classList.add('active');
+                    initialContent.style.display = 'block';
+                    console.log('Initial tab set:', recordType);
+                }
+            }
+        }
+        
+        // Handle tab click events
+        function handleTabClick(e) {
+            e.preventDefault();
+            
+            const recordType = this.getAttribute('data-record-type');
+            console.log('Tab clicked:', recordType);
+            console.log('This element:', this);
+            console.log('This dataset:', this.dataset);
+            
+            // Hide all tab content first
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked tab button
+            this.classList.add('active');
+            
+            // Show corresponding content
+            const targetContent = document.querySelector(`#content-${recordType}`);
+            console.log('Target content found:', !!targetContent);
+            console.log('Target content ID:', `#content-${recordType}`);
+            console.log('Target content element:', targetContent);
+            
+            if (targetContent) {
+                targetContent.style.display = 'block';
+                targetContent.classList.add('active');
+                console.log('Content activated for:', recordType);
+                console.log('Content display style:', targetContent.style.display);
+                console.log('Content classes:', targetContent.className);
+                
+                // Load records for the selected tab
+                switch(recordType) {
+                    case 'spo_rent':
+                        console.log('Loading SPO records...');
+                        loadSPORecords();
+                        break;
+                    case 'cfa_agreement':
+                        console.log('Loading CFA records...');
+                        console.log('loadCFARecords function exists:', typeof loadCFARecords);
+                        if (typeof loadCFARecords === 'function') {
+                            loadCFARecords();
+                        } else {
+                            console.error('loadCFARecords function is not defined!');
+                        }
+                        break;
+                    case 'transporter_agreement':
+                        console.log('Loading Transporter records...');
+                        console.log('loadTransporterRecords function exists:', typeof loadTransporterRecords);
+                        if (typeof loadTransporterRecords === 'function') {
+                            loadTransporterRecords();
+                        } else {
+                            console.error('loadTransporterRecords function is not defined!');
+                        }
+                        break;
+                    default:
+                        console.log('Unknown record type:', recordType);
+                }
+            } else {
+                console.error('Target content not found for:', recordType);
+                console.log('Available content elements:');
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    console.log('Content ID:', content.id);
+                });
+            }
+        }
+        
+        // Initialize tabs
+        initializeTabs();
+        
+        // Load SPO records on initial page load
+        setTimeout(() => {
+            loadSPORecords();
+        }, 100);
+        
+        // Search functionality for SPO records
+        const spoSearchInput = document.getElementById('spo-search-input');
+        if (spoSearchInput) {
+            spoSearchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#spo-records-tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Search functionality for CFA records
+        const cfaSearchInput = document.getElementById('cfa-search-input');
+        if (cfaSearchInput) {
+            cfaSearchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#cfa-records-tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Search functionality for Transporter records
+        const transporterSearchInput = document.getElementById('transporter-search-input');
+        if (transporterSearchInput) {
+            transporterSearchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#transporter-records-tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+    
+    // Load SPO records for the table
+    function loadSPORecords() {
+        const tbody = document.getElementById('spo-records-tbody');
+        const statusDiv = document.getElementById('spo-status');
+        
+        if (!tbody) {
+            console.error('SPO records tbody not found');
+            return;
+        }
+        
+        console.log('Loading SPO records...');
+        
+        // Update status
+        if (statusDiv) {
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        }
+        
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem;"><div class="loading-spinner"></div> Loading SPO records...</td></tr>';
+        
+        fetch('/dashboard/ajax/spo-records/')
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('SPO records data:', data);
+                if (data.success && data.records) {
+                    displaySPORecords(data.records);
+                    if (statusDiv) {
+                        statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> Loaded ${data.records.length} records`;
+                    }
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">No SPO records found</td></tr>';
+                    if (statusDiv) {
+                        statusDiv.innerHTML = '<i class="fas fa-info-circle"></i> No records found';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error loading SPO records:', error);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #dc3545;">Error loading records: ${error.message}</td></tr>`;
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading';
+                }
+            });
+    }
+    
+    // Display SPO records in the table
+    function displaySPORecords(records) {
+        const tbody = document.getElementById('spo-records-tbody');
+        if (!tbody) {
+            console.error('SPO records tbody not found in display function');
+            return;
+        }
+        
+        console.log('Displaying SPO records:', records);
+        tbody.innerHTML = '';
+        
+        if (!records || records.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">No SPO records found</td></tr>';
+            return;
+        }
+        
+        records.forEach((record, index) => {
+            console.log('Processing record:', record);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td class="nowrap">${record.spo_code || '-'}</td>
+                <td class="nowrap">${record.spo_name || '-'}</td>
+                <td class="nowrap">${record.state_name || '-'}</td>
+                <td class="nowrap">${record.branch_name || '-'}</td>
+                <td class="nowrap">${record.owner_name || '-'}</td>
+                <td class="nowrap">
+                    <span class="status-badge status-${record.status ? record.status.toLowerCase() : 'active'}">
+                        ${record.status || 'Active'}
+                    </span>
+                </td>
+                <td class="nowrap">
+                    <div class="approval-status" data-record-type="spo_rent" data-record-id="${record.id}">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </td>
+                <td class="nowrap">
+                    <button class="action-btn approve-btn" onclick="approveSPORecord(${record.id}, this)" data-record-id="${record.id}">
+                        <i class="fas fa-check"></i>
+                        Approve
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+        console.log('SPO records displayed, loading approval statuses...');
+        // Load approval statuses for all records
+        loadApprovalWorkflowStatuses();
+    }
+    
+    // Approve SPO record
+    function approveSPORecord(recordId, button) {
+        if (button.disabled) return;
+        
+        // Disable button and show loading
+        button.disabled = true;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<div class="loading-spinner"></div> Approving...';
+        
+        fetch(`/dashboard/ajax/approve-spo-record/${recordId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update button to show approved state
+                button.innerHTML = '<i class="fas fa-check"></i> Approved';
+                button.classList.add('approved');
+                button.disabled = true;
+                
+                // Update approval status
+                const statusElement = button.closest('tr').querySelector('.approval-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> Confirmed</span>';
+                }
+                
+                // Show success notification
+                showNotification('SPO record approved successfully!', 'success');
+            } else {
+                // Re-enable button on error
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+                showNotification(data.message || 'Error approving record', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error approving record:', error);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            showNotification('Error approving record. Please try again.', 'error');
+        });
+    }
+    
+    // Load approval workflow statuses for all records
+    function loadApprovalWorkflowStatuses() {
+        const statusElements = document.querySelectorAll('.approval-status');
+        
+        statusElements.forEach(element => {
+            const recordType = element.dataset.recordType;
+            const recordId = element.dataset.recordId;
+            
+            fetch(`/dashboard/ajax/workflow-status/${recordType}/${recordId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'not_found') {
+                        element.innerHTML = '<span class="text-muted"><i class="fas fa-info-circle"></i> No workflow</span>';
+                    } else {
+                        let statusClass = '';
+                        let statusIcon = '';
+                        
+                        switch(data.status) {
+                            case 'waiting_confirmation':
+                                statusClass = 'text-warning';
+                                statusIcon = 'fas fa-clock';
+                                break;
+                            case 'confirmed':
+                                statusClass = 'text-success';
+                                statusIcon = 'fas fa-check-circle';
+                                break;
+                            case 'rejected':
+                                statusClass = 'text-danger';
+                                statusIcon = 'fas fa-times-circle';
+                                break;
+                            default:
+                                statusClass = 'text-muted';
+                                statusIcon = 'fas fa-question-circle';
+                        }
+                        
+                        element.innerHTML = `<span class="${statusClass}"><i class="${statusIcon}"></i> ${data.status_display}</span>`;
+                        
+                        // Update approve button if status is confirmed
+                        if (data.status === 'confirmed') {
+                            const row = element.closest('tr');
+                            const approveBtn = row.querySelector('.approve-btn');
+                            if (approveBtn) {
+                                approveBtn.innerHTML = '<i class="fas fa-check"></i> Approved';
+                                approveBtn.classList.add('approved');
+                                approveBtn.disabled = true;
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading workflow status:', error);
+                    element.innerHTML = '<span class="text-muted"><i class="fas fa-exclamation-triangle"></i> Error</span>';
+                });
+        });
+    }
+    
+    // Load CFA records for the table
+    function loadCFARecords() {
+        const tbody = document.getElementById('cfa-records-tbody');
+        const statusDiv = document.getElementById('cfa-status');
+        
+        if (!tbody) {
+            console.error('CFA records tbody not found');
+            return;
+        }
+        
+        console.log('Loading CFA records...');
+        
+        // Update status
+        if (statusDiv) {
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        }
+        
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem;"><div class="loading-spinner"></div> Loading CFA records...</td></tr>';
+        
+        fetch('/dashboard/ajax/cfa-records/')
+            .then(response => {
+                console.log('CFA Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('CFA records data:', data);
+                if (data.success && data.records) {
+                    displayCFARecords(data.records);
+                    if (statusDiv) {
+                        statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> Loaded ${data.records.length} records`;
+                    }
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">No CFA records found</td></tr>';
+                    if (statusDiv) {
+                        statusDiv.innerHTML = '<i class="fas fa-info-circle"></i> No records found';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error loading CFA records:', error);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #dc3545;">Error loading records: ${error.message}</td></tr>`;
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading';
+                }
+            });
+    }
+    
+    // Display CFA records in the table
+    function displayCFARecords(records) {
+        const tbody = document.getElementById('cfa-records-tbody');
+        if (!tbody) {
+            console.error('CFA records tbody not found in display function');
+            return;
+        }
+        
+        console.log('Displaying CFA records:', records);
+        tbody.innerHTML = '';
+        
+        if (!records || records.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">No CFA records found</td></tr>';
+            return;
+        }
+        
+        records.forEach((record, index) => {
+            console.log('Processing CFA record:', record);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td class="nowrap">${record.cfa_code || '-'}</td>
+                <td class="nowrap">${record.cfa_name || '-'}</td>
+                <td class="nowrap">${record.state_name || '-'}</td>
+                <td class="nowrap">${record.branch_name || '-'}</td>
+                <td class="nowrap">${record.owner_name || '-'}</td>
+                <td class="nowrap">
+                    <span class="status-badge status-${record.status ? record.status.toLowerCase() : 'active'}">
+                        ${record.status || 'Active'}
+                    </span>
+                </td>
+                <td class="nowrap">
+                    <div class="approval-status" data-record-type="cfa_agreement" data-record-id="${record.id}">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </td>
+                <td class="nowrap">
+                    <button class="action-btn approve-btn" onclick="approveCFARecord(${record.id}, this)" data-record-id="${record.id}">
+                        <i class="fas fa-check"></i>
+                        Approve
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+        console.log('CFA records displayed, loading approval statuses...');
+        // Load approval statuses for all records
+        loadApprovalWorkflowStatuses();
+    }
+    
+    // Approve CFA record
+    function approveCFARecord(recordId, button) {
+        if (button.disabled) return;
+        
+        // Disable button and show loading
+        button.disabled = true;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<div class="loading-spinner"></div> Approving...';
+        
+        fetch(`/dashboard/ajax/approve-cfa-record/${recordId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update button to show approved state
+                button.innerHTML = '<i class="fas fa-check"></i> Approved';
+                button.classList.add('approved');
+                button.disabled = true;
+                
+                // Update approval status
+                const statusElement = button.closest('tr').querySelector('.approval-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> Confirmed</span>';
+                }
+                
+                // Show success notification
+                showNotification('CFA record approved successfully!', 'success');
+            } else {
+                // Re-enable button on error
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+                showNotification(data.message || 'Error approving record', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error approving CFA record:', error);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            showNotification('Error approving record. Please try again.', 'error');
+        });
+    }
+    
+    // Load Transporter records for the table
+    function loadTransporterRecords() {
+        const tbody = document.getElementById('transporter-records-tbody');
+        const statusDiv = document.getElementById('transporter-status');
+        
+        if (!tbody) {
+            console.error('Transporter records tbody not found');
+            return;
+        }
+        
+        console.log('Loading Transporter records...');
+        
+        // Update status
+        if (statusDiv) {
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+        }
+        
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem;"><div class="loading-spinner"></div> Loading Transporter records...</td></tr>';
+        
+        fetch('/dashboard/ajax/transporter-records/')
+            .then(response => {
+                console.log('Transporter Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Transporter records data:', data);
+                if (data.success && data.records) {
+                    displayTransporterRecords(data.records);
+                    if (statusDiv) {
+                        statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> Loaded ${data.records.length} records`;
+                    }
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">No Transporter records found</td></tr>';
+                    if (statusDiv) {
+                        statusDiv.innerHTML = '<i class="fas fa-info-circle"></i> No records found';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error loading Transporter records:', error);
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #dc3545;">Error loading records: ${error.message}</td></tr>`;
+                if (statusDiv) {
+                    statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error loading';
+                }
+            });
+    }
+    
+    // Display Transporter records in the table
+    function displayTransporterRecords(records) {
+        const tbody = document.getElementById('transporter-records-tbody');
+        if (!tbody) {
+            console.error('Transporter records tbody not found in display function');
+            return;
+        }
+        
+        console.log('Displaying Transporter records:', records);
+        tbody.innerHTML = '';
+        
+        if (!records || records.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 1rem; color: #6c757d;">No Transporter records found</td></tr>';
+            return;
+        }
+        
+        records.forEach((record, index) => {
+            console.log('Processing Transporter record:', record);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td class="nowrap">${record.transporter_code || '-'}</td>
+                <td class="nowrap">${record.transporter_name || '-'}</td>
+                <td class="nowrap">${record.state_name || '-'}</td>
+                <td class="nowrap">${record.branch_name || '-'}</td>
+                <td class="nowrap">${record.source_plant_name || '-'}</td>
+                <td class="nowrap">
+                    <span class="status-badge status-${record.status ? record.status.toLowerCase() : 'active'}">
+                        ${record.status || 'Active'}
+                    </span>
+                </td>
+                <td class="nowrap">
+                    <div class="approval-status" data-record-type="transporter_agreement" data-record-id="${record.id}">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </td>
+                <td class="nowrap">
+                    <button class="action-btn approve-btn" onclick="approveTransporterRecord(${record.id}, this)" data-record-id="${record.id}">
+                        <i class="fas fa-check"></i>
+                        Approve
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        
+        console.log('Transporter records displayed, loading approval statuses...');
+        // Load approval statuses for all records
+        loadApprovalWorkflowStatuses();
+    }
+    
+    // Approve Transporter record
+    function approveTransporterRecord(recordId, button) {
+        if (button.disabled) return;
+        
+        // Disable button and show loading
+        button.disabled = true;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<div class="loading-spinner"></div> Approving...';
+        
+        fetch(`/dashboard/ajax/approve-transporter-record/${recordId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update button to show approved state
+                button.innerHTML = '<i class="fas fa-check"></i> Approved';
+                button.classList.add('approved');
+                button.disabled = true;
+                
+                // Update approval status
+                const statusElement = button.closest('tr').querySelector('.approval-status');
+                if (statusElement) {
+                    statusElement.innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> Confirmed</span>';
+                }
+                
+                // Show success notification
+                showNotification('Transporter record approved successfully!', 'success');
+            } else {
+                // Re-enable button on error
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+                showNotification(data.message || 'Error approving record', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error approving Transporter record:', error);
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+            showNotification('Error approving record. Please try again.', 'error');
+        });
+    }
+    
+    // Get CSRF token from cookies
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Show notification
+    function showNotification(message, type = 'info') {
+        // You can implement your own notification system here
+        alert(`${type.toUpperCase()}: ${message}`);
+    }
+
+    // Direct tab switching functions - working exactly like SPO tab
+    function switchToCFATab() {
+        console.log('Switching to CFA tab directly...');
+        
+        // Hide all tab content first
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+            content.classList.remove('active');
+        });
+        
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to CFA tab button
+        const cfaTabButton = document.querySelector('[data-record-type="cfa_agreement"]');
+        if (cfaTabButton) {
+            cfaTabButton.classList.add('active');
+        }
+        
+        // Show CFA content
+        const cfaContent = document.getElementById('content-cfa_agreement');
+        if (cfaContent) {
+            cfaContent.style.display = 'block';
+            cfaContent.classList.add('active');
+            console.log('CFA content shown successfully');
+            
+            // Load CFA records immediately
+            console.log('Loading CFA records...');
+            loadCFARecords();
+        } else {
+            console.error('CFA content not found');
+        }
+    }
+
+    function switchToTransporterTab() {
+        console.log('Switching to Transporter tab directly...');
+        
+        // Hide all tab content first
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+            content.classList.remove('active');
+        });
+        
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to Transporter tab button
+        const transporterTabButton = document.querySelector('[data-record-type="transporter_agreement"]');
+        if (transporterTabButton) {
+            transporterTabButton.classList.add('active');
+        }
+        
+        // Show Transporter content
+        const transporterContent = document.getElementById('content-transporter_agreement');
+        if (transporterContent) {
+            transporterContent.style.display = 'block';
+            transporterContent.classList.add('active');
+            console.log('Transporter content shown successfully');
+            
+            // Load Transporter records immediately
+            console.log('Loading Transporter records...');
+            loadTransporterRecords();
+        } else {
+            console.error('Transporter content not found');
+        }
+    }
+
+    function switchToSPOTab() {
+        console.log('Switching to SPO tab directly...');
+        
+        // Hide all tab content first
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+            content.classList.remove('active');
+        });
+        
+        // Remove active class from all tab buttons
+        document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+        
+        // Add active class to SPO tab button
+        const spoTabButton = document.querySelector('[data-record-type="spo_rent"]');
+        if (spoTabButton) {
+            spoTabButton.classList.add('active');
+        }
+        
+        // Show SPO content
+        const spoContent = document.getElementById('content-spo_rent');
+        if (spoContent) {
+            spoContent.style.display = 'block';
+            spoContent.classList.add('active');
+            console.log('SPO content shown successfully');
+            
+            // Load SPO records immediately
+            console.log('Loading SPO records...');
+            loadSPORecords();
+        } else {
+            console.error('SPO content not found');
+        }
+    }
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Partner Added to Transporter Agreement</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+        .section h2 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #6c757d;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        .info-value {
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        .partner-details {
+            background: #e8f4fd;
+            border-left-color: #17a2b8;
+        }
+        .transporter-details {
+            background: #f0f8ff;
+            border-left-color: #007bff;
+        }
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-close {
+            background: #fff3cd;
+            color: #856404;
+        }
+        @media (max-width: 600px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 20px;
+            }
+            .header {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>🚛 New Partner Added</h1>
+            <p>Transporter Agreement Partner Management</p>
+        </div>
+        
+        <div class="content">
+            <div class="section transporter-details">
+                <h2>📋 Transporter Agreement Details</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Transporter Code</span>
+                        <span class="info-value">{{ transporter_record.transporter_code }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Transporter Name</span>
+                        <span class="info-value">{{ transporter_record.transporter_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">State</span>
+                        <span class="info-value">{{ transporter_record.state.state_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Branch</span>
+                        <span class="info-value">{{ transporter_record.branch.state_branch_name|default:"N/A" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">District</span>
+                        <span class="info-value">{{ transporter_record.district.name|default:"Not specified" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value">
+                            <span class="status-badge status-{{ transporter_record.transporter_status|lower }}">
+                                {{ transporter_record.transporter_status }}
+                            </span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Source Plant</span>
+                        <span class="info-value">{{ transporter_record.source_plant_name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Owner/Managing Partner</span>
+                        <span class="info-value">{{ transporter_record.owner_managing_partner }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section partner-details">
+                <h2>👤 New Partner Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Partner Name</span>
+                        <span class="info-value">{{ partner.name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Gender</span>
+                        <span class="info-value">{{ partner.gender }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Age</span>
+                        <span class="info-value">{{ partner.age }} years</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ partner.mail_id }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Aadhar Number</span>
+                        <span class="info-value">{{ partner.aadhar_no }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">PAN Number</span>
+                        <span class="info-value">{{ partner.pan_no }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Join Date</span>
+                        <span class="info-value">{{ partner.partner_join_date|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">End Date</span>
+                        <span class="info-value">{{ partner.partner_end_date|date:"d/m/Y"|default:"Not specified" }}</span>
+                    </div>
+                </div>
+                <div style="margin-top: 15px;">
+                    <span class="info-label">Address</span>
+                    <div class="info-value" style="margin-top: 5px;">{{ partner.address }}</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📝 Action Required</h2>
+                <p style="margin: 0; color: #6c757d;">
+                    A new partner has been successfully added to the Transporter Agreement. 
+                    Please review the partner details and ensure all required documentation is in place.
+                </p>
+            </div>
+            
+            <div class="section">
+                <h2>📊 Partner Statistics</h2>
+                <p style="margin: 0; color: #6c757d;">
+                    <strong>Total Partners:</strong> {{ transporter_record.partners.count }} of 5 maximum allowed<br>
+                    <strong>Added By:</strong> {{ created_by }}<br>
+                    <strong>Date Added:</strong> {{ partner.created_at|date:"d/m/Y H:i" }}
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Chettinad Software Center</strong></p>
+            <p>Secure Data Management Solutions</p>
+            <p>This is an automated notification. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>

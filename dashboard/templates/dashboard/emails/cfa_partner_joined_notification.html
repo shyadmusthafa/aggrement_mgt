@@ -1,0 +1,138 @@
+{% extends "dashboard/emails/base_email.html" %}
+
+{% block header_title %}New Partner Added to CFA Agreement{% endblock %}
+{% block header_subtitle %}Partner Management Notification{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Dear Data Management Team,
+</div>
+
+<div class="content-section">
+    <h2>🎉 New Partner Successfully Added to CFA Agreement</h2>
+    <p>A new partner has been successfully added to the CFA Agreement system. This addition enhances our operational capacity and strengthens our business network.</p>
+</div>
+
+<div class="content-section">
+    <h2>🏢 CFA Agreement Information</h2>
+    <table class="details-table">
+        <tr>
+            <td class="label">CFA Code</td>
+            <td class="value">{{ cfa_record.cfa_code|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">CFA Name</td>
+            <td class="value">{{ cfa_record.cfa_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">State</td>
+            <td class="value">{{ cfa_record.state.state_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">District Code</td>
+            <td class="value">{{ cfa_record.district_code|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Owner Name</td>
+            <td class="value">{{ cfa_record.owner_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Security Deposit</td>
+            <td class="value">₹{{ cfa_record.security_deposit_rs|default:"0" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Status</td>
+            <td class="value">
+                <span style="color: {% if cfa_record.status == 'Active' %}#28a745{% elif cfa_record.status == 'Inactive' %}#dc3545{% else %}#ffc107{% endif %}; font-weight: 600;">
+                    {{ cfa_record.status|default:"Active" }}
+                </span>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>👤 New Partner Details</h2>
+    <table class="details-table">
+        <tr>
+            <td class="label">Partner Name</td>
+            <td class="value">{{ partner.name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Gender</td>
+            <td class="value">{{ partner.gender|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Age</td>
+            <td class="value">{{ partner.age|default:"N/A" }} years</td>
+        </tr>
+        <tr>
+            <td class="label">Email ID</td>
+            <td class="value">{{ partner.mail_id|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Aadhar Number</td>
+            <td class="value">{{ partner.aadhar_no|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">PAN Number</td>
+            <td class="value">{{ partner.pan_no|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Join Date</td>
+            <td class="value">{{ partner.partner_join_date|date:"d M Y"|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">End Date</td>
+            <td class="value">{% if partner.partner_end_date %}{{ partner.partner_end_date|date:"d M Y" }}{% else %}Not specified{% endif %}</td>
+        </tr>
+        <tr>
+            <td class="label">Address</td>
+            <td class="value">{{ partner.address|default:"N/A" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>📊 Partner Management</h2>
+    <p>This CFA Agreement now has <strong>{{ total_partners }} of 5 partners</strong>. The partner network is expanding successfully!</p>
+    
+    <div class="highlight-box" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-left-color: #2196f3;">
+        <h3>📈 Partner Network Status</h3>
+        <p><strong>Current Partners:</strong> {{ total_partners }} / 5</p>
+        <p><strong>Available Slots:</strong> {{ 5|add:"-"|add:total_partners }} remaining</p>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2>📝 Important Notes</h2>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>Partner has been successfully registered in the system</li>
+        <li>All required documents and information have been verified</li>
+        <li>Partner is now eligible for business operations</li>
+        <li>Regular monitoring and support will be provided</li>
+        <li>Partner details are securely stored and accessible</li>
+    </ul>
+</div>
+
+<div class="content-section">
+    <h2>🔍 Review & Manage Partners</h2>
+    <p>To view and manage partners for this CFA Agreement, please visit:</p>
+    <div style="text-align: center; margin: 20px 0;">
+        <a href="http://127.0.0.1:8000/dashboard/cfa-agreement/" class="action-button">
+            📋 View CFA Agreement Records
+        </a>
+    </div>
+</div>
+
+<div class="highlight-box" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left-color: #28a745;">
+    <h3>✅ Partner Successfully Added</h3>
+    <p>The partner has been successfully added to the CFA Agreement and is now active in the system. All stakeholders have been notified of this new addition.</p>
+</div>
+
+<div class="footer-note">
+    <p><strong>Generated on:</strong> {{ current_date|date:"d M Y, h:i A" }}</p>
+    <p><strong>Created by:</strong> {{ created_by|default:"System" }}</p>
+</div>
+
+{% endblock %}

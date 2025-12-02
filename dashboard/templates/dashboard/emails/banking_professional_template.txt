@@ -1,0 +1,62 @@
+================================================================================
+                    CHETTINAD SOFTWARE CENTER
+                    Secure Data Management Solutions
+================================================================================
+
+📋 NEW SPO RENT RECORD CREATED SUCCESSFULLY
+
+Dear {{ created_by }},
+
+A new SPO Rent record has been successfully created in our system. This notification 
+contains all the essential details of the newly registered SPO Rent agreement. 
+Please review the information below and take any necessary actions.
+
+================================================================================
+📋 SPO RENT RECORD DETAILS
+================================================================================
+
+SPO Code:           {{ record.spo_code|default:"N/A" }}
+SPO Name:           {{ record.spo_name|default:"N/A" }}
+SPO Status:         {{ record.spo_status|default:"N/A" }}
+Owner Name:         {{ record.owner_name|default:"N/A" }}
+Owner Phone:        {{ record.owner_contact_no|default:"N/A" }}
+Owner Email:        {{ record.cfa_mail_id|default:"N/A" }}
+Rent Amount:        ₹{{ record.rent_pm|default:"N/A" }}
+Security Deposit:   ₹{{ record.security_deposit_paid|default:"N/A" }}
+Rent From:          {{ record.rental_from_date|default:"N/A" }}
+Rent To:            {{ record.rental_to_date|default:"N/A" }}
+Property Address:   {{ record.godown_address|default:"N/A" }}
+State:              {{ record.state.state_name|default:"N/A" }}
+District:           {{ record.district_code|default:"N/A" }}
+Created Date:       {{ record.created_at|date:"d-m-Y H:i"|default:"N/A" }}
+
+================================================================================
+🔍 REVIEW & MANAGE RECORD
+================================================================================
+
+To view the complete SPO Rent record details and manage the agreement, 
+please visit: http://127.0.0.1:8000/dashboard/spo-rent/
+
+================================================================================
+📝 IMPORTANT NOTES
+================================================================================
+
+• This record has been automatically generated and stored in our secure database.
+• All financial transactions and agreements are subject to our standard terms and conditions.
+• Please ensure all required documents are uploaded and verified within the specified timeframe.
+• For any queries or modifications, please contact our support team.
+
+================================================================================
+                    CONTACT INFORMATION
+================================================================================
+📍 Address:  Meyyammai Building,17, 35, Gandhi Nagar 2nd Main Rd, Noothencheri, Adyar, Chennai, Tamil Nadu 600020.
+📧 Email:      chettinadsdc@chettinad.com
+📞 Phone:      +91 93841 48769
+================================================================================
+                    Chettinad Software Center
+                    Your trusted partner in secure data management 
+                    and business solutions.
+================================================================================
+© 2025 Chettinad Software Center. All rights reserved.
+This email was sent to you as part of our automated notification system.
+================================================================================ 

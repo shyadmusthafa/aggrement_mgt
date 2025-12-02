@@ -1,0 +1,56 @@
+Chettinad Data Management - New Partner Added to CFA Agreement
+============================================================
+
+Dear Data Management Team,
+
+🎉 New Partner Successfully Added to CFA Agreement
+
+📋 Partner Addition Notification
+A new partner has been successfully added to the CFA Agreement system. This addition enhances our operational capacity and strengthens our business network.
+
+🏢 CFA Agreement Information
+---------------------------
+CFA Code: {{ cfa_record.cfa_code }}
+CFA Name: {{ cfa_record.cfa_name }}
+State: {{ cfa_record.state.state_name }}
+District Code: {{ cfa_record.district_code|default:"Not specified" }}
+Owner Name: {{ cfa_record.owner_name|default:"Not specified" }}
+Security Deposit: ₹{{ cfa_record.security_deposit_rs|default:"0" }}
+Status: {{ cfa_record.status|default:"Active" }}
+
+👤 New Partner Details
+---------------------
+Partner Name: {{ partner.name }}
+Gender: {{ partner.gender }}
+Age: {{ partner.age }} years
+Email ID: {{ partner.mail_id }}
+Aadhar Number: {{ partner.aadhar_no }}
+PAN Number: {{ partner.pan_no }}
+Join Date: {{ partner.partner_join_date|date:"d M Y" }}
+End Date: {% if partner.partner_end_date %}{{ partner.partner_end_date|date:"d M Y" }}{% else %}Not specified{% endif %}
+Address: {{ partner.address }}
+
+📊 Partner Management
+This CFA Agreement now has {{ total_partners }} of 5 partners. The partner network is expanding successfully!
+
+📈 Partner Network Status
+Current Partners: {{ total_partners }} / 5
+Available Slots: {{ 5|add:"-"|add:total_partners }} remaining
+
+📝 Important Notes
+• Partner has been successfully registered in the system
+• All required documents and information have been verified
+• Partner is now eligible for business operations
+• Regular monitoring and support will be provided
+• Partner details are securely stored and accessible
+
+---
+Chettinad Data Management System
+Automated notification - Please do not reply to this email
+
+Contact Information:
+Email: shyad.sdc@chettinad.com
+CC: manimaran@clplho.com
+
+Generated on: {{ current_date|date:"d M Y, h:i A" }}
+Created by: {{ created_by|default:"System" }}

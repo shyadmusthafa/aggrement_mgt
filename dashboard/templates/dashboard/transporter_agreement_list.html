@@ -1,0 +1,1144 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Transporter Agreement Records{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+        }
+        .container {
+            background: #fff;
+            max-width: 100%;
+            margin: 0.25rem auto;
+            padding: 0.5rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px 0 rgba(31, 38, 135, 0.08);
+        }
+        h2 {
+            color: #2980b9;
+            text-align: left;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .add-btn-row {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .add-btn {
+            background: linear-gradient(90deg, #2980b9, #6dd5fa);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-decoration: none;
+            box-shadow: 0 1px 2px 0 rgba(31, 38, 135, 0.1);
+            transition: background 0.2s, color 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        
+        .export-btn {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.8rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-decoration: none;
+            box-shadow: 0 1px 2px 0 rgba(39, 174, 96, 0.1);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        
+        .export-btn:hover {
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(39, 174, 96, 0.2);
+            color: #fff;
+            text-decoration: none;
+        }
+        .add-btn:hover {
+            background: linear-gradient(90deg, #6dd5fa, #2980b9);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px 0 rgba(31, 38, 135, 0.15);
+        }
+        .filter-toggle {
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 1px 2px 0 rgba(39, 174, 96, 0.1);
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        .filter-toggle:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px 0 rgba(39, 174, 96, 0.2);
+        }
+        .filter-toggle.active {
+            background: linear-gradient(90deg, #e74c3c, #c0392b);
+        }
+        .filter-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        .filter-panel.show {
+            display: block;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .filter-label {
+            font-weight: 500;
+            color: #2c3e50;
+            font-size: 0.65rem;
+        }
+        .filter-input {
+            padding: 0.3rem;
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+        }
+        .filter-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.1);
+        }
+        .filter-actions {
+            display: flex;
+            gap: 0.3rem;
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 0.3rem;
+            border-top: 1px solid #e9ecef;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 0.3rem 0.6rem;
+            border: none;
+            border-radius: 3px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.65rem;
+        }
+        .filter-apply {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .filter-apply:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(102, 126, 234, 0.2);
+        }
+        .filter-clear {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+        .filter-clear:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(108, 117, 125, 0.2);
+        }
+        .filter-reset {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        .filter-reset:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 1px 3px rgba(231, 76, 60, 0.2);
+        }
+        .stats-panel {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 4px;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 3px rgba(102, 126, 234, 0.2);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.3rem;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 0.3rem;
+        }
+        .stat-number {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.1rem;
+        }
+        .stat-label {
+            font-size: 0.65rem;
+            opacity: 0.9;
+        }
+        
+        /* Table UI Styles */
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .mat-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            min-width: 1200px;
+        }
+        
+        .mat-table th {
+            background: #2c3e50;
+            color: white;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.7rem 0.5rem;
+            text-align: left;
+            border-bottom: 2px solid #34495e;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        
+        .mat-table td {
+            padding: 0.6rem 0.5rem;
+            font-size: 0.75rem;
+            border-bottom: 1px solid #ecf0f1;
+            vertical-align: middle;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            background: white;
+        }
+        
+        .mat-table td.nowrap {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .mat-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .mat-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-expired {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-terminated {
+            background: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.2rem;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+        
+        .action-btn {
+            padding: 0.3rem 0.5rem;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.1rem;
+            transition: all 0.2s ease;
+            min-width: 28px;
+            justify-content: center;
+        }
+        
+        .view-btn {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #138496;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .edit-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .edit-btn:hover {
+            background: #e0a800;
+            color: #212529;
+            transform: translateY(-1px);
+        }
+        
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background: #c82333;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .pdf-btn {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .pdf-btn:hover {
+            background: #c0392b;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .partner-btn {
+            background: #9b59b6;
+            color: white;
+        }
+        
+        .partner-btn:hover {
+            background: #8e44ad;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .view-btn {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .view-btn:hover {
+            background: #138496;
+            color: white;
+            transform: translateY(-1px);
+        }
+        
+        .partner-count {
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 0.6rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.2rem;
+        }
+        
+        .no-partners {
+            color: #6c757d;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        
+        .no-partners i {
+            font-size: 0.6rem;
+        }
+        
+        .attachment-link {
+            color: #2980b9;
+            text-decoration: none;
+            font-size: 0.7rem;
+        }
+        
+        .attachment-link:hover {
+            text-decoration: underline;
+        }
+        
+        .no-attachment {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.7rem;
+        }
+        
+        .field-value {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .field-value:hover {
+            overflow: visible;
+            white-space: normal;
+            word-break: break-word;
+            position: relative;
+            z-index: 5;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            padding: 0.2rem;
+        }
+        
+        .pagination-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+        
+        .pagination-info {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            gap: 0.2rem;
+            align-items: center;
+        }
+        
+        .pagination-btn {
+            padding: 0.4rem 0.7rem;
+            border: 1px solid #dee2e6;
+            background: #fff;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+        
+        .pagination-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            text-decoration: none;
+        }
+        
+        .pagination-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .pagination-btn.disabled {
+            color: #6c757d;
+            cursor: not-allowed;
+            background: #f8f9fa;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #6c757d;
+        }
+        
+                .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 0.5rem;
+            gap: 0.3rem;
+        }
+        
+        .pagination-btn {
+            padding: 0.3rem 0.6rem;
+            border: 1px solid #dee2e6;
+            background: #fff;
+            color: #495057;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            transition: all 0.2s ease;
+        }
+        
+        .pagination-btn:hover {
+            background: #e9ecef;
+            color: #495057;
+            text-decoration: none;
+        }
+        
+        .pagination-btn.active {
+            background: #2980b9;
+            color: white;
+            border-color: #2980b9;
+        }
+        
+        .pagination-btn.disabled {
+            color: #6c757d;
+            cursor: not-allowed;
+            background: #f8f9fa;
+        }
+        
+        .search-container {
+            margin-bottom: 0.5rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.4rem;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            background: #f8f9fa;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #2980b9;
+            background: white;
+            box-shadow: 0 0 0 1px rgba(41, 128, 185, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 0.1rem;
+                padding: 0.3rem;
+            }
+            h2 {
+                font-size: 0.9rem;
+                margin-bottom: 0.3rem;
+            }
+            .header-section {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.2rem;
+            }
+            .add-btn-row {
+                justify-content: center;
+                gap: 0.2rem;
+            }
+            .add-btn,
+            .export-btn,
+            .filter-toggle {
+                padding: 0.2rem 0.6rem;
+                font-size: 0.65rem;
+            }
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 0.2rem;
+            }
+            .filter-actions {
+                justify-content: center;
+                gap: 0.2rem;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.2rem;
+            }
+            .stat-number {
+                font-size: 0.9rem;
+            }
+            .stat-label {
+                font-size: 0.6rem;
+            }
+            .cards-container {
+                grid-template-columns: 1fr;
+                gap: 0.4rem;
+            }
+            .transporter-card {
+                padding: 0.5rem;
+            }
+            .card-content {
+                grid-template-columns: 1fr;
+                gap: 0.2rem;
+            }
+            .card-actions {
+                flex-direction: column;
+                gap: 0.1rem;
+            }
+            .action-btn {
+                justify-content: center;
+                padding: 0.1rem 0.2rem;
+                font-size: 0.55rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                margin: 0.05rem;
+                padding: 0.2rem;
+            }
+            h2 {
+            font-size: 0.8rem;
+            }
+            .add-btn,
+            .export-btn,
+            .filter-toggle {
+                padding: 0.15rem 0.4rem;
+                font-size: 0.6rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .stat-number {
+            font-size: 0.8rem;
+            }
+            .stat-label {
+                font-size: 0.55rem;
+            }
+            .transporter-card {
+                padding: 0.4rem;
+            }
+            .card-title {
+                font-size: 0.75rem;
+            }
+            .field-label {
+                font-size: 0.55rem;
+            }
+            .field-value {
+                font-size: 0.65rem;
+            }
+            .action-btn {
+                padding: 0.1rem 0.15rem;
+                font-size: 0.5rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2><i class="fas fa-truck"></i> Transporter Agreement Records</h2>
+
+    <div class="header-section">
+        <div class="add-btn-row">
+            <a href="{% url 'transporter_agreement_create' %}" class="add-btn">
+                <i class="fas fa-plus-circle"></i> Add New Transporter
+            </a>
+            <button id="export-excel" class="export-btn">
+                <i class="fas fa-file-excel"></i> Export to Excel
+            </button>
+            <button id="filter-toggle" class="filter-toggle">
+                <i class="fas fa-filter"></i> Toggle Filters
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Panel -->
+    <div class="stats-panel">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-number">{{ total_records }}</div>
+                <div class="stat-label">Total Records</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ active_records }}</div>
+                <div class="stat-label">Active</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ inactive_records }}</div>
+                <div class="stat-label">Inactive</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ expired_records }}</div>
+                <div class="stat-label">Expired</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ terminated_records }}</div>
+                <div class="stat-label">Terminated</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">{{ filtered_records }}</div>
+                <div class="stat-label">Filtered</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Panel -->
+    <div id="filter-panel" class="filter-panel">
+        <form id="filter-form" method="get" action=".">
+            <div class="filter-grid">
+            <div class="filter-group">
+                    <label for="id_transporter_code" class="filter-label">Transporter Code:</label>
+                    <input type="text" name="transporter_code" id="id_transporter_code" class="filter-input" value="{{ request.GET.transporter_code }}">
+            </div>
+            <div class="filter-group">
+                    <label for="id_transporter_name" class="filter-label">Transporter Name:</label>
+                    <input type="text" name="transporter_name" id="id_transporter_name" class="filter-input" value="{{ request.GET.transporter_name }}">
+            </div>
+            <div class="filter-group">
+                    <label for="id_state" class="filter-label">State:</label>
+                    <input type="text" name="state" id="id_state" class="filter-input" value="{{ request.GET.state }}">
+            </div>
+            <div class="filter-group">
+                    <label for="id_owner_name" class="filter-label">Owner Name:</label>
+                    <input type="text" name="owner_name" id="id_owner_name" class="filter-input" value="{{ request.GET.owner_name }}">
+            </div>
+            <div class="filter-group">
+                    <label for="id_transporter_status" class="filter-label">Transporter Status:</label>
+                    <select name="transporter_status" id="id_transporter_status" class="filter-input">
+                        <option value="">All</option>
+                        <option value="Active" {% if request.GET.transporter_status == "Active" %}selected{% endif %}>Active</option>
+                        <option value="Inactive" {% if request.GET.transporter_status == "Inactive" %}selected{% endif %}>Inactive</option>
+                        <option value="Close" {% if request.GET.transporter_status == "Close" %}selected{% endif %}>Close</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                    <label for="id_agreement_from_date_min" class="filter-label">Agreement From Date (Min):</label>
+                    <input type="date" name="agreement_from_date_min" id="id_agreement_from_date_min" class="filter-input" value="{{ request.GET.agreement_from_date_min }}">
+                </div>
+                <div class="filter-group">
+                    <label for="id_agreement_from_date_max" class="filter-label">Agreement From Date (Max):</label>
+                    <input type="date" name="agreement_from_date_max" id="id_agreement_from_date_max" class="filter-input" value="{{ request.GET.agreement_from_date_max }}">
+                </div>
+                <div class="filter-group">
+                    <label for="id_agreement_to_date_min" class="filter-label">Agreement To Date (Min):</label>
+                    <input type="date" name="agreement_to_date_min" id="id_agreement_to_date_min" class="filter-input" value="{{ request.GET.agreement_to_date_min }}">
+                </div>
+                <div class="filter-group">
+                    <label for="id_agreement_to_date_max" class="filter-label">Agreement To Date (Max):</label>
+                    <input type="date" name="agreement_to_date_max" id="id_agreement_to_date_max" class="filter-input" value="{{ request.GET.agreement_to_date_max }}">
+            </div>
+            <div class="filter-group">
+                    <label for="id_multiple_plant" class="filter-label">Operating in Multiple Plant:</label>
+                    <select name="multiple_plant" id="id_multiple_plant" class="filter-input">
+                        <option value="">All</option>
+                        <option value="Yes" {% if request.GET.multiple_plant == "Yes" %}selected{% endif %}>Yes</option>
+                        <option value="No" {% if request.GET.multiple_plant == "No" %}selected{% endif %}>No</option>
+                </select>
+            </div>
+        </div>
+        <div class="filter-actions">
+                <button type="submit" class="filter-btn filter-apply"><i class="fas fa-check-circle"></i> Apply Filters</button>
+                <button type="button" id="clear-filters" class="filter-btn filter-clear"><i class="fas fa-times-circle"></i> Clear Filters</button>
+                <button type="button" id="reset-filters" class="filter-btn filter-reset"><i class="fas fa-undo"></i> Reset Filters</button>
+        </div>
+        </form>
+    </div>
+    
+    <!-- Search Box -->
+    <div class="search-container">
+        <input type="text" id="search-input" class="search-input" placeholder="Search transporter records...">
+        </div>
+
+    <!-- Table Container -->
+    <div class="table-wrapper">
+        {% if transporter_list %}
+            <table class="mat-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>State</th>
+                        <th>Branch</th>
+                        <th>District Code</th>
+                        <th>District Name</th>
+                        <th>Source Plant Code</th>
+                        <th>Source Plant Name</th>
+                        <th>Operating in Multiple Plant</th>
+                        <th>Transporter Status</th>
+                        <th>Inception Date</th>
+                        <th>Agreement From</th>
+                        <th>Agreement To</th>
+                        <th>Transporter Code</th>
+                        <th>Transporter Name</th>
+                        <th>Transporter Address</th>
+                        <th>Owner/Managing Partner</th>
+                        <th>Owner Contact No</th>
+                        <th>Transporter Email</th>
+                        <th>GST Number</th>
+                        <th>PAN Number</th>
+                        <th>Bank Account Name</th>
+                        <th>Bank Account No</th>
+                        <th>Bank Name</th>
+                        <th>Branch Name</th>
+                        <th>Bank IFSC Code</th>
+                        <th>Customer Code for Invoicing</th>
+                        <th>Security Deposit Rs.</th>
+                        <th>Security Deposit Doc/DD</th>
+                        <th>Reg Office Destination Code</th>
+                        <th>Closure Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Transporter Agreement</th>
+                        <th>Closure Letter</th>
+                        <th>Closure Acceptance Letter</th>
+                        <th>F&F Letter Calc</th>
+                        <th>Security Deposit</th>
+                        <th>View Action</th>
+                        <th>Edit Action</th>
+                        <th>Action Download</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transporter_list %}
+                    <tr data-search="{{ t.transporter_code|lower }} {{ t.transporter_name|lower }} {{ t.state.state_name|lower }} {{ t.branch.state_branch_name|lower }} {{ t.owner_managing_partner|lower }}">
+                        <td class="nowrap">{{ forloop.counter }}</td>
+                        <td class="nowrap">{{ t.state.state_name }}</td>
+                        <td class="nowrap">{{ t.branch.state_branch_name|default:"-" }}</td>
+                        <td class="nowrap">{{ t.district_code|default:"-" }}</td>
+                        <td class="nowrap">{{ t.district.name|default:"-" }}</td>
+                        <td class="nowrap">{{ t.source_plant_code }}</td>
+                        <td class="nowrap">{{ t.source_plant_name }}</td>
+                        <td class="nowrap">{{ t.operating_in_multiple_plant }}</td>
+                        <td class="nowrap">
+                            <span class="status-badge status-{{ t.transporter_status|lower }}">
+                                {{ t.transporter_status }}
+                            </span>
+                        </td>
+                        <td class="nowrap">{{ t.inception_date|date:"d/m/Y" }}</td>
+                        <td class="nowrap">{{ t.agreement_from_date|date:"d/m/Y" }}</td>
+                        <td class="nowrap">{{ t.agreement_to_date|date:"d/m/Y" }}</td>
+                        <td class="nowrap">{{ t.transporter_code }}</td>
+                        <td class="nowrap">{{ t.transporter_name }}</td>
+                        <td class="nowrap">{{ t.transporter_address|truncatechars:30 }}</td>
+                        <td class="nowrap">{{ t.owner_managing_partner }}</td>
+                        <td class="nowrap">{{ t.owner_contact_no }}</td>
+                        <td class="nowrap">{{ t.transporter_mail_id }}</td>
+                        <td class="nowrap">{{ t.gst_no }}</td>
+                        <td class="nowrap">{{ t.pan_no }}</td>
+                        <td class="nowrap">{{ t.bank_account_name }}</td>
+                        <td class="nowrap">{{ t.bank_account_no }}</td>
+                        <td class="nowrap">{{ t.bank_name }}</td>
+                        <td class="nowrap">{{ t.branch.state_branch_name|default:"-" }}</td>
+                        <td class="nowrap">{{ t.bank_ifsc_code }}</td>
+                        <td class="nowrap">{{ t.customer_code_for_invoicing }}</td>
+                        <td class="nowrap">₹{{ t.security_deposit_rs }}</td>
+                        <td class="nowrap">{{ t.security_deposit_doc_dd|default:"-" }}</td>
+                        <td class="nowrap">{{ t.reg_office_destination_code }}</td>
+                        <td class="nowrap">{{ t.closure_date|date:"d/m/Y"|default:"-" }}</td>
+                        <td class="nowrap">
+                            <span class="status-badge status-{{ t.status|lower }}">
+                                {{ t.status }}
+                            </span>
+                        </td>
+                        <td class="nowrap">{{ t.remark|truncatechars:30|default:"-" }}</td>
+                        <td class="nowrap">
+                            {% if t.transporter_agreement %}
+                                <a href="{{ t.transporter_agreement.url }}" target="_blank" class="attachment-link">
+                                    <i class="fas fa-file-alt"></i> View
+                                </a>
+                            {% else %}
+                                <span class="no-attachment">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="nowrap">
+                            {% if t.closure_letter %}
+                                <a href="{{ t.closure_letter.url }}" target="_blank" class="attachment-link">
+                                    <i class="fas fa-file-alt"></i> View
+                                </a>
+                            {% else %}
+                                <span class="no-attachment">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="nowrap">
+                            {% if t.closure_acceptance_letter %}
+                                <a href="{{ t.closure_acceptance_letter.url }}" target="_blank" class="attachment-link">
+                                    <i class="fas fa-file-alt"></i> View
+                                </a>
+                            {% else %}
+                                <span class="no-attachment">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="nowrap">
+                            {% if t.ff_letter_calc %}
+                                <a href="{{ t.ff_letter_calc.url }}" target="_blank" class="attachment-link">
+                                    <i class="fas fa-file-alt"></i> View
+                                </a>
+                            {% else %}
+                                <span class="no-attachment">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="nowrap">
+                            {% if t.security_deposit %}
+                                <a href="{{ t.security_deposit.url }}" target="_blank" class="attachment-link">
+                                    <i class="fas fa-file-alt"></i> View
+                                </a>
+                            {% else %}
+                                <span class="no-attachment">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td class="nowrap">
+                            <div class="action-buttons">
+                                <a href="{% url 'transporter_agreement_view' t.id %}" class="action-btn view-btn" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                        <td class="nowrap">
+                            <div class="action-buttons">
+                                <a href="{% url 'transporter_agreement_edit' t.id %}" class="action-btn edit-btn" title="Edit Transporter Agreement">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button class="action-btn partner-btn" onclick="showAddTransporterPartnerModal({{ t.id }})" title="Add Partner">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                                <div class="partner-edit-buttons" id="partner-edit-buttons-{{ t.id }}">
+                                    <!-- Partner edit buttons will be loaded here -->
+                                </div>
+                            </div>
+                        </td>
+                        <td class="nowrap">
+                            <div class="action-buttons">
+                                <a href="{% url 'transporter_agreement_pdf' t.id %}" class="action-btn pdf-btn" title="Download PDF" target="_blank">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <a href="{% url 'transporter_agreement_delete' t.id %}" class="action-btn delete-btn" title="Delete Transporter">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-truck"></i>
+                <h3>No Transporter Agreements Found</h3>
+                <p>No transporter agreement records match your current filters.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if transporter_list.has_other_pages %}
+    <div class="pagination-container">
+        <div class="pagination-info">
+            Showing {{ transporter_list.start_index }} to {{ transporter_list.end_index }} of {{ transporter_list.paginator.count }} entries
+        </div>
+        <div class="pagination-controls">
+            {% if transporter_list.has_previous %}
+                <a href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ transporter_list.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">
+                    <i class="fas fa-angle-left"></i>
+                </a>
+            {% else %}
+                <span class="pagination-btn disabled">
+                    <i class="fas fa-angle-double-left"></i>
+                </span>
+                <span class="pagination-btn disabled">
+                    <i class="fas fa-angle-left"></i>
+                </span>
+            {% endif %}
+
+            {% for num in transporter_list.paginator.page_range %}
+                {% if transporter_list.number == num %}
+                    <span class="pagination-btn active">{{ num }}</span>
+                {% elif num > transporter_list.number|add:'-3' and num < transporter_list.number|add:'3' %}
+                    <a href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if transporter_list.has_next %}
+                <a href="?page={{ transporter_list.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">
+                    <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ transporter_list.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="pagination-btn">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% else %}
+                <span class="pagination-btn disabled">
+                    <i class="fas fa-angle-right"></i>
+                </span>
+                <span class="pagination-btn disabled">
+                    <i class="fas fa-angle-double-right"></i>
+                </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Filter toggle functionality
+        $('#filter-toggle').on('click', function() {
+            $('#filter-panel').slideToggle(300);
+            $(this).toggleClass('active');
+        });
+
+        // Clear filters button
+        $('#clear-filters').on('click', function() {
+            $('#filter-form input[type="text"]').val('');
+            $('#filter-form input[type="date"]').val('');
+            $('#filter-form select').val('');
+        });
+
+        // Reset filters button
+        $('#reset-filters').on('click', function() {
+            window.location.href = "{% url 'transporter_agreement_list' %}";
+        });
+
+        // Search functionality
+        $('#search-input').on('keyup', function() {
+            var searchTerm = $(this).val().toLowerCase();
+            $('.mat-table tbody tr').each(function() {
+                var rowText = $(this).data('search');
+                if (rowText.includes(searchTerm)) {
+                    $(this).show();
+            } else {
+                    $(this).hide();
+                }
+            });
+        });
+
+        // Export functionality (you can implement this as needed)
+        $('#export-excel').on('click', function() {
+            // Implement export functionality
+            alert('Export functionality can be implemented here');
+        });
+
+        // Show filter panel if any filters are applied
+        var filtersApplied = false;
+        $('#filter-form input[type="text"], #filter-form input[type="date"]').each(function() {
+            if ($(this).val()) {
+                filtersApplied = true;
+                return false;
+            }
+        });
+        $('#filter-form select').each(function() {
+            if ($(this).val()) {
+                filtersApplied = true;
+                return false;
+            }
+        });
+
+        if (filtersApplied) {
+            $('#filter-panel').show();
+            $('#filter-toggle').addClass('active');
+        }
+        
+        // Transporter Partner functionality
+        window.showAddTransporterPartnerModal = function(transporterId) {
+            window.location.href = `/dashboard/transporter-agreement/${transporterId}/add-partner/`;
+        };
+        
+        // Load partner buttons for each transporter record
+        function loadTransporterPartnerButtons() {
+            $('.mat-table tbody tr').each(function() {
+                const row = $(this);
+                const transporterId = row.find('.action-btn').first().attr('href').match(/\/(\d+)\//)[1];
+                const partnerButtonsContainer = row.find(`#partner-edit-buttons-${transporterId}`);
+                
+                if (partnerButtonsContainer.length > 0) {
+                    fetch(`/dashboard/transporter-agreement/${transporterId}/partners/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success && data.partners.length > 0) {
+                                // Show single "View Partners" button instead of multiple edit buttons
+                                const buttonsHtml = `
+                                    <a href="/dashboard/transporter-agreement/${transporterId}/partners-list/" class="action-btn view-btn" title="View All Partners (${data.partners.length})">
+                                        <i class="fas fa-users"></i>
+                                        <span class="partner-count">${data.partners.length}</span>
+                                    </a>
+                                `;
+                                partnerButtonsContainer.html(buttonsHtml);
+                            } else {
+                                // Show "No Partners" message
+                                partnerButtonsContainer.html(`
+                                    <span class="no-partners" title="No partners added yet">
+                                        <i class="fas fa-users"></i>
+                                        <span>0</span>
+                                    </span>
+                                `);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading transporter partner buttons:', error);
+                            partnerButtonsContainer.html(`
+                                <span class="no-partners" title="Error loading partners">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </span>
+                            `);
+                        });
+                }
+            });
+        }
+        
+        // Load partner buttons when page loads
+        $(document).ready(function() {
+            loadTransporterPartnerButtons();
+        });
+    });
+</script>
+{% endblock %} 

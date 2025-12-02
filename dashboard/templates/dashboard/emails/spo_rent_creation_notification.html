@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>New SPO Rent Record Created</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border: 1px solid #dee2e6;
+        }
+        .record-details {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+        }
+        .field-group {
+            margin-bottom: 10px;
+        }
+        .field-label {
+            font-weight: bold;
+            color: #495057;
+            display: inline-block;
+            width: 200px;
+        }
+        .field-value {
+            color: #212529;
+        }
+        .footer {
+            background-color: #6c757d;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 0 0 5px 5px;
+            font-size: 12px;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #ffc107;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🆕 New SPO Rent Record Created</h2>
+        <p>Secure Data Management System</p>
+    </div>
+    
+    <div class="content">
+        <div class="highlight">
+            <strong>📋 A new SPO Rent record has been successfully created in the system.</strong>
+        </div>
+        
+        <div class="record-details">
+            <h3>📄 SPO Rent Details</h3>
+            
+            <div class="field-group">
+                <span class="field-label">SPO Code:</span>
+                <span class="field-value">{{ record.spo_code|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">SPO Name:</span>
+                <span class="field-value">{{ record.spo_name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">State:</span>
+                <span class="field-value">{{ record.state.state_name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Branch:</span>
+                <span class="field-value">{{ record.branch.state_branch_name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">District Code:</span>
+                <span class="field-value">{{ record.district_code|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Structure Group:</span>
+                <span class="field-value">{{ record.stru_grp|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">SPO Status:</span>
+                <span class="field-value">{{ record.cfa_status|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Inception Date:</span>
+                <span class="field-value">{{ record.inception_date|date:"d-m-Y"|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Renewal With:</span>
+                <span class="field-value">{{ record.renewal_with|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Godown Address:</span>
+                <span class="field-value">{{ record.godown_address|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Owner Name:</span>
+                <span class="field-value">{{ record.owner_name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Owner Code:</span>
+                <span class="field-value">{{ record.owner_code|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Owner Email:</span>
+                <span class="field-value">{{ record.cfa_mail_id|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Owner Phone:</span>
+                <span class="field-value">{{ record.owner_contact_no|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Owner Address:</span>
+                <span class="field-value">{{ record.owner_address|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Owner GST:</span>
+                <span class="field-value">{{ record.owner_gst|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Owner PAN:</span>
+                <span class="field-value">{{ record.owner_pan|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Pin Code:</span>
+                <span class="field-value">{{ record.pin_code|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Nature of Construction:</span>
+                <span class="field-value">{{ record.nature_of_construction.name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Sale Organization:</span>
+                <span class="field-value">{{ record.sale_organization|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Stamp No:</span>
+                <span class="field-value">{{ record.stamp_no|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Stamp Name:</span>
+                <span class="field-value">{{ record.stamp_name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Partner Type:</span>
+                <span class="field-value">{{ record.partner_type.name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Bank Account Name:</span>
+                <span class="field-value">{{ record.bank_account_name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Bank Account No:</span>
+                <span class="field-value">{{ record.bank_account_no|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Bank Name:</span>
+                <span class="field-value">{{ record.bank_name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Bank Branch:</span>
+                <span class="field-value">{{ record.bank_branch_name|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Bank IFSC:</span>
+                <span class="field-value">{{ record.bank_ifsc_code|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Destination Code:</span>
+                <span class="field-value">{{ record.destination_code|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Office Sq.Ft:</span>
+                <span class="field-value">{{ record.office_sqft|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Open Space Sq.Ft:</span>
+                <span class="field-value">{{ record.open_space_sqft|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Total Space:</span>
+                <span class="field-value">{{ record.total_space|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Capacity:</span>
+                <span class="field-value">{{ record.capacity|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Rent From Date:</span>
+                <span class="field-value">{{ record.rental_from_date|date:"d-m-Y"|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Rent To Date:</span>
+                <span class="field-value">{{ record.rental_to_date|date:"d-m-Y"|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Days Count:</span>
+                <span class="field-value">{{ record.days_count|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Security Deposit:</span>
+                <span class="field-value">₹{{ record.security_deposit_paid|floatformat:2|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Monthly Rent:</span>
+                <span class="field-value">₹{{ record.rent_pm|floatformat:2|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Yearly Hike %:</span>
+                <span class="field-value">{{ record.yearly_hike_percent|floatformat:2|default:"N/A" }}%</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Latitude:</span>
+                <span class="field-value">{{ record.latitude|floatformat:6|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Longitude:</span>
+                <span class="field-value">{{ record.longitude|floatformat:6|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Vacation Letter:</span>
+                <span class="field-value">{% if record.vacation_letter %}Yes{% else %}No{% endif %}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Remarks:</span>
+                <span class="field-value">{{ record.remarks|default:"N/A" }}</span>
+            </div>
+            
+            <div class="field-group">
+                <span class="field-label">Status:</span>
+                <span class="field-value">{{ record.status|default:"N/A" }}</span>
+            </div>
+        </div>
+        
+        <div class="highlight">
+            <strong>📅 Record Created:</strong> {{ record.created_at|date:"d-m-Y H:i:s" }}<br>
+            <strong>👤 Created By:</strong> {{ created_by|default:"System" }}
+        </div>
+        
+        <p><strong>Note:</strong> This is an automated notification from the Secure Data Management System. Please review the SPO Rent record details above.</p>
+    </div>
+    
+    <div class="footer">
+        <p>© 2025 Secure Data Management System | Chettinad Cement Corporation Limited</p>
+        <p>This email was sent automatically. Please do not reply to this email.</p>
+    </div>
+</body>
+</html> 

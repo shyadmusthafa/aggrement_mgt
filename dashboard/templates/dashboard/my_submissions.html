@@ -1,0 +1,438 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .submissions-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .submissions-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        position: relative;
+    }
+    
+    .submissions-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .submissions-header-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .submissions-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .submissions-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+    }
+    
+    .submissions-content {
+        padding: 2rem;
+    }
+    
+    .submission-item {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border-left: 4px solid #007bff;
+        transition: all 0.3s ease;
+    }
+    
+    .submission-item:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+    }
+    
+    .submission-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .submission-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .submission-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+        font-size: 1.125rem;
+    }
+    
+    .submission-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: #6c757d;
+        flex-wrap: wrap;
+    }
+    
+    .submission-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .detail-label {
+        font-size: 0.875rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+        font-weight: 500;
+        color: #2c3e50;
+    }
+    
+    .submission-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        border-radius: 6px;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .status-waiting {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-confirmed {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-rejected {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .filter-section {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .filter-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .filter-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .filter-control {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .filter-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #2c3e50;
+    }
+    
+    .filter-select {
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        padding: 0.5rem;
+        font-size: 0.875rem;
+        background: white;
+    }
+    
+    .filter-select:focus {
+        border-color: #667eea;
+        outline: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'approval_workflow_dashboard' %}">Approval Workflow</a></li>
+                        <li class="breadcrumb-item active">My Submissions</li>
+                    </ol>
+                </nav>
+                <h1 class="page-title">
+                    <i class="fas fa-list"></i>
+                    {{ title }}
+                </h1>
+                <p class="page-subtitle">Track the status of your submitted records</p>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'approval_workflow_dashboard' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-tasks"></i>
+                    Approval Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <h3 class="filter-title">
+            <i class="fas fa-filter"></i>
+            Filter Submissions
+        </h3>
+        <div class="filter-controls">
+            <div class="filter-control">
+                <label class="filter-label">Status</label>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="waiting_confirmation">Waiting for Confirmation</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            <div class="filter-control">
+                <label class="filter-label">Record Type</label>
+                <select class="filter-select" id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="spo_rent">SPO Rent</option>
+                    <option value="cfa_agreement">CFA Agreement</option>
+                    <option value="transporter_agreement">Transporter Agreement</option>
+                    <option value="spo_partner">SPO Partner</option>
+                    <option value="cfa_partner">CFA Partner</option>
+                    <option value="transporter_partner">Transporter Partner</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submissions List -->
+    <div class="submissions-card">
+        <div class="submissions-header">
+            <div class="submissions-header-content">
+                <h2 class="submissions-title">
+                    <i class="fas fa-folder-open"></i>
+                    My Submissions
+                </h2>
+                <p class="submissions-subtitle">
+                    Track the approval status of your submitted records
+                </p>
+            </div>
+        </div>
+        
+        <div class="submissions-content">
+            {% if submissions %}
+                {% for submission in submissions %}
+                <div class="submission-item" data-status="{{ submission.status }}" data-type="{{ submission.record_type }}">
+                    <div class="submission-header">
+                        <h3 class="submission-title">{{ submission.record_code }}</h3>
+                        <div class="submission-meta">
+                            <span class="status-badge status-{{ submission.status }}">
+                                {{ submission.get_status_display }}
+                            </span>
+                            <span><i class="fas fa-calendar"></i> {{ submission.submitted_at|date:"M d, Y H:i" }}</span>
+                            {% if submission.approved_at %}
+                            <span><i class="fas fa-clock"></i> {{ submission.approved_at|date:"M d, Y H:i" }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="submission-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Record Type</div>
+                            <div class="detail-value">{{ submission.get_record_type_display }}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value">
+                                <span class="status-badge status-{{ submission.status }}">
+                                    {{ submission.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% if submission.approved_by %}
+                        <div class="detail-item">
+                            <div class="detail-label">Approved By</div>
+                            <div class="detail-value">{{ submission.approved_by.get_full_name|default:submission.approved_by.username }}</div>
+                        </div>
+                        {% endif %}
+                        {% if submission.approver_remarks %}
+                        <div class="detail-item">
+                            <div class="detail-label">Approver Remarks</div>
+                            <div class="detail-value">{{ submission.approver_remarks }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="submission-actions">
+                        <a href="{% url 'approval_workflow_detail' submission.id %}" class="btn btn-outline-info btn-sm">
+                            <i class="fas fa-eye"></i>
+                            View Details
+                        </a>
+                        {% if submission.status == 'waiting_confirmation' %}
+                        <span class="text-muted">
+                            <i class="fas fa-clock"></i>
+                            Waiting for approval...
+                        </span>
+                        {% elif submission.status == 'confirmed' %}
+                        <span class="text-success">
+                            <i class="fas fa-check-circle"></i>
+                            Approved successfully!
+                        </span>
+                        {% elif submission.status == 'rejected' %}
+                        <span class="text-danger">
+                            <i class="fas fa-times-circle"></i>
+                            Rejected - Review remarks above
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h4>No Submissions Found</h4>
+                    <p>You haven't submitted any records for approval yet.</p>
+                    <a href="{% url 'spo_rent_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Create Your First Record
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filter functionality
+    function filterSubmissions() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const typeFilter = document.getElementById('typeFilter').value;
+        const submissions = document.querySelectorAll('.submission-item');
+        
+        submissions.forEach(submission => {
+            const status = submission.dataset.status;
+            const type = submission.dataset.type;
+            
+            let show = true;
+            
+            if (statusFilter && status !== statusFilter) {
+                show = false;
+            }
+            
+            if (typeFilter && type !== typeFilter) {
+                show = false;
+            }
+            
+            submission.style.display = show ? 'block' : 'none';
+        });
+        
+        // Show empty state if no submissions match filters
+        const visibleSubmissions = document.querySelectorAll('.submission-item[style="display: block"]');
+        const emptyState = document.querySelector('.empty-state');
+        
+        if (visibleSubmissions.length === 0 && submissions.length > 0) {
+            if (!emptyState) {
+                const emptyStateHtml = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h4>No Submissions Match Filters</h4>
+                        <p>Try adjusting your filter criteria.</p>
+                    </div>
+                `;
+                document.querySelector('.submissions-content').insertAdjacentHTML('beforeend', emptyStateHtml);
+            }
+        } else if (emptyState) {
+            emptyState.remove();
+        }
+    }
+    
+    // Add event listeners to filters
+    document.getElementById('statusFilter').addEventListener('change', filterSubmissions);
+    document.getElementById('typeFilter').addEventListener('change', filterSubmissions);
+    
+    // Add smooth scrolling for better UX
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,607 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .form-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .form-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .form-description {
+        color: #6c757d;
+        margin-top: 1rem;
+        font-size: 1.1rem;
+    }
+    
+    .form-section {
+        margin-bottom: 2rem;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-icon {
+        width: 30px;
+        height: 30px;
+        background: #667eea;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.9rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    .form-control, .form-select {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+    
+    .form-control.is-valid {
+        border-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+    }
+    
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #dc3545;
+    }
+    
+    .valid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.875rem;
+        color: #28a745;
+    }
+    
+    .help-text {
+        font-size: 0.75rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .checkbox-group:hover {
+        background: #e9ecef;
+        border-color: #667eea;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #667eea;
+    }
+    
+    .checkbox-group label {
+        margin: 0;
+        font-weight: 500;
+        color: #2c3e50;
+        cursor: pointer;
+    }
+    
+    .checkbox-description {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 1rem;
+        min-width: 120px;
+        justify-content: center;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-success:hover {
+        background: #218838;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .icon-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        font-size: 0.875rem;
+    }
+    
+    .icon-preview i {
+        font-size: 1.2rem;
+        color: #667eea;
+    }
+    
+    .parent-menu-info {
+        background: #e3f2fd;
+        border: 1px solid #2196f3;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+    }
+    
+    .parent-menu-info h6 {
+        color: #1976d2;
+        margin: 0 0 0.5rem 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .parent-menu-info p {
+        color: #1565c0;
+        margin: 0;
+        font-size: 0.875rem;
+    }
+    
+    @media (max-width: 768px) {
+        .form-container {
+            margin: 0 1rem;
+        }
+        
+        .form-card {
+            padding: 1.5rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="form-container">
+        <div class="form-card">
+            <!-- Form Header -->
+            <div class="form-header">
+                <h1 class="form-title">
+                    <div class="form-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    {{ title }}
+                </h1>
+                <p class="form-description">
+                    {% if menu_item %}
+                        Update the menu item configuration and access requirements.
+                    {% else %}
+                        Create a new menu item with proper configuration and access controls.
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Menu Item Form -->
+            <form method="POST" id="menuItemForm">
+                {% csrf_token %}
+                
+                <!-- Basic Information -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        Basic Information
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                <i class="fas fa-tag"></i>
+                                Menu Name <span class="required">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="help-text">Internal name used for identification (e.g., "dashboard", "users")</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.display_name.id_for_label }}" class="form-label">
+                                <i class="fas fa-eye"></i>
+                                Display Name <span class="required">*</span>
+                            </label>
+                            {{ form.display_name }}
+                            {% if form.display_name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.display_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="help-text">Name shown to users in the navigation menu</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.url_name.id_for_label }}" class="form-label">
+                                <i class="fas fa-link"></i>
+                                URL Name <span class="required">*</span>
+                            </label>
+                            {{ form.url_name }}
+                            {% if form.url_name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.url_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="help-text">URL pattern name for routing (e.g., "dashboard", "user_list")</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.icon.id_for_label }}" class="form-label">
+                                <i class="fas fa-icons"></i>
+                                Icon <span class="required">*</span>
+                            </label>
+                            {{ form.icon }}
+                            {% if form.icon.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.icon.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="help-text">FontAwesome icon class (e.g., "fas fa-home", "fas fa-users")</div>
+                            <div class="icon-preview">
+                                <i class="fas fa-circle"></i>
+                                <span>Icon Preview</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Structure -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                        Menu Structure
+                    </h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.parent.id_for_label }}" class="form-label">
+                                <i class="fas fa-level-up-alt"></i>
+                                Parent Menu
+                            </label>
+                            {{ form.parent }}
+                            {% if form.parent.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.parent.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="help-text">Select parent menu if this is a sub-menu item</div>
+                            {% if form.parent.value %}
+                                <div class="parent-menu-info">
+                                    <h6>Parent Menu Information</h6>
+                                    <p>This item will appear under the selected parent menu</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="{{ form.order.id_for_label }}" class="form-label">
+                                <i class="fas fa-sort-numeric-up"></i>
+                                Display Order <span class="required">*</span>
+                            </label>
+                            {{ form.order }}
+                            {% if form.order.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.order.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="help-text">Order in which this item appears (lower numbers appear first)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Access Control -->
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <div class="section-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        Access Control
+                    </h3>
+                    
+                    <div class="checkbox-group">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}">
+                            <strong>Active Menu Item</strong>
+                        </label>
+                    </div>
+                    <div class="checkbox-description">
+                        When checked, this menu item will be visible and accessible to users
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        {{ form.requires_staff }}
+                        <label for="{{ form.requires_staff.id_for_label }}">
+                            <strong>Staff Access Required</strong>
+                        </label>
+                    </div>
+                    <div class="checkbox-description">
+                        Only staff users can access this menu item
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        {{ form.requires_superuser }}
+                        <label for="{{ form.requires_superuser.id_for_label }}">
+                            <strong>Superuser Access Required</strong>
+                        </label>
+                    </div>
+                    <div class="checkbox-description">
+                        Only superusers can access this menu item (overrides staff requirement)
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <a href="{% url 'menu_item_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    
+                    {% if menu_item %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Update Menu Item
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Menu Item
+                        </button>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Icon preview functionality
+    const iconInput = document.getElementById('{{ form.icon.id_for_label }}');
+    const iconPreview = document.querySelector('.icon-preview i');
+    const iconText = document.querySelector('.icon-preview span');
+    
+    function updateIconPreview() {
+        const iconValue = iconInput.value;
+        if (iconValue) {
+            iconPreview.className = iconValue;
+            iconText.textContent = 'Icon Preview';
+        } else {
+            iconPreview.className = 'fas fa-circle';
+            iconText.textContent = 'Icon Preview';
+        }
+    }
+    
+    iconInput.addEventListener('input', updateIconPreview);
+    updateIconPreview();
+    
+    // Form validation
+    const form = document.getElementById('menuItemForm');
+    const inputs = form.querySelectorAll('input, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    function validateField(field) {
+        const value = field.value.trim();
+        const isRequired = field.hasAttribute('required') || field.classList.contains('required');
+        
+        if (isRequired && !value) {
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+        } else if (value) {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        } else {
+            field.classList.remove('is-invalid', 'is-valid');
+        }
+    }
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            validateField(input);
+            if (input.classList.contains('is-invalid')) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = form.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

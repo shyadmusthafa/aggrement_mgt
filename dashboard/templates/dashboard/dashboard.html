@@ -1,0 +1,1041 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Dashboard - DMS{% endblock %}
+{% block extra_head %}
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #3730a3;
+            --secondary-color: #06b6d4;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 2px 4px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 8px 15px -3px rgb(0 0 0 / 0.1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 0.75rem;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 0.5rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .stat-icon.spo { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .stat-icon.cfa { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .stat-icon.transporter { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .stat-icon.users { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+        .stat-number {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .expiry-dashboard {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .expiry-dashboard h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .expiry-dashboard h3 i {
+            color: var(--primary-color);
+            font-size: 1rem;
+        }
+
+        .current-date {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            display: inline-block;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-md);
+            font-size: 0.8rem;
+        }
+
+        .expiry-filter {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .expiry-filter label {
+            color: black;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .expiry-filter select {
+            background: black
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 140px;
+        }
+
+        .expiry-filter select:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+        }
+
+        .expiry-filter select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .overall-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: var(--shadow-md);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .summary-card.total-expired {
+            border-color: var(--danger-color);
+            background: linear-gradient(135deg, #fef2f2, #ffffff);
+        }
+
+        .summary-card.total-active {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, #f0fdf4, #ffffff);
+        }
+
+        .summary-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .summary-icon.expired { background: var(--danger-color); }
+        .summary-icon.active { background: var(--success-color); }
+
+        .summary-content {
+            flex: 1;
+        }
+
+        .summary-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+            line-height: 1;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .expiry-section {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+
+        .expiry-section h4 {
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .expiry-section h4 i {
+            color: var(--primary-color);
+        }
+
+        .expiry-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.6rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .expiry-card {
+            padding: 0.6rem;
+            border-radius: 6px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
+        }
+
+        .expiry-card:hover {
+            transform: translateY(-1px);
+        }
+
+        .expiry-card.expired {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+        }
+
+        .expiry-card.active {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+        }
+
+        .expiry-count {
+            font-size: 1.25rem;
+            margin-bottom: 0.2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .expiry-label {
+            font-size: 0.7rem;
+            opacity: 0.95;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+
+
+        .expiry-details h5 {
+            color: var(--text-primary);
+            margin-bottom: 0.6rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: var(--light-color);
+            padding: 0.4rem 0.6rem;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .expiry-table {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            font-size: 0.75rem;
+        }
+
+        .expiry-header {
+            background: var(--light-color);
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .expiry-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            align-items: center;
+            transition: background-color 0.2s ease;
+            font-size: 0.75rem;
+        }
+
+        .expiry-row:hover {
+            background-color: var(--light-color);
+        }
+
+        .expiry-row:last-child {
+            border-bottom: none;
+        }
+
+        .expiry-row.expired {
+            background: #fef2f2;
+        }
+
+        .expiry-row.expiring-soon {
+            background: #fffbeb;
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-badge.expired {
+            background: #fee2e2;
+            color: var(--danger-color);
+            border: 1px solid #fecaca;
+        }
+
+        .status-badge.active {
+            background: #d1fae5;
+            color: var(--success-color);
+            border: 1px solid #a7f3d0;
+        }
+
+        .status-badge.expiring-soon {
+            background: #fef3c7;
+            color: var(--warning-color);
+            border: 1px solid #fde68a;
+        }
+
+        .view-all-link {
+            text-align: center;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .view-all-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.8rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .view-all-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+            color: white;
+            text-decoration: none;
+        }
+
+
+
+        .footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .dashboard-title {
+                font-size: 1.75rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                gap: 0.75rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 0.5rem 0.5rem;
+            }
+            
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+            
+            .dashboard-subtitle {
+                font-size: 0.9rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+            }
+            
+            .stat-card {
+                padding: 0.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .expiry-dashboard {
+                padding: 1rem;
+                border-radius: 12px;
+            }
+            
+            .overall-summary {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .expiry-summary {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            
+            .expiry-filter {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+                padding: 0.6rem;
+            }
+            
+            .expiry-filter select {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .expiry-header,
+            .expiry-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                padding: 0.5rem;
+            }
+            
+            .expiry-header {
+                display: none;
+            }
+            
+            .expiry-row {
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                margin-bottom: 0.5rem;
+                background: white;
+            }
+            
+            .expiry-row span {
+                padding: 0.25rem 0;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .expiry-row span:last-child {
+                border-bottom: none;
+            }
+            
+            .expiry-row span::before {
+                content: attr(data-label) ": ";
+                font-weight: 600;
+                color: var(--text-primary);
+                display: block;
+                margin-bottom: 0.25rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-container {
+                padding: 0.5rem 0.25rem;
+            }
+            
+            .dashboard-title {
+                font-size: 1.25rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stat-card {
+                padding: 0.75rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .expiry-dashboard {
+                padding: 0.75rem;
+            }
+            
+            .expiry-filter {
+                padding: 0.5rem;
+                gap: 0.4rem;
+            }
+            
+            .expiry-filter label {
+                font-size: 0.8rem;
+            }
+            
+            .expiry-filter select {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.5rem;
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid slide-up">
+        <div class="stat-card">
+            <div class="stat-icon spo">
+                <i class="fas fa-building"></i>
+            </div>
+            <div class="stat-number">{{ spo_rent_count|default:"0" }}</div>
+            <div class="stat-label">SPO Rent Records</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon cfa">
+                <i class="fas fa-file-contract"></i>
+            </div>
+            <div class="stat-number">{{ cfa_agreement_count|default:"0" }}</div>
+            <div class="stat-label">CFA Agreements</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon transporter">
+                <i class="fas fa-truck"></i>
+            </div>
+            <div class="stat-number">{{ transporter_agreement_count|default:"0" }}</div>
+            <div class="stat-label">Transporter Agreements</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon users">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number">{{ user_count|default:"0" }}</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+    </div>
+    
+    <!-- Expiry Status Dashboard -->
+    <div class="expiry-dashboard slide-up">
+        <h3>
+            <i class="fas fa-clock"></i>
+            Expiry Status Overview
+        </h3>
+        
+        <div class="current-date">
+            <i class="fas fa-calendar-alt"></i>
+            Current Date: {{ today|date:"F d, Y" }}
+        </div>
+        
+        <!-- Expiry Date Filter -->
+        <div class="expiry-filter">
+            <label for="expiry-filter">Show expired records from:</label>
+            <select id="expiry-filter" onchange="filterExpiredRecords(this.value)">
+                <option value="7">Last 7 days</option>
+                <option value="15">Last 15 days</option>
+                <option value="20">Last 20 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="50">Last 50 days</option>
+                <option value="all" selected>All expired records</option>
+            </select>
+        </div>
+        
+        <!-- Overall Summary -->
+        <div class="overall-summary">
+            <div class="summary-card total-expired">
+                <div class="summary-icon expired">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-number">{{ spo_expired_count|add:cfa_expired_count|add:transporter_expired_count }}</div>
+                    <div class="summary-label">Total Expired Records</div>
+                </div>
+            </div>
+            
+            <div class="summary-card total-active">
+                <div class="summary-icon active">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="summary-content">
+                    <div class="summary-number">{{ spo_active_count|add:cfa_active_count|add:transporter_active_count }}</div>
+                    <div class="summary-label">Total Active Records</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- SPO Expiry Section -->
+        <div class="expiry-section">
+            <h4>
+                <i class="fas fa-building"></i>
+                SPO Rent Expiry Status
+            </h4>
+            
+            <div class="expiry-summary">
+                <div class="expiry-card expired">
+                    <div class="expiry-count">{{ spo_expired_count }}</div>
+                    <div class="expiry-label">Expired</div>
+                </div>
+                <div class="expiry-card active">
+                    <div class="expiry-count">{{ spo_active_count }}</div>
+                    <div class="expiry-label">Active</div>
+                </div>
+            </div>
+            
+            {% if spo_expiring_soon %}
+            <div class="expiry-details">
+                <h5>
+                    <i class="fas fa-hourglass-half"></i>
+                    SPO Records Expiring Soon (Within 30 Days)
+                </h5>
+                <div class="expiry-table">
+                    <div class="expiry-header">
+                        <span>Record Name/ID</span>
+                        <span>From Date</span>
+                        <span>To Date</span>
+                        <span>Days Left</span>
+                    </div>
+                    {% for record in spo_expiring_soon %}
+                    <div class="expiry-row expiring-soon">
+                        <span data-label="Record Name/ID">{{ record.spo_name|default:record.spo_code }}</span>
+                        <span data-label="From Date">{{ record.rental_from_date|date:"M d, Y"|default:"N/A" }}</span>
+                        <span data-label="To Date">{{ record.rental_to_date|date:"M d, Y" }}</span>
+                        <span data-label="Days Left" class="status-badge expiring-soon">{{ record.days_until_expiry }} days</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if spo_expired %}
+            <div class="expiry-details">
+                <h5>
+                    <i class="fas fa-times-circle"></i>
+                    Recently Expired SPO Records
+                </h5>
+                <div class="expiry-table">
+                    <div class="expiry-header">
+                        <span>Record Name/ID</span>
+                        <span>From Date</span>
+                        <span>To Date</span>
+                        <span>Status</span>
+                        <span>Expired Day Count</span>
+                    </div>
+                    {% for record in spo_expired %}
+                    <div class="expiry-row expired">
+                        <span data-label="Record Name/ID">{{ record.spo_name|default:record.spo_code }}</span>
+                        <span data-label="From Date">{{ record.rental_from_date|date:"M d, Y"|default:"N/A" }}</span>
+                        <span data-label="To Date">{{ record.rental_to_date|date:"M d, Y" }}</span>
+                        <span data-label="Status" class="status-badge expired">Expired</span>
+                        <span data-label="Expired Day Count" class="status-badge expired">{{ record.expired_days_count|default:"0" }} days ago</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="view-all-link">
+                    <a href="{% url 'spo_rent_list' %}?status=expired" class="view-all-btn">
+                        <i class="fas fa-external-link-alt"></i>
+                        View All Expired SPO Records
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+    </div>
+    
+        <!-- CFA Expiry Section -->
+        <div class="expiry-section">
+            <h4>
+            <i class="fas fa-file-contract"></i>
+                CFA Agreement Expiry Status
+            </h4>
+            
+            <div class="expiry-summary">
+                <div class="expiry-card expired">
+                    <div class="expiry-count">{{ cfa_expired_count }}</div>
+                    <div class="expiry-label">Expired</div>
+                </div>
+                <div class="expiry-card active">
+                    <div class="expiry-count">{{ cfa_active_count }}</div>
+                    <div class="expiry-label">Active</div>
+                </div>
+            </div>
+            
+            {% if cfa_expired %}
+            <div class="expiry-details">
+                <h5>
+                    <i class="fas fa-times-circle"></i>
+                    Recently Expired CFA Records
+                </h5>
+                <div class="expiry-table">
+                    <div class="expiry-header">
+                        <span>Record Name/ID</span>
+                        <span>From Date</span>
+                        <span>To Date</span>
+                        <span>Status</span>
+                        <span>Expired Day Count</span>
+                    </div>
+                    {% for record in cfa_expired %}
+                    <div class="expiry-row expired">
+                        <span data-label="Record Name/ID">{{ record.name|default:record.cfa_code }}</span>
+                        <span data-label="From Date">{{ record.agreement_from_date|date:"M d, Y"|default:"N/A" }}</span>
+                        <span data-label="To Date">{{ record.agreement_to_date|date:"M d, Y" }}</span>
+                        <span data-label="Status" class="status-badge expired">Expired</span>
+                        <span data-label="Expired Day Count" class="status-badge expired">{{ record.expired_days_count|default:"0" }} days ago</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="view-all-link">
+                    <a href="{% url 'cfa_agreement_list' %}?status=expired" class="view-all-btn">
+                        <i class="fas fa-external-link-alt"></i>
+                        View All Expired CFA Records
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Transporter Expiry Section -->
+        <div class="expiry-section">
+            <h4>
+            <i class="fas fa-truck"></i>
+                Transporter Agreement Expiry Status
+            </h4>
+            
+            <div class="expiry-summary">
+                <div class="expiry-card expired">
+                    <div class="expiry-count">{{ transporter_expired_count }}</div>
+                    <div class="expiry-label">Expired</div>
+                </div>
+                <div class="expiry-card active">
+                    <div class="expiry-count">{{ transporter_active_count }}</div>
+                    <div class="expiry-label">Active</div>
+                </div>
+            </div>
+            
+            {% if transporter_expired %}
+            <div class="expiry-details">
+                <h5>
+                    <i class="fas fa-times-circle"></i>
+                    Recently Expired Transporter Records
+                </h5>
+                <div class="expiry-table">
+                    <div class="expiry-header">
+                        <span>Record Name/ID</span>
+                        <span>From Date</span>
+                        <span>To Date</span>
+                        <span>Status</span>
+                        <span>Expired Day Count</span>
+                    </div>
+                    {% for record in transporter_expired %}
+                    <div class="expiry-row expired">
+                        <span data-label="Record Name/ID">{{ record.name|default:record.transporter_code }}</span>
+                        <span data-label="From Date">{{ record.agreement_from_date|date:"M d, Y"|default:"N/A" }}</span>
+                        <span data-label="To Date">{{ record.agreement_to_date|date:"M d, Y" }}</span>
+                        <span data-label="Status" class="status-badge expired">Expired</span>
+                        <span data-label="Expired Day Count" class="status-badge expired">{{ record.expired_days_count|default:"0" }} days ago</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="view-all-link">
+                    <a href="{% url 'transporter_agreement_list' %}?status=expired" class="view-all-btn">
+                        <i class="fas fa-external-link-alt"></i>
+                        View All Expired Transporter Records
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; {% now "Y" %} Data Management System - Powered by Advanced Analytics</p>
+    </div>
+</div>
+
+<script>
+    // Add smooth animations and interactions
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add staggered animation to stat cards
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+        
+        // Add hover effects to expiry rows
+        const expiryRows = document.querySelectorAll('.expiry-row');
+        expiryRows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.01)';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+        
+        // Add loading states for dynamic content
+        const viewAllBtns = document.querySelectorAll('.view-all-btn');
+        viewAllBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.add('loading');
+                setTimeout(() => {
+                    this.classList.remove('loading');
+                }, 1000);
+            });
+        });
+    });
+
+    // Function to filter expired records based on days
+    function filterExpiredRecords(days) {
+        const expiredRows = document.querySelectorAll('.expiry-row.expired');
+        
+        expiredRows.forEach(row => {
+            const expiredDayCountSpan = row.querySelector('span[data-label="Expired Day Count"]');
+            if (expiredDayCountSpan) {
+                const dayCountText = expiredDayCountSpan.textContent;
+                const dayCount = parseInt(dayCountText.match(/\d+/)[0]);
+                
+                if (days === 'all' || dayCount <= parseInt(days)) {
+                    row.style.display = 'grid';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+        
+        // Update summary counts
+        updateSummaryCounts(days);
+    }
+
+    // Function to update summary counts based on filter
+    function updateSummaryCounts(days) {
+        const visibleExpiredRows = document.querySelectorAll('.expiry-row.expired[style*="grid"], .expiry-row.expired[style=""]');
+        const totalExpiredCount = visibleExpiredRows.length;
+        
+        // Update total expired count in summary
+        const totalExpiredElement = document.querySelector('.summary-card.total-expired .summary-number');
+        if (totalExpiredElement) {
+            totalExpiredElement.textContent = totalExpiredCount;
+        }
+        
+        // Update individual section counts
+        updateSectionCounts();
+    }
+
+    // Function to update individual section counts
+    function updateSectionCounts() {
+        // SPO expired count
+        const spoExpiredRows = document.querySelectorAll('.expiry-section:first-of-type .expiry-row.expired[style*="grid"], .expiry-section:first-of-type .expiry-row.expired[style=""]');
+        const spoExpiredCount = spoExpiredRows.length;
+        const spoExpiredCard = document.querySelector('.expiry-section:first-of-type .expiry-card.expired .expiry-count');
+        if (spoExpiredCard) {
+            spoExpiredCard.textContent = spoExpiredCount;
+        }
+        
+        // CFA expired count
+        const cfaExpiredRows = document.querySelectorAll('.expiry-section:nth-of-type(2) .expiry-row.expired[style*="grid"], .expiry-section:nth-of-type(2) .expiry-row.expired[style=""]');
+        const cfaExpiredCount = cfaExpiredRows.length;
+        const cfaExpiredCard = document.querySelector('.expiry-section:nth-of-type(2) .expiry-card.expired .expiry-count');
+        if (cfaExpiredCard) {
+            cfaExpiredCard.textContent = cfaExpiredCount;
+        }
+        
+        // Transporter expired count
+        const transporterExpiredRows = document.querySelectorAll('.expiry-section:nth-of-type(3) .expiry-row.expired[style*="grid"], .expiry-section:nth-of-type(3) .expiry-row.expired[style=""]');
+        const transporterExpiredCount = transporterExpiredRows.length;
+        const transporterExpiredCard = document.querySelector('.expiry-section:nth-of-type(3) .expiry-card.expired .expiry-count');
+        if (transporterExpiredCard) {
+            transporterExpiredCard.textContent = transporterExpiredCount;
+        }
+    }
+</script>
+{% endblock %} 

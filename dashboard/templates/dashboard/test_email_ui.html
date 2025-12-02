@@ -1,0 +1,273 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Test Email UI - Data Management System{% endblock %}
+
+{% block content %}
+<style>
+    .test-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        background: #f8fafc;
+        min-height: 100vh;
+    }
+
+    .test-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        text-align: center;
+    }
+
+    .test-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .test-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+
+    .test-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .test-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1rem;
+    }
+
+    .form-input {
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #10b981;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .btn-test {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+    }
+
+    .status-message {
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        font-weight: 600;
+    }
+
+    .status-success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 1px solid #a7f3d0;
+    }
+
+    .status-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    .status-info {
+        background: #dbeafe;
+        color: #1e40af;
+        border: 1px solid #bfdbfe;
+    }
+
+    .debug-info {
+        background: #f3f4f6;
+        padding: 1rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        font-family: monospace;
+        font-size: 0.9rem;
+    }
+</style>
+
+<div class="test-container">
+    <div class="test-header">
+        <h1 class="test-title">📧 Email UI Test</h1>
+        <p class="test-subtitle">Test email functionality from the web interface</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="status-message status-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="test-card">
+        <h2>Test Email Configuration</h2>
+        <p>This will send a test email to verify the email configuration is working.</p>
+        
+        <form method="post" action="{% url 'test_email_configuration' %}" class="test-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Test Email Address</label>
+                <input type="email" name="test_email" class="form-input" 
+                       value="shyad.sdc@chettinad.com" required>
+            </div>
+            <button type="submit" class="btn-test btn-primary">
+                <i class="fas fa-paper-plane"></i>
+                Send Test Email
+            </button>
+        </form>
+    </div>
+
+    <div class="test-card">
+        <h2>Test SPO Rent Email</h2>
+        <p>This will test the SPO rent email functionality using the same logic as the main interface.</p>
+        
+        <form method="post" action="{% url 'send_spo_rent_email' %}" class="test-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Email Type</label>
+                <select name="email_type" class="form-input" required>
+                    <option value="renewal">Renewal Reminder</option>
+                    <option value="expiry">Expiry Notice</option>
+                    <option value="payment">Payment Reminder</option>
+                    <option value="general">General Update</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Custom Message (Optional)</label>
+                <textarea name="custom_message" class="form-input form-textarea" 
+                          placeholder="Add a custom message to include in the email..."></textarea>
+            </div>
+            <input type="hidden" name="selected_records" value="1">
+            <button type="submit" class="btn-test btn-primary">
+                <i class="fas fa-envelope"></i>
+                Send SPO Rent Email
+            </button>
+        </form>
+    </div>
+
+    <div class="test-card">
+        <h2>Debug Information</h2>
+        <div class="debug-info">
+            <strong>Current User:</strong> {{ user.username }}<br>
+            <strong>User Authenticated:</strong> {{ user.is_authenticated }}<br>
+            <strong>Debug Mode:</strong> {{ debug }}<br>
+            <strong>Email Backend:</strong> django.core.mail.backends.smtp.EmailBackend<br>
+            <strong>Email Host:</strong> mail.chettinad.com<br>
+            <strong>Email Port:</strong> 587<br>
+            <strong>Email Use TLS:</strong> True<br>
+            <strong>Default From Email:</strong> chettinadsdc@chettinad.com
+        </div>
+    </div>
+
+    <div class="test-card">
+        <h2>Quick Links</h2>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="{% url 'mail_reminder' %}" class="btn-test btn-secondary">
+                <i class="fas fa-home"></i>
+                Mail Reminder Home
+            </a>
+            <a href="{% url 'spo_rent_reminder' %}" class="btn-test btn-secondary">
+                <i class="fas fa-list"></i>
+                SPO Rent Reminder
+            </a>
+            <a href="{% url 'email_templates' %}" class="btn-test btn-secondary">
+                <i class="fas fa-file-alt"></i>
+                Email Templates
+            </a>
+            <a href="{% url 'email_analytics' %}" class="btn-test btn-secondary">
+                <i class="fas fa-chart-bar"></i>
+                Email Analytics
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Add some interactive feedback
+    document.addEventListener('DOMContentLoaded', function() {
+        const forms = document.querySelectorAll('form');
+        
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                submitBtn.disabled = true;
+                
+                // Re-enable after 5 seconds in case of error
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }, 5000);
+            });
+        });
+    });
+</script>
+{% endblock %} 

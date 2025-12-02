@@ -1,0 +1,152 @@
+{% extends "dashboard/emails/base_email.html" %}
+
+{% block header_title %}{% if is_update %}CFA Agreement Record Updated{% else %}New CFA Agreement Record Created{% endif %}{% endblock %}
+{% block header_subtitle %}Secure Data Management System{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Dear {{ created_by|default:updated_by }},
+</div>
+
+<div class="content-section">
+    <h2>{% if is_update %}🔄 CFA Agreement Record Updated{% else %}🆕 New CFA Agreement Record Created{% endif %}</h2>
+    <p>{% if is_update %}A CFA Agreement record has been successfully updated in our system.{% else %}A new CFA Agreement record has been successfully created in our system.{% endif %} This notification contains all the essential details of the {% if is_update %}updated{% else %}newly registered{% endif %} CFA Agreement. Please review the information below and take any necessary actions.</p>
+</div>
+
+<div class="content-section">
+    <h2>📋 CFA Agreement Record Details</h2>
+    <table class="details-table">
+        <tr>
+            <td class="label">CFA Code</td>
+            <td class="value">{{ record.cfa_code|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">CFA Name</td>
+            <td class="value">{{ record.cfa_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">CFA Status</td>
+            <td class="value">
+                <span style="color: {% if record.cfa_status == 'Active' %}#28a745{% elif record.cfa_status == 'Inactive' %}#dc3545{% else %}#ffc107{% endif %}; font-weight: 600;">
+                    {{ record.cfa_status|default:"N/A" }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Owner Name</td>
+            <td class="value">{{ record.owner_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Owner Phone</td>
+            <td class="value">{{ record.owner_contact_no|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Owner Email</td>
+            <td class="value">{{ record.cfa_mail_id|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Security Deposit</td>
+            <td class="value">₹{{ record.security_deposit_rs|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Agreement From</td>
+            <td class="value">{{ record.agreement_from_date|date:"d-m-Y"|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Agreement To</td>
+            <td class="value">{{ record.agreement_to_date|date:"d-m-Y"|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Property Address</td>
+            <td class="value">{{ record.godown_address|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">State</td>
+            <td class="value">{{ record.state.state_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">District</td>
+            <td class="value">{{ record.district_code|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Created Date</td>
+            <td class="value">{{ record.created_at|date:"d-m-Y H:i"|default:"N/A" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>🏢 Business Details</h2>
+    <table class="details-table">
+        <tr>
+            <td class="label">GST Number</td>
+            <td class="value">{{ record.gst_no|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">PAN Number</td>
+            <td class="value">{{ record.pan_no|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Structure Group</td>
+            <td class="value">{{ record.stru_grp|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Agreement Type</td>
+            <td class="value">{{ record.agreement_renewal|default:"N/A" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>🏦 Bank Information</h2>
+    <table class="details-table">
+        <tr>
+            <td class="label">Bank Account Name</td>
+            <td class="value">{{ record.bank_account_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Bank Account No</td>
+            <td class="value">{{ record.bank_account_no|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Bank Name</td>
+            <td class="value">{{ record.bank_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Bank Branch</td>
+            <td class="value">{{ record.bank_branch_name|default:"N/A" }}</td>
+        </tr>
+        <tr>
+            <td class="label">IFSC Code</td>
+            <td class="value">{{ record.bank_ifsc_code|default:"N/A" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="content-section">
+    <h2>🔍 Review & Manage Record</h2>
+    <p>To view the complete CFA Agreement record details and manage the agreement, please visit:</p>
+    <div style="text-align: center; margin: 20px 0;">
+        <a href="http://127.0.0.1:8000/dashboard/cfa-agreement/" class="action-button">
+            📋 View CFA Agreement Records
+        </a>
+    </div>
+</div>
+
+<div class="content-section">
+    <h2>📝 Important Notes</h2>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>This CFA Agreement has been successfully registered in the system</li>
+        <li>All required documents and information have been verified</li>
+        <li>The agreement is now active and ready for business operations</li>
+        <li>Regular monitoring and support will be provided</li>
+        <li>Please ensure all compliance requirements are met</li>
+    </ul>
+</div>
+
+<div class="highlight-box" style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-left-color: #28a745;">
+    <h3>✅ Record Successfully {% if is_update %}Updated{% else %}Created{% endif %}</h3>
+    <p>The CFA Agreement record has been successfully {% if is_update %}updated{% else %}created{% endif %} and is now active in the system. All stakeholders have been notified of this {% if is_update %}update{% else %}new registration{% endif %}.</p>
+</div>
+
+{% endblock %}

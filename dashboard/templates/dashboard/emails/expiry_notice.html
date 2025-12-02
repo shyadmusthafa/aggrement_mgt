@@ -1,0 +1,101 @@
+{% extends "dashboard/emails/base_email.html" %}
+
+{% block header_title %}SPO Rent Agreement Expiry{% endblock %}
+{% block header_subtitle %}Expiry Notice - Urgent Action Required{% endblock %}
+
+{% block content %}
+<div class="greeting">
+    Dear {{ record.owner_name|default:"Valued Customer" }},
+</div>
+
+<div class="content-section">
+    <h2>🚨 Urgent: Agreement Expiry Notice</h2>
+    <p>This is an <strong>urgent notification</strong> that your <strong>SPO Rent Agreement</strong> will expire soon. Immediate action is required to prevent service interruption.</p>
+</div>
+
+<div class="content-section">
+    <h2>📋 Agreement Details</h2>
+    <table class="details-table">
+        <tr>
+            <td class="label">SPO Code</td>
+            <td class="value">{{ record.spo_code }}</td>
+        </tr>
+        <tr>
+            <td class="label">SPO Name</td>
+            <td class="value">{{ record.spo_name }}</td>
+        </tr>
+        <tr>
+            <td class="label">Agreement Expiry Date</td>
+            <td class="value">
+                <span style="color: #dc3545; font-weight: 600; font-size: 16px;">
+                    {{ record.rental_to_date|date:"F j, Y" }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Days Remaining</td>
+            <td class="value">
+                <span style="color: #dc3545; font-weight: 600;">
+                    {{ days_remaining|default:"0" }} days
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Current Status</td>
+            <td class="value">
+                <span style="color: #dc3545; font-weight: 600;">
+                    {{ record.status|default:"Expiring Soon" }}
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="label">Monthly Rent</td>
+            <td class="value">₹{{ record.rent_pm|default:"N/A" }}</td>
+        </tr>
+    </table>
+</div>
+
+<div class="highlight-box" style="background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%); border-left-color: #ffc107;">
+    <h3>⚠️ Immediate Action Required</h3>
+    <p><strong>Your agreement expires on {{ record.rental_to_date|date:"F j, Y" }}.</strong> To avoid service interruption, please complete the renewal process immediately. Failure to renew may result in temporary suspension of services.</p>
+</div>
+
+{% if custom_message %}
+<div class="content-section">
+    <h2>💬 Additional Information</h2>
+    <p>{{ custom_message }}</p>
+</div>
+{% endif %}
+
+<div class="content-section">
+    <h2>📋 Required Documents for Renewal</h2>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>Updated SPO Rent Agreement Form</li>
+        <li>Payment confirmation for renewal fees</li>
+        <li>Updated compliance documents (if applicable)</li>
+        <li>Any additional documents as per current requirements</li>
+    </ul>
+</div>
+
+<div class="content-section">
+    <h2>📞 Emergency Contact</h2>
+    <p>For immediate assistance with renewal processing, contact our support team:</p>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>Email: <a href="mailto:chettinadsdc@chettinad.com" style="color: #2196f3;">chettinadsdc@chettinad.com</a></li>
+        <li>Phone: +91-44-2836 0000</li>
+        <li>Emergency Support: Available 24/7</li>
+    </ul>
+</div>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="mailto:chettinadsdc@chettinad.com?subject=URGENT: SPO Renewal - {{ record.spo_code }} - Expires {{ record.rental_to_date|date:'Y-m-d' }}" class="action-button" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+        🚨 Urgent Renewal Request
+    </a>
+</div>
+
+<div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 15px; margin: 20px 0;">
+    <p style="margin: 0; color: #721c24; font-weight: 600;">
+        ⚠️ <strong>Note:</strong> This is an automated urgent notification. Please respond immediately to ensure uninterrupted service.
+    </p>
+</div>
+{% endblock %} 

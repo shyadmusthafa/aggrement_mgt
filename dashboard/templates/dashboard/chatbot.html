@@ -1,0 +1,489 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Data Management Assistant{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .chatbot-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .chatbot-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .chatbot-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .chatbot-header p {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    .chatbot-body {
+        padding: 1.5rem;
+        min-height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .welcome-section {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .welcome-section i {
+        font-size: 3rem;
+        color: #667eea;
+        margin-bottom: 1rem;
+    }
+
+    .welcome-section h3 {
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    .welcome-section p {
+        color: #7f8c8d;
+        margin-bottom: 1.5rem;
+    }
+
+    .questions-container {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .question-category {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        border-left: 4px solid #667eea;
+    }
+
+    .category-title {
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.8rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .question-list {
+        display: grid;
+        gap: 0.5rem;
+    }
+
+    .question-item {
+        background: white;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        padding: 0.8rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .question-item:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+
+    .question-item i {
+        color: #667eea;
+        font-size: 0.8rem;
+    }
+
+    .question-text {
+        flex: 1;
+        color: #2c3e50;
+        font-size: 0.9rem;
+    }
+
+    .chat-section {
+        display: none;
+        flex-direction: column;
+        height: 400px;
+    }
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        max-height: 300px;
+    }
+
+    .message {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .message.user {
+        flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .message.user .message-avatar {
+        background: #667eea;
+    }
+
+    .message.bot .message-avatar {
+        background: #27ae60;
+    }
+
+    .message-content {
+        background: white;
+        padding: 0.8rem;
+        border-radius: 12px;
+        max-width: 70%;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .message.user .message-content {
+        background: #667eea;
+        color: white;
+    }
+
+    .message.bot .message-content {
+        background: white;
+        color: #2c3e50;
+    }
+
+    .message-time {
+        font-size: 0.7rem;
+        color: #95a5a6;
+        margin-top: 0.3rem;
+        text-align: right;
+    }
+
+    .chat-input {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .chat-input input {
+        flex: 1;
+        padding: 0.8rem;
+        border: 1px solid #e9ecef;
+        border-radius: 6px;
+        font-size: 0.9rem;
+    }
+
+    .chat-input input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+    }
+
+    .chat-input button {
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.8rem 1rem;
+        cursor: pointer;
+        transition: background 0.2s ease;
+    }
+
+    .chat-input button:hover {
+        background: #5a6fd8;
+    }
+
+    .back-to-questions {
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        margin-bottom: 1rem;
+        font-size: 0.8rem;
+        transition: background 0.2s ease;
+    }
+
+    .back-to-questions:hover {
+        background: #5a6268;
+    }
+
+    .loading {
+        text-align: center;
+        color: #7f8c8d;
+        padding: 2rem;
+    }
+
+    .loading i {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+        .chatbot-container {
+            margin: 1rem;
+            border-radius: 8px;
+        }
+
+        .chatbot-body {
+            padding: 1rem;
+        }
+
+        .message-content {
+            max-width: 85%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chatbot-container">
+    <div class="chatbot-header">
+        <h2><i class="fas fa-robot"></i> Data Management Assistant</h2>
+        <p>Get instant help with your data management queries</p>
+    </div>
+
+    <div class="chatbot-body">
+        <!-- Welcome Section -->
+        <div id="welcome-section" class="welcome-section">
+            <i class="fas fa-comments"></i>
+            <h3>How can I help you today?</h3>
+            <p>Select a question from the categories below to get started</p>
+        </div>
+
+        <!-- Questions Container -->
+        <div id="questions-container" class="questions-container">
+            <div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p>Loading questions...</p>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div id="chat-section" class="chat-section">
+            <button id="back-to-questions" class="back-to-questions">
+                <i class="fas fa-arrow-left"></i> Back to Questions
+            </button>
+            
+            <div id="chat-messages" class="chat-messages">
+                <!-- Messages will be populated here -->
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="chat-input-field" placeholder="Type your message..." disabled>
+                <button id="send-message" disabled>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    let currentQuestion = null;
+    let conversationHistory = [];
+
+    // Load questions on page load
+    loadQuestions();
+
+    // Back to questions button
+    $('#back-to-questions').click(function() {
+        showQuestions();
+    });
+
+    // Send message button
+    $('#send-message').click(function() {
+        sendMessage();
+    });
+
+    // Enter key in chat input
+    $('#chat-input-field').keypress(function(e) {
+        if (e.which === 13) {
+            sendMessage();
+        }
+    });
+
+    function loadQuestions() {
+        $.ajax({
+            url: '{% url "chatbot_questions" %}',
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    displayQuestions(response.questions);
+                } else {
+                    showError('Failed to load questions');
+                }
+            },
+            error: function() {
+                showError('Failed to load questions');
+            }
+        });
+    }
+
+    function displayQuestions(questionsByCategory) {
+        const container = $('#questions-container');
+        container.empty();
+
+        if (Object.keys(questionsByCategory).length === 0) {
+            container.html('<div class="loading"><p>No questions available at the moment.</p></div>');
+            return;
+        }
+
+        Object.keys(questionsByCategory).forEach(category => {
+            const questions = questionsByCategory[category];
+            const categoryDiv = $('<div class="question-category"></div>');
+            
+            const categoryTitle = $('<div class="category-title"></div>').text(category);
+            categoryDiv.append(categoryTitle);
+            
+            const questionList = $('<div class="question-list"></div>');
+            
+            questions.forEach(question => {
+                const questionItem = $('<div class="question-item"></div>')
+                    .html(`
+                        <i class="fas fa-question-circle"></div>
+                        <div class="question-text">${question.question}</div>
+                    `)
+                    .click(function() {
+                        selectQuestion(question);
+                    });
+                
+                questionList.append(questionItem);
+            });
+            
+            categoryDiv.append(questionList);
+            container.append(categoryDiv);
+        });
+    }
+
+    function selectQuestion(question) {
+        currentQuestion = question;
+        showChat();
+        
+        // Add user message
+        addMessage('user', `Selected: ${question.question}`);
+        
+        // Get response from server
+        $.ajax({
+            url: `/dashboard/chatbot/response/${question.id}/`,
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    addMessage('bot', response.response);
+                    conversationHistory.push({
+                        question: question.question,
+                        response: response.response
+                    });
+                } else {
+                    addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+                }
+            },
+            error: function() {
+                addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+            }
+        });
+    }
+
+    function showChat() {
+        $('#welcome-section').hide();
+        $('#questions-container').hide();
+        $('#chat-section').show();
+        $('#chat-input-field').prop('disabled', false);
+        $('#send-message').prop('disabled', false);
+        $('#chat-input-field').focus();
+    }
+
+    function showQuestions() {
+        $('#chat-section').hide();
+        $('#welcome-section').show();
+        $('#questions-container').show();
+        $('#chat-messages').empty();
+        conversationHistory = [];
+        currentQuestion = null;
+    }
+
+    function addMessage(type, content) {
+        const messageDiv = $('<div class="message"></div>').addClass(type);
+        const timestamp = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        const avatar = $('<div class="message-avatar"></div>').html(
+            type === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>'
+        );
+        
+        const messageContent = $('<div class="message-content"></div>').text(content);
+        const messageTime = $('<div class="message-time"></div>').text(timestamp);
+        
+        messageContent.append(messageTime);
+        messageDiv.append(avatar, messageContent);
+        
+        $('#chat-messages').append(messageDiv);
+        $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+    }
+
+    function sendMessage() {
+        const input = $('#chat-input-field');
+        const message = input.val().trim();
+        
+        if (!message) return;
+        
+        addMessage('user', message);
+        input.val('');
+        
+        // For now, just acknowledge the message
+        // In a real implementation, you might want to process this with AI
+        setTimeout(() => {
+            addMessage('bot', 'Thank you for your message. For specific questions, please use the suggested questions above.');
+        }, 1000);
+    }
+
+    function showError(message) {
+        $('#questions-container').html(`
+            <div class="loading">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>${message}</p>
+            </div>
+        `);
+    }
+});
+</script>
+{% endblock %}

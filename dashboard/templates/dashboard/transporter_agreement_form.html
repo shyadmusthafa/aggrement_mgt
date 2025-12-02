@@ -1,0 +1,2064 @@
+{% extends 'dashboard/base.html' %}
+{% load form_utils %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+    body {
+        background: #667eea !important;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        position: relative;
+    }
+
+    /* Modal overlay effect */
+    body::before {
+        content: '';
+            position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 999;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.95);
+        max-width: 1000px;
+        width: 98%;
+        margin: 0.5rem auto;
+        padding: 1rem;
+            border-radius: 8px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        z-index: 1000;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-actions h2 {
+        margin: 0;
+            color: white;
+        font-size: 1.2rem;
+            font-weight: 600;
+    }
+
+    .btn-cancel {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        padding: 0.5rem 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .btn-cancel:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 1.4rem;
+        font-weight: 600;
+    }
+
+    .form-card {
+        background: transparent;
+        border-radius: 0;
+        padding: 0;
+        box-shadow: none;
+        margin-bottom: 0;
+    }
+
+    .form-section {
+        margin-bottom: 1rem;
+        
+    /* Custom Multiselect Dropdown Styles */
+    .custom-multiselect-container {
+        position: relative;
+        width: 100%;
+        margin-top: 5px;
+    }
+    
+    .multiselect-input {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 38px;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .multiselect-input:hover {
+        border-color: #667eea;
+    }
+    
+    .multiselect-input.active {
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+    
+    .selected-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        flex: 1;
+        min-height: 20px;
+        align-items: center;
+    }
+    
+    .placeholder-text {
+        color: #999;
+        font-style: italic;
+    }
+    
+    .selected-tag {
+        display: inline-flex;
+        align-items: center;
+        background: #667eea;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        gap: 5px;
+    }
+    
+    .selected-tag .remove-tag {
+        cursor: pointer;
+        font-size: 14px;
+        line-height: 1;
+        padding: 0 2px;
+    }
+    
+    .selected-tag .remove-tag:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+    }
+    
+    .multiselect-arrow {
+        color: #666;
+        font-size: 12px;
+        transition: transform 0.2s ease;
+        margin-left: 10px;
+    }
+    
+    .multiselect-input.active .multiselect-arrow {
+        transform: rotate(180deg);
+    }
+    
+    .multiselect-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        max-height: 300px;
+        overflow: hidden;
+    }
+    
+    .multiselect-search {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        outline: none;
+    }
+    
+    .search-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+    }
+    
+    .multiselect-options {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .multiselect-option {
+        padding: 10px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .multiselect-option:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .multiselect-option.selected {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .multiselect-option input[type="checkbox"] {
+        margin: 0;
+        width: 16px;
+        height: 16px;
+        accent-color: #667eea;
+    }
+    
+    .multiselect-option label {
+        cursor: pointer;
+        margin: 0;
+        flex: 1;
+        user-select: none;
+    }
+    
+    .no-data-message {
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        font-style: italic;
+    }
+    
+    .multiselect-options::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .multiselect-options::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    .multiselect-options::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+    }
+    
+    .multiselect-options::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        overflow: visible;
+        backdrop-filter: blur(10px);
+    }
+
+    .section-header {
+        display: flex !important;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        z-index: 10;
+        min-height: 45px;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .section-icon {
+        font-size: 1.2rem;
+        margin-right: 0.75rem;
+        color: white !important;
+        display: inline-block !important;
+        visibility: visible !important;
+    }
+
+    .section-title {
+        color: white !important;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0;
+        display: inline-block !important;
+        visibility: visible !important;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.75rem;
+        max-width: 100%;
+        min-height: 80px;
+    }
+
+    @media (min-width: 768px) {
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1200px) {
+        .form-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    .form-group {
+        margin-bottom: 0.75rem;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 0.75rem;
+        border-radius: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        display: block;
+        min-height: 50px;
+        backdrop-filter: blur(5px);
+    }
+
+    .form-grid .full-width {
+        grid-column: 1 / -1;
+    }
+
+    /* Ensure all textareas have consistent sizing */
+    .form-grid textarea {
+        resize: vertical;
+        min-height: 25px;
+        max-height: 40px;
+        line-height: 1.2;
+        padding-top: 0.25rem;
+        padding-bottom: 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    .form-grid label {
+        display: block;
+        margin-bottom: 0.3rem;
+        font-weight: 600;
+        color: #333;
+        font-size: 0.8rem;
+        position: relative;
+    }
+
+    .form-grid label::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 4px;
+        height: 4px;
+        background: #667eea;
+        border-radius: 50%;
+        opacity: 0.7;
+    }
+
+    .form-grid input,
+    .form-grid select,
+    .form-grid textarea {
+        width: 100%;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid rgba(102, 126, 234, 0.3);
+        border-radius: 4px;
+        font-size: 0.8rem;
+        background: rgba(255, 255, 255, 0.9);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    .form-grid input:focus,
+    .form-grid select:focus,
+    .form-grid textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-1px);
+    }
+
+    .form-grid input:hover,
+    .form-grid select:hover,
+    .form-grid textarea:hover {
+        border-color: #667eea;
+        background: rgba(255, 255, 255, 0.95);
+    }
+    
+
+    
+
+    
+    /* Error state styling */
+    .form-grid input.error,
+    .form-grid select.error,
+    .form-grid textarea.error {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1) !important;
+        background: rgba(255, 255, 255, 0.95);
+    }
+    
+    .form-grid input.error:focus,
+    .form-grid select.error:focus,
+    .form-grid textarea.error:focus {
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2) !important;
+    }
+
+    /* Error styling */
+        .form-group.has-error input,
+        .form-group.has-error textarea,
+        .form-group.has-error select {
+            border-color: #dc3545 !important;
+        box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1) !important;
+        }
+
+        .field-error-message {
+            color: #dc3545;
+        font-size: 0.75rem;
+        margin-top: 0.2rem;
+            display: flex;
+            align-items: center;
+        gap: 0.2rem;
+        }
+
+        .field-error-message i {
+        font-size: 0.7rem;
+        }
+        
+        /* Required Field Indicator */
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+    /* File input styling */
+    .file-input {
+        border: 2px dashed rgba(102, 126, 234, 0.3);
+        border-radius: 6px;
+            padding: 1rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        width: 100%;
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(5px);
+    }
+
+    .file-input:hover {
+        border-color: #667eea;
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .file-input input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .file-input-text {
+        color: #6c757d;
+        font-size: 0.8rem;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .file-input.has-file {
+        border-color: #28a745;
+        background: rgba(40, 167, 69, 0.05);
+    }
+
+    .file-input.has-file .file-input-text {
+        color: #28a745;
+    }
+
+    /* Form actions */
+    .form-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        align-items: center;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(102, 126, 234, 0.2);
+        margin-top: 1rem;
+    }
+
+    .btn {
+        padding: 0.6rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+    }
+
+    /* Notification System */
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+            color: white;
+        font-weight: 600;
+        z-index: 9999;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        max-width: 400px;
+    }
+
+    .notification.show {
+        transform: translateX(0);
+    }
+
+    .notification.success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+    }
+
+    .notification.error {
+        background: linear-gradient(135deg, #dc3545, #e74c3c);
+    }
+
+    .notification.warning {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+    }
+
+    /* Validation Summary */
+    .validation-summary {
+        background: rgba(255, 243, 205, 0.9);
+        border: 1px solid rgba(255, 234, 167, 0.8);
+        border-radius: 6px;
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(5px);
+    }
+
+    .validation-summary h4 {
+        color: #856404;
+        margin: 0 0 0.4rem 0;
+        font-size: 0.9rem;
+    }
+
+    .validation-summary ul {
+        margin: 0;
+        padding-left: 1.2rem;
+        color: #856404;
+    }
+
+    .validation-summary li {
+        margin-bottom: 0.2rem;
+        font-size: 0.85rem;
+        }
+        .file-input {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            width: 100%;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-input:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+        .file-input input[type="file"] {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .file-input-text {
+            color: #6c757d;
+            font-size: 0.9rem;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .file-input.has-file {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+        .file-input.has-file .file-input-text {
+            color: #28a745;
+        }
+        .file-input:active {
+            transform: scale(0.98);
+        }
+        .file-input.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: scale(1.02);
+        }
+        .current-file {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 6px;
+            padding: 0.8rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .current-file i {
+            color: #2196f3;
+        }
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 2rem;
+            border-top: 1px solid #e9ecef;
+        }
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: white;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .back-link:hover {
+            color: #5a67d8;
+        }
+        .errorlist {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin: 0.25rem 0 0 0;
+            list-style: none;
+            padding: 0;
+        }
+        .scroll-nav {
+            position: fixed;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .scroll-nav-item {
+            display: block;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem 0;
+            border-radius: 6px;
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .scroll-nav-item:hover,
+        .scroll-nav-item.active {
+            background: #667eea;
+            color: white;
+        }
+        .help-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .help-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 1.5rem;
+                margin: 1rem;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .scroll-nav {
+                display: none;
+            }
+            .help-btn {
+                bottom: 1rem;
+                right: 1rem;
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="header-actions">
+        <h2><i class="fas fa-truck"></i> {{ title }}</h2>
+        <button type="button" class="btn btn-cancel" onclick="goBack()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+
+<!-- Notification System -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="notification {{ message.tags }} show" id="notification-{{ forloop.counter }}">
+            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Validation Summary -->
+{% if form.errors %}
+<div class="validation-summary">
+    <h4><i class="fas fa-exclamation-triangle"></i> Please correct the following errors:</h4>
+    <ul>
+        {% for field_name, errors in form.errors.items %}
+            {% if field_name != '__all__' %}
+                {% for error in errors %}
+                    <li><strong>{{ form|get_field_label:field_name }}:</strong> {{ error }}</li>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="form-card" id="transporterForm">
+        {% csrf_token %}
+        
+        <!-- All Form Fields -->
+        <div class="form-section">
+            <div class="form-grid">
+                <div>{{ form.sale_organization.label_tag }}{{ form.sale_organization }}{{ form.sale_organization.errors }}</div>
+                <div>{{ form.state.label_tag }}{{ form.state }}{{ form.state.errors }}</div>
+                <div>{{ form.district.label_tag }}{{ form.district }}{{ form.district.errors }}</div>
+                <div>{{ form.district_code.label_tag }}{{ form.district_code }}{{ form.district_code.errors }}</div>
+                <div>{{ form.source_plant_code.label_tag }}{{ form.source_plant_code }}{{ form.source_plant_code.errors }}</div>
+                <div>{{ form.source_plant_name.label_tag }}{{ form.source_plant_name }}{{ form.source_plant_name.errors }}</div>
+                <div>{{ form.operating_in_multiple_plant.label_tag }}{{ form.operating_in_multiple_plant }}{{ form.operating_in_multiple_plant.errors }}</div>
+                <div>
+                    {{ form.list_of_plant.label_tag }}
+                    {{ form.list_of_plant }}
+                    {{ form.list_of_plant.errors }}
+                    <div class="custom-multiselect-container">
+                        <div class="multiselect-input" id="plant-multiselect">
+                            <div class="selected-tags" id="selected-plant-tags">
+                                <span class="placeholder-text">Select Plant Fields</span>
+                            </div>
+                            <div class="multiselect-arrow">▼</div>
+                        </div>
+                        
+                        <div class="multiselect-dropdown" id="plant-dropdown" style="display: none;">
+                            <div class="multiselect-search">
+                                <input type="text" id="plant-search" placeholder="Search plants..." class="search-input">
+                            </div>
+                            <div class="multiselect-options" id="plant-options">
+                                <!-- Options will be populated by JavaScript -->
+                            </div>
+                            <div class="no-data-message" id="no-plant-data" style="display: none;">
+                                No plant fields found
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>{{ form.transporter_status.label_tag }}{{ form.transporter_status }}{{ form.transporter_status.errors }}</div>
+                <div>{{ form.inception_date.label_tag }}{{ form.inception_date }}{{ form.inception_date.errors }}</div>
+                <div>{{ form.agreement_from_date.label_tag }}{{ form.agreement_from_date }}{{ form.agreement_from_date.errors }}</div>
+                <div>{{ form.agreement_to_date.label_tag }}{{ form.agreement_to_date }}{{ form.agreement_to_date.errors }}</div>
+                <div>{{ form.transporter_code.label_tag }}{{ form.transporter_code }}{{ form.transporter_code.errors }}</div>
+                <div>{{ form.transporter_name.label_tag }}{{ form.transporter_name }}{{ form.transporter_name.errors }}</div>
+                <div >{{ form.transporter_address.label_tag }}{{ form.transporter_address }}{{ form.transporter_address.errors }}</div>
+                <div>{{ form.pincode.label_tag }}{{ form.pincode }}{{ form.pincode.errors }}</div>
+                <div>{{ form.owner_managing_partner.label_tag }}{{ form.owner_managing_partner }}{{ form.owner_managing_partner.errors }}</div>
+                <div>{{ form.owner_contact_no.label_tag }}{{ form.owner_contact_no }}{{ form.owner_contact_no.errors }}</div>
+                <div>{{ form.transporter_mail_id.label_tag }}{{ form.transporter_mail_id }}{{ form.transporter_mail_id.errors }}</div>
+               
+                <div>{{ form.pan_no.label_tag }}{{ form.pan_no }}{{ form.pan_no.errors }}</div>
+                
+                <!-- GST Status Section -->
+                <div>{{ form.gst_status.label_tag }}{{ form.gst_status }}{{ form.gst_status.errors }}</div>
+                
+                <!-- GST YES Fields -->
+                <div id="gst-yes-fields" style="display: none;">
+                    <div>{{ form.state_code.label_tag }}{{ form.state_code }}{{ form.state_code.errors }}</div>
+                    <div>{{ form.pan_number.label_tag }}{{ form.pan_number }}{{ form.pan_number.errors }}</div>
+                    <div>{{ form.entity_code.label_tag }}{{ form.entity_code }}{{ form.entity_code.errors }}</div>
+                </div>
+                
+                <!-- GST NO Fields -->
+                <div id="gst-no-fields" style="display: none;">
+                    <div>{{ form.declaration_rcm.label_tag }}{{ form.declaration_rcm }}{{ form.declaration_rcm.errors }}</div>
+                    <div id="declaration-fields" style="display: none;">
+                        <div>{{ form.declaration_status.label_tag }}{{ form.declaration_status }}{{ form.declaration_status.errors }}</div>
+                    </div>
+                </div>
+                
+                <!-- Auto-generated GST Number -->
+                <div>{{ form.gst_no.label_tag }}{{ form.gst_no }}{{ form.gst_no.errors }}</div>
+                
+                
+                <div>{{ form.bank_name.label_tag }}{{ form.bank_name }}{{ form.bank_name.errors }}</div>
+                <div>{{ form.branch_name.label_tag }}{{ form.branch_name }}{{ form.branch_name.errors }}</div>
+                <div>{{ form.bank_ifsc_code.label_tag }}{{ form.bank_ifsc_code }}{{ form.bank_ifsc_code.errors }}</div>
+                <div>{{ form.bank_account_name.label_tag }}{{ form.bank_account_name }}{{ form.bank_account_name.errors }}</div>
+                <div>{{ form.bank_account_no.label_tag }}{{ form.bank_account_no }}{{ form.bank_account_no.errors }}</div>
+              
+                <div>{{ form.customer_code_for_invoicing.label_tag }}{{ form.customer_code_for_invoicing }}{{ form.customer_code_for_invoicing.errors }}</div>
+                <div>{{ form.security_deposit_rs.label_tag }}{{ form.security_deposit_rs }}{{ form.security_deposit_rs.errors }}</div>
+                <div>{{ form.security_deposit_doc_dd.label_tag }}{{ form.security_deposit_doc_dd }}{{ form.security_deposit_doc_dd.errors }}</div>
+                <div>{{ form.reg_office_destination_code.label_tag }}{{ form.reg_office_destination_code }}{{ form.reg_office_destination_code.errors }}</div>
+                <div>{{ form.closure_date.label_tag }}{{ form.closure_date }}{{ form.closure_date.errors }}</div>
+                <div>{{ form.status.label_tag }}{{ form.status }}{{ form.status.errors }}</div>
+                <div class="full-width">{{ form.remark.label_tag }}{{ form.remark }}{{ form.remark.errors }}</div>
+            </div>
+        </div>
+
+        <!-- Documents Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <div class="section-icon">📎</div>
+                <h3 class="section-title">Documents</h3>
+            </div>
+            <div class="form-grid">
+                <div>{{ form.transporter_agreement.label_tag }}{{ form.transporter_agreement }}{{ form.transporter_agreement.errors }}</div>
+                <div>{{ form.closure_letter.label_tag }}{{ form.closure_letter }}{{ form.closure_letter.errors }}</div>
+                <div>{{ form.closure_acceptance_letter.label_tag }}{{ form.closure_acceptance_letter }}{{ form.closure_acceptance_letter.errors }}</div>
+                <div>{{ form.ff_letter_calc.label_tag }}{{ form.ff_letter_calc }}{{ form.ff_letter_calc.errors }}</div>
+                <div>{{ form.security_deposit.label_tag }}{{ form.security_deposit }}{{ form.security_deposit.errors }}</div>
+                <div>{{ form.kyc_document.label_tag }}{{ form.kyc_document }}{{ form.kyc_document.errors }}</div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i>
+                {% if transporter %}Update{% else %}Create{% endif %} Transporter Agreement
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function goBack() {
+        window.history.back();
+    }
+    
+    // District loading functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const stateSelect = document.getElementById('id_state');
+        const districtCodeInput = document.getElementById('id_district_code');
+        const districtSelect = document.getElementById('id_district');
+        
+        // GST Status conditional logic
+        const gstStatusSelect = document.getElementById('id_gst_status');
+        const gstYesFields = document.getElementById('gst-yes-fields');
+        const gstNoFields = document.getElementById('gst-no-fields');
+        const declarationRcmSelect = document.getElementById('id_declaration_rcm');
+        const declarationFields = document.getElementById('declaration-fields');
+        const gstNoInput = document.getElementById('id_gst_no');
+        
+        // GST Status change handler
+        if (gstStatusSelect) {
+            gstStatusSelect.addEventListener('change', function() {
+                const gstStatus = this.value;
+                
+                if (gstStatus === 'YES') {
+                    gstYesFields.style.display = 'block';
+                    gstNoFields.style.display = 'none';
+                    
+                    // Set required attributes for GST YES fields
+                    document.getElementById('id_state_code').setAttribute('required', 'required');
+                    document.getElementById('id_pan_number').setAttribute('required', 'required');
+                    document.getElementById('id_entity_code').setAttribute('required', 'required');
+                    
+                    // Remove required from GST NO fields
+                    document.getElementById('id_declaration_rcm').removeAttribute('required');
+                    document.getElementById('id_declaration_status').removeAttribute('required');
+                    
+                    // Clear GST NO field values
+                    document.getElementById('id_declaration_rcm').value = '';
+                    document.getElementById('id_declaration_status').value = '';
+                    
+                    // Show declaration fields initially hidden
+                    declarationFields.style.display = 'none';
+                    
+                } else if (gstStatus === 'NO') {
+                    gstYesFields.style.display = 'none';
+                    gstNoFields.style.display = 'block';
+                    
+                    // Remove required from GST YES fields
+                    document.getElementById('id_state_code').removeAttribute('required');
+                    document.getElementById('id_pan_number').removeAttribute('required');
+                    document.getElementById('id_entity_code').removeAttribute('required');
+                    
+                    // Set required for declaration_rcm
+                    document.getElementById('id_declaration_rcm').setAttribute('required', 'required');
+                    
+                    // Clear GST YES field values
+                    document.getElementById('id_state_code').value = '';
+                    document.getElementById('id_pan_number').value = '';
+                    document.getElementById('id_entity_code').value = '';
+                    
+                    // Clear GST number
+                    if (gstNoInput) {
+                        gstNoInput.value = '';
+                    }
+                }
+                
+                updateGSTNumber();
+            });
+        }
+        
+        // Declaration/RCM change handler
+        if (declarationRcmSelect) {
+            declarationRcmSelect.addEventListener('change', function() {
+                const declarationRcm = this.value;
+                
+                if (declarationRcm === 'Declaration') {
+                    declarationFields.style.display = 'block';
+                    document.getElementById('id_declaration_status').setAttribute('required', 'required');
+                } else if (declarationRcm === 'RCM') {
+                    declarationFields.style.display = 'none';
+                    document.getElementById('id_declaration_status').removeAttribute('required');
+                    document.getElementById('id_declaration_status').value = '';
+                }
+            });
+        }
+        
+        // Auto-update GST Number when GST YES fields change
+        const stateCodeInput = document.getElementById('id_state_code');
+        const panNumberInput = document.getElementById('id_pan_number');
+        const entityCodeInput = document.getElementById('id_entity_code');
+        
+        if (stateCodeInput) {
+            stateCodeInput.addEventListener('input', updateGSTNumber);
+        }
+        if (panNumberInput) {
+            panNumberInput.addEventListener('input', updateGSTNumber);
+        }
+        if (entityCodeInput) {
+            entityCodeInput.addEventListener('input', updateGSTNumber);
+        }
+        
+        // Function to update GST Number
+        function updateGSTNumber() {
+            if (gstStatusSelect && gstStatusSelect.value === 'YES') {
+                const stateCode = stateCodeInput ? stateCodeInput.value : '';
+                const panNumber = panNumberInput ? panNumberInput.value : '';
+                const entityCode = entityCodeInput ? entityCodeInput.value : '';
+                
+                if (stateCode && panNumber && entityCode) {
+                    const gstNumber = stateCode + panNumber + entityCode;
+                    if (gstNoInput) {
+                        gstNoInput.value = gstNumber;
+                    }
+                }
+            } else if (gstStatusSelect && gstStatusSelect.value === 'NO') {
+                if (gstNoInput) {
+                    gstNoInput.value = '';
+                }
+            }
+        }
+        
+        if (stateSelect) {
+            // Load districts when state changes
+            stateSelect.addEventListener('change', function() {
+                const stateId = this.value;
+                if (stateId) {
+                    // Clear district and district code when state changes
+                    if (districtSelect) {
+                        districtSelect.innerHTML = '<option value="">Select District</option>';
+                        districtSelect.disabled = false;
+                    }
+                    if (districtCodeInput) {
+                        districtCodeInput.value = '';
+                    }
+                    
+                    // Load districts for selected state
+                    fetch(`{% url 'get_districts_by_state' %}?state_id=${stateId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (districtSelect && data.districts && data.districts.length > 0) {
+                                data.districts.forEach(district => {
+                                    const option = document.createElement('option');
+                                    option.value = district.id;
+                                    option.textContent = district.name;
+                                    districtSelect.appendChild(option);
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error loading districts:', error);
+                        });
+                } else {
+                    // Clear district options when no state is selected
+                    if (districtSelect) {
+                        districtSelect.innerHTML = '<option value="">Select State First</option>';
+                        districtSelect.disabled = true;
+                    }
+                    if (districtCodeInput) {
+                        districtCodeInput.value = '';
+                    }
+                }
+            });
+            
+            // Auto-fill district code when district is selected
+            if (districtSelect) {
+                districtSelect.addEventListener('change', function() {
+                    const districtId = this.value;
+                    if (districtId) {
+                        fetch(`{% url 'get_district_details' %}?district_id=${districtId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.district_code && districtCodeInput) {
+                                    districtCodeInput.value = data.district_code;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error loading district details:', error);
+                            });
+                    } else {
+                        if (districtCodeInput) districtCodeInput.value = '';
+                    }
+                });
+            }
+        }
+        
+        // Custom Multiselect Dropdown for Plant Fields
+        let selectedPlants = [];
+        let allPlants = [];
+        
+        // Global helper functions for plant multiselect
+        function populateOptions(plants) {
+            console.log('populateOptions called with:', plants);
+            const optionsContainer = document.getElementById('plant-options');
+            const noDataMessage = document.getElementById('no-plant-data');
+            
+            if (!optionsContainer) {
+                console.error('Options container not found');
+                return;
+            }
+            
+            console.log('Options container:', optionsContainer);
+            console.log('Options container innerHTML before:', optionsContainer.innerHTML);
+            
+            if (plants.length === 0) {
+                showNoDataMessage();
+                return;
+            }
+            
+            noDataMessage.style.display = 'none';
+            optionsContainer.innerHTML = '';
+            
+            console.log('Options container innerHTML after clearing:', optionsContainer.innerHTML);
+            
+            plants.forEach((plant, index) => {
+                console.log(`Creating option ${index}:`, plant);
+                const option = document.createElement('div');
+                option.className = 'multiselect-option';
+                option.innerHTML = `
+                    <input type="checkbox" id="plant_${plant.value}" value="${plant.value}" 
+                           ${selectedPlants.includes(plant.value) ? 'checked' : ''}>
+                    <label for="plant_${plant.value}">${plant.label}</label>
+                `;
+                
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        if (!selectedPlants.includes(plant.value)) {
+                            selectedPlants.push(plant.value);
+                        }
+                    } else {
+                        selectedPlants = selectedPlants.filter(p => p !== plant.value);
+                    }
+                    updateSelectedTags();
+                    updateHiddenInput();
+                });
+                
+                optionsContainer.appendChild(option);
+                console.log(`Option ${index} appended, container now has ${optionsContainer.children.length} children`);
+            });
+            
+            console.log('Final options container innerHTML:', optionsContainer.innerHTML);
+            console.log('Final options container children count:', optionsContainer.children.length);
+        }
+        
+        function showNoDataMessage() {
+            const noDataMessage = document.getElementById('no-plant-data');
+            const optionsContainer = document.getElementById('plant-options');
+            if (noDataMessage) noDataMessage.style.display = 'block';
+            if (optionsContainer) optionsContainer.innerHTML = '';
+        }
+        
+        function updateSelectedTags() {
+            const selectedTags = document.getElementById('selected-plant-tags');
+            if (!selectedTags) return;
+            
+            if (selectedPlants.length === 0) {
+                selectedTags.innerHTML = '<span class="placeholder-text">Select Plant Fields</span>';
+                return;
+            }
+            
+            selectedTags.innerHTML = selectedPlants.map(plantValue => {
+                const plant = allPlants.find(p => p.value === plantValue);
+                return `
+                    <span class="selected-tag">
+                        ${plant ? plant.label : plantValue}
+                        <span class="remove-tag" onclick="removePlant('${plantValue}')">×</span>
+                    </span>
+                `;
+            }).join('');
+        }
+        
+        function removePlant(plantValue) {
+            selectedPlants = selectedPlants.filter(p => p !== plantValue);
+            updateSelectedTags();
+            updateHiddenInput();
+            
+            // Update checkbox state
+            const checkbox = document.getElementById(`plant_${plantValue}`);
+            if (checkbox) {
+                checkbox.checked = false;
+            }
+        }
+        
+        function updateHiddenInput() {
+            const hiddenInput = document.getElementById('id_list_of_plant');
+            if (hiddenInput) {
+                hiddenInput.value = selectedPlants.join(',');
+            }
+        }
+        
+        function initializePlantMultiselect() {
+            console.log('initializePlantMultiselect function called');
+            const multiselectInput = document.getElementById('plant-multiselect');
+            const dropdown = document.getElementById('plant-dropdown');
+            const selectedTags = document.getElementById('selected-plant-tags');
+            const optionsContainer = document.getElementById('plant-options');
+            const searchInput = document.getElementById('plant-search');
+            const noDataMessage = document.getElementById('no-plant-data');
+            const hiddenInput = document.getElementById('id_list_of_plant');
+            
+            // Debug: Check if all elements are found
+            console.log('Elements found:', {
+                multiselectInput: !!multiselectInput,
+                dropdown: !!dropdown,
+                selectedTags: !!selectedTags,
+                optionsContainer: !!optionsContainer,
+                searchInput: !!searchInput,
+                noDataMessage: !!noDataMessage,
+                hiddenInput: !!hiddenInput
+            });
+            
+            // Get plant data from Django view context - use JSON.parse for safety
+            let plantChoices = [];
+            try {
+                // Use the pre-serialized JSON data from Django view
+                const plantDataString = '{{ plant_data_json|safe }}';
+                console.log('Raw plant data string:', plantDataString);
+                
+                if (plantDataString && plantDataString !== 'None') {
+                    plantChoices = JSON.parse(plantDataString);
+                    console.log('Successfully parsed plant choices:', plantChoices);
+                } else {
+                    console.log('Plant data string is empty or None');
+                    plantChoices = [];
+                }
+            } catch (e) {
+                console.error('Error parsing plant data:', e);
+                console.log('Falling back to empty array');
+                plantChoices = [];
+            }
+            
+            // Initialize plants data
+            console.log('Plant choices received:', plantChoices);
+            if (plantChoices && plantChoices.length > 0) {
+                allPlants = plantChoices;
+                console.log('All plants set:', allPlants);
+                populateOptions(allPlants);
+                console.log('Options populated');
+            } else {
+                console.log('No plant choices, showing no data message');
+                showNoDataMessage();
+            }
+            
+            // Set initial values if editing
+            if (hiddenInput && hiddenInput.value) {
+                try {
+                    const initialPlants = hiddenInput.value.split(',').map(p => p.trim()).filter(p => p);
+                    selectedPlants = initialPlants;
+                    updateSelectedTags();
+                } catch (e) {
+                    console.error('Error parsing initial plant data:', e);
+                }
+            }
+            
+            // Toggle dropdown
+            if (multiselectInput) {
+                multiselectInput.addEventListener('click', function(e) {
+                    console.log('Multiselect clicked!');
+                    e.stopPropagation();
+                    toggleDropdown();
+                });
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (multiselectInput && dropdown && !multiselectInput.contains(e.target) && !dropdown.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+            
+            // Search functionality
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const filteredPlants = allPlants.filter(plant => 
+                        plant.label.toLowerCase().includes(searchTerm)
+                    );
+                    populateOptions(filteredPlants);
+                });
+            }
+            
+            // Prevent dropdown from closing when clicking inside
+            if (dropdown) {
+                dropdown.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+            
+            function toggleDropdown() {
+                console.log('toggleDropdown called, current display:', dropdown.style.display);
+                if (dropdown.style.display === 'none') {
+                    openDropdown();
+                } else {
+                    closeDropdown();
+                }
+            }
+            
+            function openDropdown() {
+                dropdown.style.display = 'block';
+                multiselectInput.classList.add('active');
+                if (searchInput) searchInput.focus();
+            }
+            
+            function closeDropdown() {
+                dropdown.style.display = 'none';
+                multiselectInput.classList.remove('active');
+                if (searchInput) {
+                    searchInput.value = '';
+                    populateOptions(allPlants);
+                }
+            }
+        }
+        
+
+        
+
+        
+        // Make removePlant function globally accessible
+        window.removePlant = removePlant;
+        
+        // Initialize plant multiselect when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing plant multiselect...');
+            try {
+                initializePlantMultiselect();
+                console.log('Plant multiselect initialized successfully');
+            } catch (error) {
+                console.error('Error initializing plant multiselect:', error);
+            }
+        });
+        
+        // Also try to initialize on window load as backup
+        window.addEventListener('load', function() {
+            console.log('Window loaded, checking if plant multiselect is initialized...');
+            try {
+                initializePlantMultiselect();
+                console.log('Plant multiselect initialized on window load');
+            } catch (error) {
+                console.error('Error initializing plant multiselect on window load:', error);
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Progress bar functionality
+    function updateProgress() {
+        const form = document.getElementById('transporterForm');
+        const fields = form.querySelectorAll('input, textarea, select');
+        const filledFields = Array.from(fields).filter(field => {
+            if (field.type === 'file') return true; // File fields are optional
+            return field.value.trim() !== '';
+        });
+        const progress = (filledFields.length / fields.length) * 100;
+        // Progress bar element removed, so just log the progress
+        console.log('Form completion progress:', progress + '%');
+    }
+
+    // Scroll navigation functionality
+    function updateScrollNav() {
+        const sections = document.querySelectorAll('.form-section');
+        const navItems = document.querySelectorAll('.scroll-nav-item');
+        
+        sections.forEach((section, index) => {
+            const rect = section.getBoundingClientRect();
+            if (rect.top <= 100 && rect.bottom >= 100) {
+                navItems.forEach(item => item.classList.remove('active'));
+                navItems[index].classList.add('active');
+            }
+        });
+    }
+
+    // Smooth scrolling for navigation
+    document.querySelectorAll('.scroll-nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('href');
+            const targetSection = document.querySelector(targetId);
+            targetSection.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // Help functionality
+    function toggleHelp() {
+        alert('Form Help:\n\n1. Fill in all required fields marked with *\n2. Upload documents in PDF, DOC, or image format\n3. Use the scroll navigation on the right to jump between sections\n4. The progress bar shows your completion status\n5. Click "Create/Update Transporter Agreement" to save');
+    }
+
+    // File input functionality
+    function handleFileInput(fileInput) {
+        const fileContainer = fileInput.closest('.file-input');
+        const fileText = fileContainer.querySelector('.file-input-text');
+        
+        if (fileInput.files && fileInput.files[0]) {
+            const file = fileInput.files[0];
+            
+            // Validate file size (10MB limit)
+            const maxSize = 10 * 1024 * 1024; // 10MB
+            if (file.size > maxSize) {
+                alert(`File size (${(file.size / 1024 / 1024).toFixed(2)} MB) exceeds the maximum allowed size of 10 MB.`);
+                fileInput.value = '';
+                fileContainer.classList.remove('has-file');
+                resetFileText(fileInput, fileText);
+                return;
+            }
+            
+            // Validate file type
+            const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid file type (PDF, DOC, DOCX, JPG, JPEG, or PNG).');
+                fileInput.value = '';
+                fileContainer.classList.remove('has-file');
+                resetFileText(fileInput, fileText);
+                return;
+            }
+            
+            fileContainer.classList.add('has-file');
+            fileText.innerHTML = `
+                <i class="fas fa-check-circle"></i><br>
+                Selected: ${file.name}<br>
+                <small>Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+            `;
+        } else {
+            fileContainer.classList.remove('has-file');
+            resetFileText(fileInput, fileText);
+        }
+    }
+    
+    function resetFileText(fileInput, fileText) {
+        const fieldName = fileInput.name;
+        let originalText = 'Click to upload file';
+        if (fieldName.includes('transporter_agreement')) {
+            originalText = '<i class="fas fa-cloud-upload-alt"></i><br>Click to upload Transporter Agreement (approx. 8 MB)';
+        } else if (fieldName.includes('closure_letter')) {
+            originalText = '<i class="fas fa-cloud-upload-alt"></i><br>Click to upload Closure Letter (approx. 1 MB)';
+        } else if (fieldName.includes('closure_acceptance_letter')) {
+            originalText = '<i class="fas fa-cloud-upload-alt"></i><br>Click to upload Closure Acceptance Letter (approx. 1 MB)';
+        } else if (fieldName.includes('ff_letter_calc')) {
+            originalText = '<i class="fas fa-cloud-upload-alt"></i><br>Click to upload F&F Letter & Calc. (approx. 10 MB)';
+        } else if (fieldName.includes('security_deposit')) {
+            originalText = '<i class="fas fa-cloud-upload-alt"></i><br>Click to upload Security Deposit (approx. 1 MB)';
+        }
+        fileText.innerHTML = originalText;
+    }
+
+    // Form validation and submission
+    function validateForm() {
+        const form = document.getElementById('transporterForm');
+        const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+        let isValid = true;
+        let firstErrorField = null;
+        let errorMessages = [];
+        
+        // Clear previous error highlighting
+        document.querySelectorAll('.form-group').forEach(group => {
+            group.classList.remove('has-error');
+        });
+        
+        // Check required fields
+        requiredFields.forEach(field => {
+            const formGroup = field.closest('.form-group');
+            if (!field.value.trim()) {
+                formGroup.classList.add('has-error');
+                isValid = false;
+                if (!firstErrorField) {
+                    firstErrorField = field;
+                }
+            }
+        });
+        
+        // PAN Number validation (10 characters, alphanumeric)
+        const panField = form.querySelector('input[name="pan_no"]');
+        if (panField && panField.value.trim()) {
+            const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+            if (!panRegex.test(panField.value.trim().toUpperCase())) {
+                panField.closest('.form-group').classList.add('has-error');
+                isValid = false;
+                errorMessages.push('PAN Number must be in format: ABCDE1234F (5 letters + 4 digits + 1 letter)');
+                if (!firstErrorField) {
+                    firstErrorField = panField;
+                }
+            }
+        }
+        
+        // Contact Number validation (10 digits, mobile format)
+        const contactField = form.querySelector('input[name="owner_contact_no"]');
+        if (contactField && contactField.value.trim()) {
+            const contactRegex = /^[6-9]\d{9}$/;
+            if (!contactRegex.test(contactField.value.trim())) {
+                contactField.closest('.form-group').classList.add('has-error');
+                isValid = false;
+                errorMessages.push('Contact Number must be 10 digits starting with 6, 7, 8, or 9');
+                if (!firstErrorField) {
+                    firstErrorField = contactField;
+                }
+            }
+        }
+        
+        // IFSC Code validation (11 characters, alphanumeric)
+        const ifscField = form.querySelector('input[name="bank_ifsc_code"]');
+        if (ifscField && ifscField.value.trim()) {
+            const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+            if (!ifscRegex.test(ifscField.value.trim().toUpperCase())) {
+                ifscField.closest('.form-group').classList.add('has-error');
+                isValid = false;
+                errorMessages.push('IFSC Code must be 11 characters: 4 letters + 0 + 6 alphanumeric');
+                if (!firstErrorField) {
+                    firstErrorField = ifscField;
+                }
+            }
+        }
+        
+        // Bank Account Number validation (9-18 digits)
+        const accountField = form.querySelector('input[name="bank_account_no"]');
+        if (accountField && accountField.value.trim()) {
+            const accountRegex = /^\d{9,18}$/;
+            if (!accountRegex.test(accountField.value.trim())) {
+                accountField.closest('.form-group').classList.add('has-error');
+                isValid = false;
+                errorMessages.push('Bank Account Number must be 9-18 digits only');
+                if (!firstErrorField) {
+                    firstErrorField = accountField;
+                }
+            }
+        }
+        
+        // Email validation
+        const emailField = form.querySelector('input[name="transporter_mail_id"]');
+        if (emailField && emailField.value.trim()) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailField.value.trim())) {
+                emailField.closest('.form-group').classList.add('has-error');
+                isValid = false;
+                errorMessages.push('Please enter a valid email address');
+                if (!firstErrorField) {
+                    firstErrorField = emailField;
+                }
+            }
+        }
+        
+        // GST Number validation (15 characters, alphanumeric)
+        const gstField = form.querySelector('input[name="gst_no"]');
+        if (gstField && gstField.value.trim()) {
+            const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+            if (!gstRegex.test(gstField.value.trim().toUpperCase())) {
+                gstField.closest('.form-group').classList.add('has-error');
+                isValid = false;
+                errorMessages.push('GST Number must be 15 characters in valid format');
+                if (!firstErrorField) {
+                    firstErrorField = field;
+                }
+            }
+        }
+        
+        // Date validation
+        const fromDate = form.querySelector('input[name="agreement_from_date"]');
+        const toDate = form.querySelector('input[name="agreement_to_date"]');
+        if (fromDate && toDate && fromDate.value && toDate.value) {
+            if (new Date(fromDate.value) > new Date(toDate.value)) {
+                fromDate.closest('.form-group').classList.add('has-error');
+                toDate.closest('.form-group').classList.add('has-error');
+                isValid = false;
+                errorMessages.push('Agreement From Date cannot be later than Agreement To Date');
+                if (!firstErrorField) {
+                    firstErrorField = fromDate;
+                }
+            }
+        }
+        
+        if (!isValid && firstErrorField) {
+            firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const errorMessage = errorMessages.length > 0 ? errorMessages.join('\n') : 'Please fill in all required fields correctly.';
+            showNotification(errorMessage, 'error');
+        }
+        
+        return isValid;
+    }
+    
+    // Notification system
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type} show`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            ${message}
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 5000);
+    }
+    
+    // Auto-hide existing notifications
+    function hideNotifications() {
+        document.querySelectorAll('.notification').forEach(notification => {
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        });
+    }
+    
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // updateProgress(); // Removed since no progress bar exists
+        hideNotifications();
+        
+        // Form submission
+        const form = document.getElementById('transporterForm');
+        form.addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            submitBtn.disabled = true;
+            
+            // Re-enable after 5 seconds if no response
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
+        });
+        
+        // Progress tracking removed since no progress bar exists
+        // document.querySelectorAll('input, textarea, select').forEach(field => {
+        //     field.addEventListener('input', updateProgress);
+        //     field.addEventListener('change', updateProgress);
+        // });
+        
+        // Real-time field validation
+        setupFieldValidation();
+        
+        // Handle file input changes
+        document.querySelectorAll('input[type="file"]').forEach(fileInput => {
+            fileInput.addEventListener('change', function() {
+                handleFileInput(this);
+                // updateProgress(); // Removed since no progress bar exists
+            });
+            
+            // Add drag and drop functionality
+            const fileContainer = fileInput.closest('.file-input');
+            
+            fileContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            
+            fileContainer.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            
+            fileContainer.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileInput(fileInput);
+                    // updateProgress(); // Removed since no progress bar exists
+                }
+            });
+            
+            // Make the entire container clickable
+            fileContainer.addEventListener('click', function(e) {
+                if (e.target !== fileInput) {
+                    fileInput.click();
+                }
+            });
+        });
+        
+        // Update scroll navigation on scroll
+        window.addEventListener('scroll', updateScrollNav);
+        
+        // Dynamic dropdown functionality for Transporter Agreement
+        const stateSelect = document.getElementById('{{ form.state.id_for_label }}');
+        const branchSelect = document.getElementById('{{ form.branch.id_for_label }}');
+        const districtCodeInput = document.getElementById('{{ form.district_code.id_for_label }}');
+        const districtSelect = document.getElementById('{{ form.district.id_for_label }}');
+        
+        // Use the district select field
+        const actualDistrictInput = districtSelect;
+        
+        console.log('Transporter Agreement Elements found:', {
+            stateSelect: stateSelect,
+            branchSelect: branchSelect,
+            districtCodeInput: districtCodeInput
+        });
+        
+        if (stateSelect && branchSelect) {
+            // If there's an initial state value, load branches for it
+            if (stateSelect.value) {
+                console.log('Transporter - Loading initial branches for state:', stateSelect.value);
+                fetch(`{% url 'load_branches_for_transporter' %}?state_id=${stateSelect.value}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Transporter - Initial branches received:', data);
+                        if (data.branches) {
+                            data.branches.forEach(branch => {
+                                const option = document.createElement('option');
+                                option.value = branch.id;
+                                option.textContent = branch.state_branch_name;
+                                branchSelect.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Transporter - Error loading initial branches:', error);
+                    });
+            }
+            
+            stateSelect.addEventListener('change', function() {
+                const stateId = this.value;
+                console.log('Transporter - State selected:', stateId);
+                
+                // Clear branch and district fields
+                branchSelect.innerHTML = '<option value="">Select Branch</option>';
+                if (districtCodeInput) {
+                    districtCodeInput.value = '';
+                    districtCodeInput.classList.remove('auto-filled', 'success');
+                }
+
+                
+                if (stateId) {
+                    // Show loading state
+                    branchSelect.innerHTML = '<option value="">Loading branches...</option>';
+                    branchSelect.disabled = true;
+                    
+                    // Fetch branches for selected state
+                    fetch(`{% url 'load_branches_for_transporter' %}?state_id=${stateId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Transporter - Branches received:', data);
+                            
+                            // Reset branch dropdown
+                            branchSelect.innerHTML = '<option value="">Select Branch</option>';
+                            branchSelect.disabled = false;
+                            
+                            if (data.branches && data.branches.length > 0) {
+                                data.branches.forEach(branch => {
+                                    const option = document.createElement('option');
+                                    option.value = branch.id;
+                                    option.textContent = branch.state_branch_name;
+                                    branchSelect.appendChild(option);
+                                });
+                            } else {
+                                branchSelect.innerHTML = '<option value="">No branches found</option>';
+                                showErrorMessage('No branches found for selected state');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Transporter - Error loading branches:', error);
+                            branchSelect.innerHTML = '<option value="">Error loading branches</option>';
+                            branchSelect.disabled = true;
+                            showErrorMessage('Error loading branches');
+                        });
+                } else {
+                    branchSelect.innerHTML = '<option value="">Select State First</option>';
+                    branchSelect.disabled = true;
+                }
+            });
+            
+            // Auto-fill district code when branch is selected
+            branchSelect.addEventListener('change', function() {
+                const branchId = this.value;
+                console.log('Transporter - Branch selected:', branchId);
+                
+                if (branchId) {
+                    fetch(`{% url 'get_branch_details' %}?branch_id=${branchId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Transporter - Branch details received:', data);
+                            if (data.district_code) {
+                                if (districtCodeInput) {
+                                    districtCodeInput.value = data.district_code;
+                                    districtCodeInput.classList.add('auto-filled', 'success');
+                                }
+
+                                
+                                showSuccessMessage('District code auto-filled from selected branch');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Transporter - Error loading branch details:', error);
+                        });
+                } else {
+                    if (districtCodeInput) {
+                        districtCodeInput.value = '';
+                        districtCodeInput.classList.remove('auto-filled', 'success');
+                    }
+
+                }
+            });
+        }
+        
+        // Helper function to show success message
+        function showSuccessMessage(message) {
+            const helpText = districtCodeInput ? districtCodeInput.parentNode.querySelector('.field-help') : null;
+            if (helpText) {
+                helpText.innerHTML = `<i class="fas fa-check-circle text-success"></i> ${message}`;
+                helpText.className = 'field-help text-success';
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    helpText.innerHTML = 'District code will be auto-filled when you select a branch';
+                    helpText.className = 'field-help text-muted';
+                }, 3000);
+            }
+        }
+
+        // Helper function to show error message
+        function showErrorMessage(message) {
+            const helpText = districtCodeInput ? districtCodeInput.parentNode.querySelector('.field-help') : null;
+            if (helpText) {
+                helpText.innerHTML = `<i class="fas fa-exclamation-triangle text-danger"></i> ${message}`;
+                helpText.className = 'field-help text-danger';
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    helpText.innerHTML = 'District code will be auto-filled when you select a branch';
+                    helpText.className = 'field-help text-muted';
+                }, 3000);
+            }
+        }
+        
+        // Setup real-time field validation
+        function setupFieldValidation() {
+            // PAN Number validation
+            const panField = document.querySelector('input[name="pan_no"]');
+            if (panField) {
+                panField.addEventListener('input', function() {
+                    const value = this.value.trim().toUpperCase();
+                    this.value = value;
+                    
+                    if (value && value.length > 0) {
+                        const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+                        if (!panRegex.test(value)) {
+                            this.classList.add('error');
+                            showFieldError(this, 'PAN format: ABCDE1234F');
+                        } else {
+                            this.classList.remove('error');
+                            hideFieldError(this);
+                        }
+                    } else {
+                        this.classList.remove('error');
+                        hideFieldError(this);
+                    }
+                });
+            }
+            
+            // Contact Number validation
+            const contactField = document.querySelector('input[name="owner_contact_no"]');
+            if (contactField) {
+                contactField.addEventListener('input', function() {
+                    const value = this.value.trim();
+                    
+                    if (value && value.length > 0) {
+                        const contactRegex = /^[6-9]\d{9}$/;
+                        if (!contactRegex.test(value)) {
+                            this.classList.add('error');
+                            showFieldError(this, 'Must be 10 digits starting with 6,7,8,9');
+                        } else {
+                            this.classList.remove('error');
+                            hideFieldError(this);
+                        }
+                    } else {
+                        this.classList.remove('error');
+                        hideFieldError(this);
+                    }
+                });
+            }
+            
+            // IFSC Code validation
+            const ifscField = document.querySelector('input[name="bank_ifsc_code"]');
+            if (ifscField) {
+                ifscField.addEventListener('input', function() {
+                    const value = this.value.trim().toUpperCase();
+                    this.value = value;
+                    
+                    if (value && value.length > 0) {
+                        const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+                        if (!ifscRegex.test(value)) {
+                            this.classList.add('error');
+                            showFieldError(this, 'IFSC format: ABCD0123456');
+                        } else {
+                            this.classList.remove('error');
+                            hideFieldError(this);
+                        }
+                    } else {
+                        this.classList.remove('error');
+                        hideFieldError(this);
+                    }
+                });
+            }
+            
+            // Bank Account Number validation
+            const accountField = document.querySelector('input[name="bank_account_no"]');
+            if (accountField) {
+                accountField.addEventListener('input', function() {
+                    const value = this.value.trim();
+                    
+                    if (value && value.length > 0) {
+                        const accountRegex = /^\d{9,18}$/;
+                        if (!accountRegex.test(value)) {
+                            this.classList.add('error');
+                            showFieldError(this, 'Must be 9-18 digits only');
+                        } else {
+                            this.classList.remove('error');
+                            hideFieldError(this);
+                        }
+                    } else {
+                        this.classList.remove('error');
+                        hideFieldError(this);
+                    }
+                });
+            }
+            
+            // Email validation
+            const emailField = document.querySelector('input[name="transporter_mail_id"]');
+            if (emailField) {
+                emailField.addEventListener('input', function() {
+                    const value = this.value.trim();
+                    
+                    if (value && value.length > 0) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(value)) {
+                            this.classList.add('error');
+                            showFieldError(this, 'Please enter a valid email address');
+                        } else {
+                            this.classList.remove('error');
+                            hideFieldError(this);
+                        }
+                    } else {
+                        this.classList.remove('error');
+                        hideFieldError(this);
+                    }
+                });
+            }
+            
+            // GST Number validation
+            const gstField = document.querySelector('input[name="gst_no"]');
+            if (gstField) {
+                gstField.addEventListener('input', function() {
+                    const value = this.value.trim().toUpperCase();
+                    this.value = value;
+                    
+                    if (value && value.length > 0) {
+                        const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+                        if (!gstRegex.test(value)) {
+                            this.classList.add('error');
+                            showFieldError(this, 'GST format: 22AAAAA0000A1Z5');
+                        } else {
+                            this.classList.remove('error');
+                            hideFieldError(this);
+                        }
+                    } else {
+                        this.classList.remove('error');
+                        hideFieldError(this);
+                    }
+                });
+            }
+        }
+        // Helper functions for field validation
+        function showFieldError(field, message) {
+            let errorDiv = field.parentNode.querySelector('.field-error');
+            if (!errorDiv) {
+                errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error';
+                errorDiv.style.cssText = 'color: #dc3545; font-size: 0.7rem; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.2rem;';
+                field.parentNode.appendChild(errorDiv);
+            }
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+            errorDiv.style.display = 'flex';
+        }
+        
+        function hideFieldError(field) {
+            const errorDiv = field.parentNode.querySelector('.field-error');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+        }
+    });
+</script>
+{% endblock %} 

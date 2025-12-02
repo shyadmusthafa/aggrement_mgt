@@ -1,0 +1,82 @@
+New SPO Rent Record Created
+Secure Data Management System
+
+A new SPO Rent record has been successfully created in the system.
+
+SPO RENT DETAILS:
+=================
+
+SPO Code: {{ record.spo_code|default:"N/A" }}
+SPO Name: {{ record.spo_name|default:"N/A" }}
+State: {{ record.state.state_name|default:"N/A" }}
+Branch: {{ record.branch.state_branch_name|default:"N/A" }}
+District Code: {{ record.district_code|default:"N/A" }}
+Structure Group: {{ record.stru_grp|default:"N/A" }}
+SPO Status: {{ record.cfa_status|default:"N/A" }}
+Inception Date: {{ record.inception_date|date:"d-m-Y"|default:"N/A" }}
+Renewal With: {{ record.renewal_with|default:"N/A" }}
+
+Godown Address: {{ record.godown_address|default:"N/A" }}
+
+OWNER DETAILS:
+==============
+Owner Name: {{ record.owner_name|default:"N/A" }}
+Owner Code: {{ record.owner_code|default:"N/A" }}
+Owner Email: {{ record.cfa_mail_id|default:"N/A" }}
+Owner Phone: {{ record.owner_contact_no|default:"N/A" }}
+Owner Address: {{ record.owner_address|default:"N/A" }}
+Owner GST: {{ record.owner_gst|default:"N/A" }}
+Owner PAN: {{ record.owner_pan|default:"N/A" }}
+Pin Code: {{ record.pin_code|default:"N/A" }}
+
+ADDITIONAL DETAILS:
+===================
+Nature of Construction: {{ record.nature_of_construction.name|default:"N/A" }}
+Sale Organization: {{ record.sale_organization|default:"N/A" }}
+Stamp No: {{ record.stamp_no|default:"N/A" }}
+Stamp Name: {{ record.stamp_name|default:"N/A" }}
+Partner Type: {{ record.partner_type.name|default:"N/A" }}
+
+BANK DETAILS:
+=============
+Bank Account Name: {{ record.bank_account_name|default:"N/A" }}
+Bank Account No: {{ record.bank_account_no|default:"N/A" }}
+Bank Name: {{ record.bank_name|default:"N/A" }}
+Bank Branch: {{ record.bank_branch_name|default:"N/A" }}
+Bank IFSC: {{ record.bank_ifsc_code|default:"N/A" }}
+
+PROPERTY DETAILS:
+=================
+Destination Code: {{ record.destination_code|default:"N/A" }}
+Office Sq.Ft: {{ record.office_sqft|default:"N/A" }}
+Open Space Sq.Ft: {{ record.open_space_sqft|default:"N/A" }}
+Total Space: {{ record.total_space|default:"N/A" }}
+Capacity: {{ record.capacity|default:"N/A" }}
+
+RENTAL DETAILS:
+===============
+Rent From Date: {{ record.rental_from_date|date:"d-m-Y"|default:"N/A" }}
+Rent To Date: {{ record.rental_to_date|date:"d-m-Y"|default:"N/A" }}
+Days Count: {{ record.days_count|default:"N/A" }}
+Security Deposit: ₹{{ record.security_deposit_paid|floatformat:2|default:"N/A" }}
+Monthly Rent: ₹{{ record.rent_pm|floatformat:2|default:"N/A" }}
+Yearly Hike %: {{ record.yearly_hike_percent|floatformat:2|default:"N/A" }}%
+
+LOCATION DETAILS:
+=================
+Latitude: {{ record.latitude|floatformat:6|default:"N/A" }}
+Longitude: {{ record.longitude|floatformat:6|default:"N/A" }}
+
+OTHER DETAILS:
+==============
+Vacation Letter: {% if record.vacation_letter %}Yes{% else %}No{% endif %}
+Remarks: {{ record.remarks|default:"N/A" }}
+Status: {{ record.status|default:"N/A" }}
+
+Record Created: {{ record.created_at|date:"d-m-Y H:i:s" }}
+Created By: {{ created_by|default:"System" }}
+
+Note: This is an automated notification from the Secure Data Management System. Please review the SPO Rent record details above.
+
+© 2025 Secure Data Management System | Chettinad Cement Corporation Limited
+This email was sent automatically. Please do not reply to this email. 

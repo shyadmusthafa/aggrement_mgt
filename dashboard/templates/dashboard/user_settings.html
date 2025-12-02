@@ -1,0 +1,809 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}User Settings{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .settings-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .settings-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .settings-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+    
+    .settings-icon {
+        width: 70px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 auto 0.75rem;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .settings-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .settings-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .settings-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .section-icon {
+        width: 35px;
+        height: 35px;
+        background: #667eea;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .required {
+        color: #dc3545;
+    }
+    
+    .form-control {
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        background-color: white;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+        transform: translateY(-1px);
+    }
+    
+    .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.1);
+    }
+    
+    .form-control.is-valid {
+        border-color: #28a745;
+        box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+    }
+    
+    .invalid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #dc3545;
+    }
+    
+    .valid-feedback {
+        display: block;
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        color: #28a745;
+    }
+    
+    .help-text {
+        font-size: 0.7rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+    
+    .password-strength {
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    
+    .strength-weak {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .strength-medium {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+    
+    .strength-strong {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .strength-meter {
+        display: flex;
+        gap: 0.25rem;
+        margin-top: 0.5rem;
+    }
+    
+    .strength-bar {
+        flex: 1;
+        height: 3px;
+        background-color: #e9ecef;
+        border-radius: 2px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .strength-bar.weak {
+        background-color: #dc3545;
+    }
+    
+    .strength-bar.medium {
+        background-color: #ffc107;
+    }
+    
+    .strength-bar.strong {
+        background-color: #28a745;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .btn {
+        padding: 0.5rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 0.875rem;
+        min-width: 100px;
+        justify-content: center;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-success:hover {
+        background: #218838;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #c82333;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .page-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.25rem;
+    }
+    
+    .page-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+    
+    .security-info {
+        background: #f8f9fa;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .security-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+    
+    .security-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .security-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+    
+    .security-value {
+        font-size: 0.875rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .alert {
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        font-size: 0.875rem;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-color: #c3e6cb;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-color: #f5c6cb;
+    }
+    
+    .alert-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border-color: #bee5eb;
+    }
+    
+    @media (max-width: 768px) {
+        .settings-container {
+            margin: 0 0.75rem;
+        }
+        
+        .settings-section {
+            padding: 1rem;
+        }
+        
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+        }
+        
+        .page-header {
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: stretch;
+        }
+        
+        .page-actions {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="settings-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <div class="page-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                User Settings
+            </h1>
+            <div class="page-actions">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <a href="{% url 'user_profile' %}" class="btn btn-primary">
+                    <i class="fas fa-user"></i> Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Settings Header -->
+        <div class="settings-header">
+            <div class="settings-icon">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <div class="settings-title">
+                Account Security Settings
+            </div>
+            <div class="settings-subtitle">
+                Manage your password and account security preferences
+            </div>
+        </div>
+
+        <!-- Security Information -->
+        <div class="security-info">
+            <h4 class="mb-2">Security Status</h4>
+            <div class="security-grid">
+                <div class="security-item">
+                    <span class="security-label">Last Password Change</span>
+                    <span class="security-value">
+                        {% if user.last_login %}
+                            {{ user.last_login|date:"F d, Y H:i" }}
+                        {% else %}
+                            <em class="text-muted">Never</em>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="security-item">
+                    <span class="security-label">Account Status</span>
+                    <span class="security-value">
+                        {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="security-item">
+                    <span class="security-label">Staff Access</span>
+                    <span class="security-value">
+                        {% if user.is_staff %}
+                            <span class="badge bg-primary">Yes</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="security-item">
+                    <span class="security-label">Admin Access</span>
+                    <span class="security-value">
+                        {% if user.is_superuser %}
+                            <span class="badge bg-danger">Yes</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %} me-2"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Password Change Section -->
+        <div class="settings-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-key"></i>
+                </div>
+                <h2 class="section-title">Change Password</h2>
+            </div>
+            
+            <form method="POST" id="passwordForm">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="current_password" class="form-label">
+                            <i class="fas fa-lock"></i>
+                            Current Password <span class="required">*</span>
+                        </label>
+                        <input type="password" class="form-control" id="current_password" 
+                               name="current_password" required>
+                        <div class="help-text">Enter your current password to verify your identity</div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="new_password" class="form-label">
+                            <i class="fas fa-key"></i>
+                            New Password <span class="required">*</span>
+                        </label>
+                        <input type="password" class="form-control" id="new_password" 
+                               name="new_password" required>
+                        <div class="help-text">Password must be at least 8 characters long</div>
+                        <div id="passwordStrength" class="password-strength" style="display: none;"></div>
+                        <div id="strengthMeter" class="strength-meter" style="display: none;">
+                            <div class="strength-bar"></div>
+                            <div class="strength-bar"></div>
+                            <div class="strength-bar"></div>
+                            <div class="strength-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm_password" class="form-label">
+                            <i class="fas fa-check-circle"></i>
+                            Confirm New Password <span class="required">*</span>
+                        </label>
+                        <input type="password" class="form-control" id="confirm_password" 
+                               name="confirm_password" required>
+                        <div class="help-text">Re-enter your new password to confirm</div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Account Actions Section -->
+        <div class="settings-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="section-title">Account Actions</h2>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Important:</strong> These actions cannot be undone. Please proceed with caution.
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-danger" onclick="showDeleteAccountModal()">
+                    <i class="fas fa-trash"></i> Delete Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteAccountModalLabel">
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+                    Delete Account
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Warning:</strong> This action will permanently delete your account and all associated data.
+                </div>
+                <p>Are you absolutely sure you want to delete your account? This action cannot be undone.</p>
+                <p><strong>This will:</strong></p>
+                <ul>
+                    <li>Permanently delete your user account</li>
+                    <li>Remove all your data and settings</li>
+                    <li>Cancel any active subscriptions or services</li>
+                    <li>Require you to create a new account if you want to use the service again</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-danger" onclick="deleteAccount()">
+                    <i class="fas fa-trash"></i> Yes, Delete My Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Password strength checker
+    const newPasswordInput = document.getElementById('new_password');
+    const passwordStrength = document.getElementById('passwordStrength');
+    const strengthMeter = document.getElementById('strengthMeter');
+    
+    newPasswordInput.addEventListener('input', function() {
+        const password = this.value;
+        const strength = checkPasswordStrength(password);
+        updatePasswordStrengthDisplay(strength);
+    });
+    
+    // Form validation
+    const passwordForm = document.getElementById('passwordForm');
+    const inputs = passwordForm.querySelectorAll('input[required]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', function() {
+            validateField(this);
+        });
+        
+        input.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                validateField(this);
+            }
+        });
+    });
+    
+    function validateField(field) {
+        const value = field.value.trim();
+        
+        if (!value) {
+            field.classList.add('is-invalid');
+            field.classList.remove('is-valid');
+        } else {
+            field.classList.remove('is-invalid');
+            field.classList.add('is-valid');
+        }
+    }
+    
+    // Password confirmation validation
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    confirmPasswordInput.addEventListener('input', function() {
+        const newPassword = newPasswordInput.value;
+        const confirmPassword = this.value;
+        
+        if (confirmPassword && newPassword !== confirmPassword) {
+            this.classList.add('is-invalid');
+            this.classList.remove('is-valid');
+        } else if (confirmPassword) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+        }
+    });
+    
+    // Form submission
+    passwordForm.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        inputs.forEach(input => {
+            validateField(input);
+            if (input.classList.contains('is-invalid')) {
+                isValid = false;
+            }
+        });
+        
+        // Check password confirmation
+        const newPassword = newPasswordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        
+        if (newPassword !== confirmPassword) {
+            confirmPasswordInput.classList.add('is-invalid');
+            isValid = false;
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = passwordForm.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+});
+
+function checkPasswordStrength(password) {
+    let score = 0;
+    
+    if (password.length >= 8) score++;
+    if (password.length >= 12) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    
+    if (score <= 2) return 'weak';
+    if (score <= 4) return 'medium';
+    return 'strong';
+}
+
+function updatePasswordStrengthDisplay(strength) {
+    const passwordStrength = document.getElementById('passwordStrength');
+    const strengthMeter = document.getElementById('strengthMeter');
+    const bars = strengthMeter.querySelectorAll('.strength-bar');
+    
+    passwordStrength.style.display = 'block';
+    strengthMeter.style.display = 'flex';
+    
+    // Remove all strength classes
+    passwordStrength.className = 'password-strength';
+    bars.forEach(bar => bar.className = 'strength-bar');
+    
+    if (strength === 'weak') {
+        passwordStrength.textContent = 'Password strength: Weak';
+        passwordStrength.classList.add('strength-weak');
+        bars[0].classList.add('weak');
+    } else if (strength === 'medium') {
+        passwordStrength.textContent = 'Password strength: Medium';
+        passwordStrength.classList.add('strength-medium');
+        bars[0].classList.add('medium');
+        bars[1].classList.add('medium');
+    } else {
+        passwordStrength.textContent = 'Password strength: Strong';
+        passwordStrength.classList.add('strength-strong');
+        bars[0].classList.add('strong');
+        bars[1].classList.add('strong');
+        bars[2].classList.add('strong');
+        bars[3].classList.add('strong');
+    }
+}
+
+function resetPasswordForm() {
+    if (confirm('Are you sure you want to reset the password form? All entered data will be lost.')) {
+        document.getElementById('passwordForm').reset();
+        
+        // Remove validation classes
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.classList.remove('is-invalid', 'is-valid');
+        });
+        
+        // Hide password strength
+        document.getElementById('passwordStrength').style.display = 'none';
+        document.getElementById('strengthMeter').style.display = 'none';
+    }
+}
+
+function showDeleteAccountModal() {
+    const modal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
+    modal.show();
+}
+
+function deleteAccount() {
+    if (confirm('This is your final warning. Are you absolutely sure you want to delete your account? This action cannot be undone.')) {
+        // Here you would typically make an AJAX call to delete the account
+        alert('Account deletion functionality would be implemented here. For now, please contact an administrator to delete your account.');
+        
+        // Close the modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal'));
+        modal.hide();
+    }
+}
+</script>
+{% endblock %}

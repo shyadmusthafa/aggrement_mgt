@@ -1,0 +1,473 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}Menu Items Management{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    .menu-item-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+    
+    .menu-item-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .menu-item-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .menu-item-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+    
+    .menu-item-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+    
+    .menu-item-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .menu-item-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+    
+    .btn-success:hover {
+        background: #218838;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-warning {
+        background: #ffc107;
+        color: #212529;
+    }
+    
+    .btn-warning:hover {
+        background: #e0a800;
+        color: #212529;
+        text-decoration: none;
+    }
+    
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #c82333;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .menu-item-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .detail-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+    
+    .detail-value {
+        font-size: 1rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+    
+    .menu-item-status {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .badge-success {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .badge-warning {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .badge-danger {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .badge-info {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .search-filters {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e2e8f0;
+    }
+    
+    .filter-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        align-items: end;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.875rem;
+    }
+    
+    .form-control, .form-select {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .page-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .page-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+    
+    .page-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .empty-state h3 {
+        margin-bottom: 1rem;
+        color: #2c3e50;
+    }
+    
+    .empty-state p {
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+        
+        .page-actions {
+            justify-content: center;
+        }
+        
+        .menu-item-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+        }
+        
+        .menu-item-actions {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <div class="page-icon">
+                <i class="fas fa-list"></i>
+            </div>
+            Menu Items Management
+        </h1>
+        <div class="page-actions">
+            <a href="{% url 'menu_access_dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <a href="{% url 'menu_item_create' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Create New Menu Item
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="search-filters">
+        <form method="GET" action="{% url 'menu_item_list' %}">
+            <div class="filter-row">
+                <div class="form-group">
+                    <label for="search" class="form-label">Search Menu Items</label>
+                    <input type="text" class="form-control" id="search" name="search" 
+                           value="{{ request.GET.search }}" placeholder="Search by name or URL...">
+                </div>
+                
+                <div class="form-group">
+                    <label for="parent" class="form-label">Parent Menu</label>
+                    <select class="form-select" id="parent" name="parent">
+                        <option value="">All Parent Menus</option>
+                        {% for item in menu_items %}
+                            {% if not item.parent %}
+                                <option value="{{ item.id }}" {% if request.GET.parent == item.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ item.display_name }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="requires_staff" class="form-label">Staff Required</label>
+                    <select class="form-select" id="requires_staff" name="requires_staff">
+                        <option value="">All</option>
+                        <option value="true" {% if request.GET.requires_staff == 'true' %}selected{% endif %}>Yes</option>
+                        <option value="false" {% if request.GET.requires_staff == 'false' %}selected{% endif %}>No</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <a href="{% url 'menu_item_list' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Clear
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Menu Items List -->
+    {% if menu_items %}
+        {% for menu_item in menu_items %}
+        <div class="menu-item-card">
+            <div class="menu-item-header">
+                <div class="menu-item-title">
+                    <div class="menu-item-icon">
+                        <i class="{{ menu_item.icon }}"></i>
+                    </div>
+                    <h3 class="menu-item-name">{{ menu_item.display_name }}</h3>
+                </div>
+                <div class="menu-item-actions">
+                    <a href="{% url 'menu_item_edit' menu_item.id %}" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'menu_item_delete' menu_item.id %}" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+            </div>
+            
+            <div class="menu-item-details">
+                <div class="detail-item">
+                    <span class="detail-label">Name</span>
+                    <span class="detail-value">{{ menu_item.name }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">URL Name</span>
+                    <span class="detail-value">{{ menu_item.url_name }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Icon</span>
+                    <span class="detail-value">
+                        <i class="{{ menu_item.icon }}"></i> {{ menu_item.icon }}
+                    </span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Order</span>
+                    <span class="detail-value">{{ menu_item.order }}</span>
+                </div>
+                
+                {% if menu_item.parent %}
+                <div class="detail-item">
+                    <span class="detail-label">Parent Menu</span>
+                    <span class="detail-value">{{ menu_item.parent.display_name }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="detail-item">
+                    <span class="detail-label">Created</span>
+                    <span class="detail-value">{{ menu_item.created_at|date:"M d, Y" }}</span>
+                </div>
+            </div>
+            
+            <div class="menu-item-status">
+                <span class="status-badge {% if menu_item.is_active %}badge-success{% else %}badge-danger{% endif %}">
+                    {% if menu_item.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+                
+                {% if menu_item.requires_staff %}
+                <span class="status-badge badge-warning">Staff Required</span>
+                {% endif %}
+                
+                {% if menu_item.requires_superuser %}
+                <span class="status-badge badge-danger">Superuser Required</span>
+                {% endif %}
+                
+                {% if menu_item.children.exists %}
+                <span class="status-badge badge-info">{{ menu_item.children.count }} Sub-menus</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-list"></i>
+            <h3>No Menu Items Found</h3>
+            <p>There are no menu items configured in the system yet.</p>
+            <a href="{% url 'menu_item_create' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Create Your First Menu Item
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Delete SPO Rent{% endblock %}
+{% block extra_head %}
+<style>
+    body {
+        background: linear-gradient(135deg, #6dd5fa, #2980b9, #ffffff) !important;
+    }
+    .delete-card {
+        background: #fff;
+        max-width: 500px;
+        margin: 3rem auto;
+        padding: 2.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        text-align: center;
+    }
+    .delete-icon {
+        font-size: 4rem;
+        color: #e74c3c;
+        margin-bottom: 1.5rem;
+    }
+    h2 {
+        color: #e74c3c;
+        margin-bottom: 1rem;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+    .warning-text {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    .record-info {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #e74c3c;
+    }
+    .record-info h3 {
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+    .record-info p {
+        color: #666;
+        margin: 0.3rem 0;
+        font-size: 1rem;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+    .delete-confirm-btn {
+        background: #e74c3c;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .delete-confirm-btn:hover {
+        background: #c0392b;
+    }
+    .cancel-btn {
+        background: transparent;
+        color: #2980b9;
+        border: 2px solid #2980b9;
+        border-radius: 8px;
+        padding: 0.8rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .cancel-btn:hover {
+        background: #2980b9;
+        color: #fff;
+    }
+    .back-link {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<a href="/dashboard/spo-rent/" class="back-link">&larr; Back to SPO Rent List</a>
+<div class="delete-card">
+    <div class="delete-icon">
+        <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h2>Delete SPO Rent Record</h2>
+    <div class="warning-text">
+        Are you sure you want to delete this SPO Rent record? This action cannot be undone.
+    </div>
+    
+    <div class="record-info">
+        <h3>Record Details:</h3>
+        <p><strong>SPO Name:</strong> {{ record.spo_name }}</p>
+        <p><strong>SPO Code:</strong> {{ record.spo_code }}</p>
+                        <p><strong>Branch:</strong> {{ record.branch.state_branch_name|default:"Not specified" }}</p>
+                        <p><strong>District:</strong> {{ record.district.name|default:"Not specified" }}</p>
+        <p><strong>Owner:</strong> {{ record.owner_name }}</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="action-buttons">
+            <button type="submit" class="delete-confirm-btn">Delete Record</button>
+            <a href="/dashboard/spo-rent/" class="cancel-btn">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %} 

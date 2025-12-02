@@ -1,0 +1,89 @@
+================================================================================
+CHETTINAD SOFTWARE CENTER
+Secure Data Management Solutions
+================================================================================
+
+🚛 NEW PARTNER ADDED TO TRANSPORTER AGREEMENT
+================================================================================
+
+Dear Master Admin,
+
+A new partner has been successfully added to a Transporter Agreement in our system.
+This notification contains all the essential details of the newly added partner.
+
+================================================================================
+📋 TRANSPORTER AGREEMENT DETAILS
+================================================================================
+
+Transporter Code: {{ transporter_record.transporter_code }}
+Transporter Name: {{ transporter_record.transporter_name }}
+State: {{ transporter_record.state.state_name }}
+Branch: {{ transporter_record.branch.state_branch_name|default:"N/A" }}
+District: {{ transporter_record.district_name }}
+Status: {{ transporter_record.transporter_status }}
+Source Plant: {{ transporter_record.source_plant_name }}
+Owner/Managing Partner: {{ transporter_record.owner_managing_partner }}
+
+================================================================================
+👤 NEW PARTNER INFORMATION
+================================================================================
+
+Partner Name: {{ partner.name }}
+Gender: {{ partner.gender }}
+Age: {{ partner.age }} years
+Email: {{ partner.mail_id }}
+Aadhar Number: {{ partner.aadhar_no }}
+PAN Number: {{ partner.pan_no }}
+Join Date: {{ partner.partner_join_date|date:"d/m/Y" }}
+End Date: {{ partner.partner_end_date|date:"d/m/Y"|default:"Not specified" }}
+
+Address: {{ partner.address }}
+
+================================================================================
+📝 ACTION REQUIRED
+================================================================================
+
+A new partner has been successfully added to the Transporter Agreement. 
+Please review the partner details and ensure all required documentation is in place.
+
+================================================================================
+📊 PARTNER STATISTICS
+================================================================================
+
+Total Partners: {{ transporter_record.partners.count }} of 5 maximum allowed
+Added By: {{ created_by }}
+Date Added: {{ partner.created_at|date:"d/m/Y H:i" }}
+
+================================================================================
+🔍 REVIEW & MANAGE RECORD
+================================================================================
+
+To view the complete Transporter Agreement details and manage partners, please visit:
+http://127.0.0.1:8000/dashboard/transporter-agreement/
+
+================================================================================
+📝 IMPORTANT NOTES
+================================================================================
+
+• This partner has been automatically added and stored in our secure database.
+• All partner information is subject to our standard terms and conditions.
+• Please ensure all required documents are uploaded and verified.
+• For any queries or modifications, please contact our support team.
+
+================================================================================
+CONTACT INFORMATION
+================================================================================
+
+📍 Address: Chennai, Tamil Nadu, India
+📧 Email: info@chettinad.com
+📞 Phone: +91 44 1234 5678
+
+================================================================================
+
+Chettinad Software Center
+Your trusted partner in secure data management and business solutions.
+
+================================================================================
+© 2025 Chettinad Software Center. All rights reserved.
+This email was sent to you as part of our automated notification system.
+================================================================================

@@ -1,0 +1,436 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Partner Details - {{ partner.name }}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        color: #1e293b;
+        line-height: 1.5;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 1rem auto;
+        padding: 0 1rem;
+    }
+
+    /* Header Section */
+    .page-header {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .header-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .header-title h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .header-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.8rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .btn-primary {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #2563eb;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+        transform: translateY(-1px);
+    }
+
+    .btn-success {
+        background: #10b981;
+        color: white;
+        border: 1px solid #10b981;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    .btn-warning {
+        background: #f59e0b;
+        color: white;
+        border: 1px solid #f59e0b;
+    }
+
+    .btn-warning:hover {
+        background: #d97706;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+
+    /* Content Sections */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .section-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        color: white;
+    }
+
+    .icon-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    .icon-green { background: linear-gradient(135deg, #10b981, #059669); }
+    .icon-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .icon-orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .icon-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    /* Data Tables */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 0.75rem;
+    }
+
+    .data-table th {
+        background: #f8fafc;
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.8rem;
+        color: #475569;
+        border-bottom: 1px solid #e2e8f0;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .data-table td {
+        padding: 0.75rem;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 0.8rem;
+        color: #1e293b;
+    }
+
+    .data-table tr:hover {
+        background: #f8fafc;
+    }
+
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-inactive {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .status-suspended {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .container {
+            max-width: 100%;
+            margin: 0.5rem;
+            padding: 0 0.5rem;
+        }
+
+        .page-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.25rem;
+        }
+
+        .section-card {
+            padding: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .header-actions {
+            justify-content: center;
+        }
+
+        .btn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <div class="header-title">
+                <div class="header-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h1>Partner Details</h1>
+            </div>
+            <div class="header-actions">
+                <a href="{% url 'spo_rent_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid">
+        <!-- SPO Information -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-icon icon-blue">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <h3 class="section-title">SPO Information</h3>
+            </div>
+            <table class="data-table">
+                <tr>
+                    <th>SPO Code</th>
+                    <td>{{ spo_record.spo_code }}</td>
+                    <th>SPO Name</th>
+                    <td>{{ spo_record.spo_name }}</td>
+                </tr>
+                <tr>
+                    <th>State</th>
+                    <td>{{ spo_record.state.state_name }}</td>
+                    <th>Branch</th>
+                    <td>{{ spo_record.branch.state_branch_name|default:"Not specified" }}</td>
+                </tr>
+                <tr>
+                    <th>District Code</th>
+                    <td>{{ spo_record.district_code }}</td>
+                    <th>Owner Name</th>
+                    <td>{{ spo_record.owner_name|default:"Not specified" }}</td>
+                </tr>
+                <tr>
+                    <th>Rent Amount</th>
+                    <td>₹{{ spo_record.rent_pm|default:"Not specified" }}</td>
+                    <th>Status</th>
+                    <td>
+                        <span class="status-badge status-{{ spo_record.status|lower }}">
+                            {{ spo_record.status }}
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Partner Information -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-icon icon-green">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h3 class="section-title">Partner Information</h3>
+            </div>
+            <table class="data-table">
+                <tr>
+                    <th>Partner Name</th>
+                    <td>{{ partner.name }}</td>
+                    <th>Gender</th>
+                    <td>{{ partner.gender }}</td>
+                </tr>
+                <tr>
+                    <th>Age</th>
+                    <td>{{ partner.age }} years</td>
+                    <th>Email</th>
+                    <td>{{ partner.mail_id }}</td>
+                </tr>
+                <tr>
+                    <th>Aadhar Number</th>
+                    <td>{{ partner.aadhar_no }}</td>
+                    <th>PAN Number</th>
+                    <td>{{ partner.pan_no }}</td>
+                </tr>
+                <tr>
+                    <th>Join Date</th>
+                    <td>{{ partner.partner_join_date|date:"d M Y" }}</td>
+                    <th>End Date</th>
+                    <td>{% if partner.partner_end_date %}{{ partner.partner_end_date|date:"d M Y" }}{% else %}Not specified{% endif %}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Address Information -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-icon icon-purple">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3 class="section-title">Address Information</h3>
+            </div>
+            <table class="data-table">
+                <tr>
+                    <th>Address</th>
+                    <td colspan="3">{{ partner.address }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-icon icon-orange">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <h3 class="section-title">Actions</h3>
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem;">
+                <a href="{% url 'partner_edit' partner.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                    Edit Partner
+                </a>
+                <a href="{% url 'spo_rent_view' spo_record.id %}" class="btn btn-secondary">
+                    <i class="fas fa-eye"></i>
+                    View SPO Details
+                </a>
+                <a href="{% url 'spo_rent_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-list"></i>
+                    Back to List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
